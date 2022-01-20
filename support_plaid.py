@@ -11,7 +11,6 @@ from plaid.api import plaid_api
 from datetime import timedelta
 from datetime import datetime
 
-
 import plaid
 import json
 
@@ -149,3 +148,48 @@ def plaid_investment_transactions(access_token, client, timeframe):
         response = format_error(e)
     
     return response
+
+# def plaid_transactions_multiple_pages(client, access_token, start_date, end_date):
+#     '''
+#     Description:
+#         Retrieves user's transactions between two dates
+
+#     Args:
+#         client <class ''>: Plaid user account connection
+#         access_token <class ''>:
+#         start_date <class 'str'>: start date
+#         end_date <class 'str'>: end date
+
+#     Returns:
+#         response <class 'dict'>: 
+#     '''
+
+#     try:
+#         # retrieve first page transactions
+#         request = TransactionsGetRequest(
+#             access_token=access_token,
+#             start_date=datetime.strptime(start_date, '%Y-%m-%d').date(),
+#             end_date=datetime.strptime(end_date, '%Y-%m-%d').date(),
+#         )
+#         response = client.transactions_get(request)
+#         transactions = response['transactions']
+
+#         # retrieve all transactions from multiple pages
+#         while len(transactions) < response['total_transactions']:
+#             options = TransactionsGetRequestOptions()
+#             options.offset = len(transactions)
+
+#             request = TransactionsGetRequest(
+#                 access_token=access_token,
+#                 start_date=datetime.strptime(start_date, '%Y-%m-%d').date(),
+#                 end_date=datetime.strptime(end_date, '%Y-%m-%d').date(),
+#                 options=options
+#             )
+#             response = client.transactions_get(request)
+        
+#         response = json.dumps(response.to_dict())
+    
+#     except plaid.ApiException as e:
+#         response = json.loads(e.body)
+    
+#     return response
