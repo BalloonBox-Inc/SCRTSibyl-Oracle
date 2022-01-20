@@ -1,0 +1,14 @@
+# environment variables
+.env
+
+# macOS custom attributes
+.DS_Store
+
+# python interpreter
+**.pyc
+
+# Jupyter Notebook files
+**.ipynb
+
+# virtual environment
+/scrt-venv
