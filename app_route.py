@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from os import getenv
 
 from support_plaid import *
+from support_score import *
 from debugging import *
 
 from app import *
@@ -29,19 +30,27 @@ def credit_score():
     # compute credit score
     if plaid_token and coinbase_token:
         # plaid
-        
+        plaid_id = plaid_identity(plaid_token, client_plaid)
+        plaid_txn = plaid_transactions(plaid_token, client_plaid, 30)
+        plaid_hldg = plaid_holdings(plaid_token, client_plaid)
+        plaid_invt = plaid_investment_transactions(plaid_token, client_plaid, 30)
+
         # coinbase
         
-        output = 'do plaid and coinbase'
+        output = plaid_and_coinbase_score(plaid_txn, plaid_id, plaid_hldg, plaid_invt)
 
     else:
         if plaid_token and not coinbase_token:
+            plaid_id = plaid_identity(plaid_token, client_plaid)
+            plaid_txn = plaid_transactions(plaid_token, client_plaid, 30)
+            plaid_hldg = plaid_holdings(plaid_token, client_plaid)
+            plaid_invt = plaid_investment_transactions(plaid_token, client_plaid, 30)
 
-            output = 'do plaid'
+            output = plaid_score(plaid_txn, plaid_id, plaid_hldg, plaid_invt)
         
         elif coinbase_token and not plaid_token:
 
-            output = 'do coinbase'
+            output = coinbase_score()
         
         else:
             output = 'do nothing'
