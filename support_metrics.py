@@ -140,7 +140,7 @@ def txn(data):
         return (cnt, sum(volume))
         
     except Exception as e:
-        return "Error"
+        return "Error:txn()"
 
 
 
@@ -173,7 +173,7 @@ def net_monthly(data):
             net_pair.append([dt,am])
         return net_pair
     except Exception as e:
-        return "Error"
+        return "Error:net_monthly()"
 
 
 
@@ -212,7 +212,7 @@ def acc_mix(data):
         return acc_mix
 
     except Exception as e:
-        return "Error"
+        return "Error:acc_mix()"
     
 
 
@@ -241,7 +241,7 @@ def keep_credit(data):
                 credit_account.append(i)
         return credit_account
     except Exception as e:
-        return "Error"
+        return "Error:keep_credit()"
 
 
 def credit_util_ratio(data):
@@ -277,4 +277,4 @@ def credit_util_ratio(data):
         return r
         
     except Exception as e:
-        return "Error"
+        return "Error:credit_util_ratio()"
