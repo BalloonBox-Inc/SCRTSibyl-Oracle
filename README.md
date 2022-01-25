@@ -3,6 +3,8 @@ SCRTSybil: the first credit score check oracle for the Secret Network
 
 ### Milestone 1 - APIs, Integration, Credit Score Algorithm
 - **Estimated duration:** Week 1-6
+- **Start date:** Jan 17, 2022
+- **End Date:** Feb 28, 2022
 - **Costs:** 42,500 USD
 
 
