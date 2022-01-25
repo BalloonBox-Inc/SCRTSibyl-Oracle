@@ -1,10 +1,7 @@
 from support_models import *
 
 
-def plaid_and_coinbase_score(plaid_txn, plaid_id, plaid_hldg, plaid_invt):
-    return None
-
-
+# Plaid
 def plaid_score(plaid_txn, plaid_id, plaid_hldg, plaid_invt):
 
     cash_flow = plaid_cash_flow(...)
@@ -19,6 +16,6 @@ def plaid_score(plaid_txn, plaid_id, plaid_hldg, plaid_invt):
 
     return score
 
-
+# Coinbase
 def coinbase_score():
     return None
