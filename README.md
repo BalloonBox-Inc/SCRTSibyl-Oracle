@@ -1,11 +1,12 @@
 SCRTSybil: the first credit score check oracle for the Secret Network
 
 
-
 ## Milestone 1 
 
 
-#### Deliverable 
+
+
+### Deliverable 
 APIs, Integration, Credit Score Algorithm
 - **Estimated duration:** Week 1-6
 - **Start date:** Jan 17, 2022
@@ -24,9 +25,8 @@ APIs, Integration, Credit Score Algorithm
 
 
  
-```diff
-- #### Timeline
-```
+
+### Timeline
 2022/1 and 2022/2
 
 |Mon|Tue|Wed|Thu|Fri|Sat|Sun|
@@ -39,12 +39,3 @@ APIs, Integration, Credit Score Algorithm
 |21|22|23|24|25|26|27|
 |28<bd/>  `✅ 🔥 🏁 🎯  milestone#1 **due**`|29|30|31||||
 
-
-
-```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
-```
