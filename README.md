@@ -23,16 +23,15 @@ APIs, Integration, Credit Score Algorithm
 | 4. | ML Module - Build | Build an light ML model to calculate user credit score. |
 
 
-
+ 
 #### Timeline
 2022/1 and 2022/2
-```diff
+
 |Mon|Tue|Wed|Thu|Fri|Sat|Sun|
 |:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-|17<br/>  `milestone#1 start date`|18<br/> 
-@@ text in purple (and bold)@@|19|20|21|22|23|
-|24|25|26|27|28|29|30|
-|31|1|2|3|4|5|6|
+|17<br/>  `milestone#1 start date`|18<br/> `Access Plaid Quiskstart&Sandbox` |19|20<br/> `Plaid Algo design`|21<br/> 'Plaid Algo Team brainstorm'|22|23|
+|24<br/>  `get 10PlaidDev items`|25<br/> `Understand Plaid data`|26<br/> `Plaid Algo`|27<br/> `Plaid Algo`|28<br/> `Plaid Algo draft due` |29|30|
+|31<br/> `Plaid Algo`|1<br/> `Plaid Algo`|2<br/> `Plaid Algo final due`|3|4|5|6|
 |7|8|9|10|11|12|13|
 |14|15|16|17|18|19|20|
 |21|22|23|24|25|26|27|
@@ -40,7 +39,7 @@ APIs, Integration, Credit Score Algorithm
 
 
 
-
+```diff
 - text in red
 + text in green
 ! text in orange
