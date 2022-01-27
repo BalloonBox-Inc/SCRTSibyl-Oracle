@@ -1,0 +1,1 @@
+This branch contains all helper functions to build the metrics we need for the Plaid Credit Score Algorithm.
