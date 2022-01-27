@@ -230,16 +230,16 @@ def tot_balance_now(tx):
         acc = tx['accounts']
 
         balance = 0
-        for i in range(len(acc)):
-            type = acc[i]['type']+'_'+str(acc[i]['subtype'])+'_'+str(acc[i]['official_name'])
+        for a in range(len(acc)):
+            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
 
             if type.split('_')[0]=='depository':
                 if type.split('_')[1]=='savings':
-                    balance += int(acc[i]['balances']['current'] or 0)
+                    balance += int(a['balances']['current'] or 0)
                 else:
-                    balance += int(acc[i]['balances']['available'] or 0)
+                    balance += int(a['balances']['available'] or 0)
             else:
-                balance += int(acc[i]['balances']['available'] or 0)
+                balance += int(a['balances']['available'] or 0)
 
         score = grid_double[np.digitize(balance, cum_balance, right=True)]
         return score
