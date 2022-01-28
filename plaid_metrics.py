@@ -17,15 +17,34 @@ import matplotlib.pyplot as plt
 feedback = {'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
 
 # Declare scoring grids as immutable np arrays
-cred_mix = np.array([[0, 0.1, 0.3, 0.7],[0, 0.4, 0.7, 0.8],[0, 0.8, 0.9, 1]], dtype=float) 
-profile_mix = np.array([[0, 0.4, 0.6, 0.7], [0.4, 0.8, 1, 1], [0.6, 1, 1, 1], [0.7, 1, 1, 1]], dtype=float)
+# naming convention: content+shape+symmetry, Even+4x4+SymmetricAlongDyagonal1 -> e4x4sd1
+# naming convention: content+shape+symmetry, Odd+3x4+Asymmetric -> o3x4a
+
+cred_mix = np.array([   
+                        [0.0, 0.1, 0.3, 0.7],
+                        [0.0, 0.4, 0.7, 0.8],
+                        [0.0, 0.8, 0.9, 1.0]], dtype=float) 
+profile_mix = np.array([
+                        [0.0, 0.4, 0.6, 0.7], 
+                        [0.4, 0.8, 1.0, 1.0], 
+                        [0.6, 1.0, 1.0, 1.0], 
+                        [0.7, 1.0, 1.0, 1.0]], dtype=float)
+e4x4sd1 = np.array([
+                        [0.0, 0.1, 0.2, 0.4], 
+                        [0.1, 0.2, 0.6, 0.8], 
+                        [0.2, 0.6, 0.8, 1.0], 
+                        [0.4, 0.8, 1.0, 1.0]], dtype=float)  
+
 cred_length = np.array([30, 90, 1800])                     #bins: 0-30 | 31-90 | 91-1800 | >1800
 cred_count = np.array([0, 1, 2])                           #bins: 0 | 1 | 2 | >=3
+count1 = np.array([1, 2, 3])                               #bins: <=1 | (1,2] | (2,3] | >=3 
 cred_lively = np.array([5, 10, 15, 25])                    #bins: ...
-prod_count = np.array([1, 3, 4, 6])  
+prod_count = np.array([1, 3, 4, 6])   
 cum_balance = np.array([5000, 10000, 30000, 75000]) 
 grid_double = np.array([0, 0.125, 0.25, 0.50, 1]) 
-grid_triple = np.array([0, 0.3, 0.6, 0.9, 1]) 
+grid_triple = np.array([0, 0.3, 0.6, 0.9, 1])  
+volume_deposit = np.array([1000, 4000, 8000])
+volume_withdraw = np.array([500, 1000, 3000])
 
 
 cred_mix.flags.writeable = False
@@ -211,6 +230,89 @@ def livelihood(tx):
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- #   
 
+def withdrawals(tx):
+    """
+    returns score based on count and volumne of monthly automated withdrawals
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+        
+            Returns: 
+                score (float): score associated with reccurring monthly withdrawals
+    """
+    try: 
+        # txn = tx['transactions'] 
+        withdraw = [['Service', 'Subscription'], ['Service', 'Financial', 'Loans and Mortgages'], ['Service', 'Insurance'], ['Payment', 'Rent']]
+        dates = []
+        amounts = []
+        for t in txn:
+            if t['category'] in withdraw and t['amount'] > 15:
+                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                dates.append(date)
+                amount = abs(t['amount'])
+                amounts.append(amount)
+        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+        if len(df)==0:
+            score = 0
+        else:
+            cnt = df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist()
+            how_many = sum(cnt)/len(cnt)
+            volumes = df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist()
+            volume = sum(volumes)/len(volumes)
+            m = np.digitize(how_many, count1*2, right=True)
+            n = np.digitize(volume, volume_withdraw, right=True)
+            score = e4x4sd1[m][n]
+        return score
+
+    except Exception as e:
+        print('Error in deposits()')
+
+
+
+
+def deposits(tx):
+    """
+    returns score based on count and volumne of monthly automated deposits
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+        
+            Returns: 
+                score (float): score associated with direct deposits
+    """
+    try: 
+        # txn = tx['transactions']
+        dates = []
+        amounts = []
+        for t in txn:
+            if t['amount'] < -200 and 'payroll' in [c.lower() for c in t['category']]:
+                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                dates.append(date)
+                amount = abs(t['amount'])
+                amounts.append(amount)
+        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+        if len(df)==0:
+            score = 0
+        else:
+            cnt = df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist()
+            how_many = sum(cnt)/len(cnt)
+            volumes = df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist()
+            volume = sum(volumes)/len(volumes)
+            m = np.digitize(how_many, count1, right=True)
+            n = np.digitize(volume, volume_deposit, right=True)
+            score = e4x4sd1[m][n]
+        return score
+
+    except Exception as e:
+        print('Error in deposits()')
+
+
+
+
+
+
 
 # -------------------------------------------------------------------------- #
 #                            Metric #3 Stability                             #
@@ -230,16 +332,16 @@ def tot_balance_now(tx):
         acc = tx['accounts']
 
         balance = 0
-        for a in range(len(acc)):
-            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
+        for i in range(len(acc)):
+            type = acc[i]['type']+'_'+str(acc[i]['subtype'])+'_'+str(acc[i]['official_name'])
 
             if type.split('_')[0]=='depository':
                 if type.split('_')[1]=='savings':
-                    balance += int(a['balances']['current'] or 0)
+                    balance += int(acc[i]['balances']['current'] or 0)
                 else:
-                    balance += int(a['balances']['available'] or 0)
+                    balance += int(acc[i]['balances']['available'] or 0)
             else:
-                balance += int(a['balances']['available'] or 0)
+                balance += int(acc[i]['balances']['available'] or 0)
 
         score = grid_double[np.digitize(balance, cum_balance, right=True)]
         return score
