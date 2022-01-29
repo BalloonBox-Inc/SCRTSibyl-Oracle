@@ -40,11 +40,13 @@ cred_count = np.array([0, 1, 2])                           #bins: 0 | 1 | 2 | >=
 count1 = np.array([1, 2, 3])                               #bins: <=1 | (1,2] | (2,3] | >=3 
 cred_lively = np.array([5, 10, 15, 25])                    #bins: ...
 prod_count = np.array([1, 3, 4, 6])   
+count2 = np.array([5, 15, 25, 40])
 cum_balance = np.array([5000, 10000, 30000, 75000]) 
 grid_double = np.array([0, 0.125, 0.25, 0.50, 1]) 
 grid_triple = np.array([0, 0.3, 0.6, 0.9, 1])  
 volume_deposit = np.array([1000, 4000, 8000])
 volume_withdraw = np.array([500, 1000, 3000])
+volume_flow = np.array([500, 1000, 3000, 4000])
 
 
 cred_mix.flags.writeable = False
@@ -61,7 +63,43 @@ grid_double.flags.writeable = False
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
 
-def dynamic_select(tx):
+def get_tx(path_dir, userid):
+    """
+    returns the Plaid 'Transaction' product for one user
+
+            Parameters:
+                path_dir (str): path to the directory where the transaction files are stored
+                userid (str): number of the user you want to retrieve transaction data for
+        
+            Returns: 
+                tx (dict of lists): with transactions of all user's bank accoutns (credit, checking, saving, load, etc.) in chronological order (newest to oldest)
+    """
+
+    # Iterate through all files in a directory
+    directory = os.fsencode(path_dir)
+    mobi_plaid = []
+    for f in os.listdir(directory):
+        filename = os.fsdecode(f)
+        if filename.endswith(".json"):
+            mobi_plaid.append(filename) # append file names to list
+    mobi_plaid =  sorted(mobi_plaid) 
+
+
+    #Select one user and retrieve their transaction history
+    lol = []
+    for f in mobi_plaid:
+        if f.startswith("{}-tx_".format(userid)): #choose your user
+            tx_one_page = json.load(open(path_dir+f)) #open json
+            acc = tx_one_page['accounts']
+            lol.append(tx_one_page['transactions']) #append txn data only
+    txn = list(np.concatenate(lol).flat) #flatten list 
+    tx = {'accounts':acc, 'transactions':txn}
+    return tx
+    
+
+
+
+def dynamic_select(tx, acc_name):
     """
     dynamically pick the best credit account,
     i.e. the account that performs best in 2 out of these 3 categories:
@@ -69,6 +107,7 @@ def dynamic_select(tx):
     
             Parameters:
                 tx (dic): Plaid 'Transactions' product 
+                acc_name (str): acccepts 'credit' or 'checking'
         
             Returns: 
                 best (str): Plaid account_id of best credit account 
@@ -78,11 +117,11 @@ def dynamic_select(tx):
         txn = tx['transactions']
 
         info = []
-        for i in range(len(acc)):
-            if 'credit' in acc[i]['type']:
-                id = acc[i]['account_id']
-                type = acc[i]['type']+' '+str(acc[i]['subtype'])+' '+str(acc[i]['official_name'])
-                limit = acc[i]['balances']['limit']
+        for a in acc:
+            if acc_name in "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower():
+                id = a['account_id']
+                type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
+                limit = a['balances']['limit']
                 transat = [i for i in txn if i['account_id']==id]
                 txn_count = len(transat)
                 if len(transat)!=0:
@@ -99,6 +138,42 @@ def dynamic_select(tx):
 
     except Exception as e:
         print('Error in dynamic_select()')
+
+
+
+
+def get_acc(tx):
+    """
+    returns list of all accounts owned by the user
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+        
+            Returns: 
+                info (list of lists): all account owned by the user
+    """
+    try: 
+        acc = tx['accounts']
+        txn = tx['transactions'] 
+        info = []
+        for a in acc:
+            id = a['account_id']
+            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
+            mask = a['mask']
+            limit = int(a['balances']['limit'] or 0)
+            transat = [x for x in txn if x['account_id']==id]
+            txn_count = len(transat)
+            if len(transat)!=0:
+                length = (datetime.today().date() - datetime.strptime(transat[-1]['date'], '%Y-%m-%d').date()).days
+            else:
+                length=0
+            info.append([id, type, mask, limit, txn_count, length])
+        return info
+
+    except Exception as e:
+        print('Error in get_acc()')
+
+        
 
         
 
@@ -230,6 +305,7 @@ def livelihood(tx):
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- #   
 
+
 def withdrawals(tx):
     """
     returns score based on count and volumne of monthly automated withdrawals
@@ -241,7 +317,7 @@ def withdrawals(tx):
                 score (float): score associated with reccurring monthly withdrawals
     """
     try: 
-        # txn = tx['transactions'] 
+        txn = tx['transactions']
         withdraw = [['Service', 'Subscription'], ['Service', 'Financial', 'Loans and Mortgages'], ['Service', 'Insurance'], ['Payment', 'Rent']]
         dates = []
         amounts = []
@@ -282,7 +358,7 @@ def deposits(tx):
                 score (float): score associated with direct deposits
     """
     try: 
-        # txn = tx['transactions']
+        txn = tx['transactions']
         dates = []
         amounts = []
         for t in txn:
@@ -311,6 +387,132 @@ def deposits(tx):
 
 
 
+def month_net_flow(tx):
+    """
+    returns score for monthly net flow
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+        
+            Returns: 
+                score (float): score associated with monthly new flow
+    """
+    try: 
+        acc = tx['accounts']
+        txn = tx['transactions']
+
+        dates = []
+        amounts = []
+        deposit_acc = []
+
+        # Keep only deposit->checking accounts
+        for a in acc:
+            id = a['account_id']
+            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
+            if type == 'depository_checking':
+                deposit_acc.append(id)
+
+        # Keep only txn in deposit->checking accounts
+        transat = [x for x in txn if x['account_id'] in deposit_acc]
+
+        # Keep only income and expense transactions
+        for t in transat:
+            if t['category'] is None:
+                pass
+            else:
+                category = t['category']
+                
+            #exclude micro txn and exclude internal transfers
+            if abs(t['amount']) > 5 and 'internal account transfer' not in category: 
+                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                dates.append(date)
+                amount = t['amount']
+                amounts.append(amount)
+        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+        # Bin by month
+        flow = df.groupby(pd.Grouper(freq='M')).sum()
+
+        # Exclude current month
+        if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
+            flow = flow[:-1] 
+
+        # Keep only past 12 months
+        daytoday = datetime.today().date().day
+        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
+        yearago = lastmonth - pd.offsets.DateOffset(months=12)
+        if yearago in flow.index:
+            flow = flow[flow.index.tolist().index(yearago):]
+
+        avg_net_flow = sum(flow['amounts'].tolist())/len(flow)
+        avg_net_flow
+        score = grid_triple[np.digitize(avg_net_flow, volume_flow, right=True)]
+        return score
+
+    except Exception as e:
+        print('Error in month_net_flow(()')
+
+
+
+
+
+def month_txn_count(tx):
+    """
+    returns score based on count of mounthly transactions
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+        
+            Returns: 
+                score (float): the lrget the monthly count the larger the score
+    """
+    try: 
+        acc = tx['accounts']
+        txn = tx['transactions']
+
+
+        dates = []
+        amounts = []
+        mycounts = []
+        deposit_acc = []
+
+        # Keep only deposit->checking accounts
+        for a in acc:
+            id = a['account_id']
+            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
+            if type == 'depository_checking':
+                deposit_acc.append(id)
+
+        # Keep only txn in deposit->checking accounts
+        for d in deposit_acc:
+            transat = [x for x in txn if x['account_id'] == d]
+
+            # Bin transactions by month 
+            for t in transat:
+                if t['amount'] > 5:
+                    date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                    dates.append(date)
+                    amount = t['amount']
+                    amounts.append(amount)
+            df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+            # Calculate avg count of monthly transactions for one checking account at a time
+            if len(df)==0:
+                score = 0
+            else:
+                cnt = df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist()
+            mycounts.append(cnt)
+
+        mycounts = [x for y in mycounts for x in y]
+        how_many=sum(mycounts)/len(mycounts)
+        score = grid_triple[np.digitize(how_many, count2, right=True)]
+        return score
+
+
+    except Exception as e:
+        print('Error in deposits()')
+
+
 
 
 
@@ -332,16 +534,16 @@ def tot_balance_now(tx):
         acc = tx['accounts']
 
         balance = 0
-        for i in range(len(acc)):
-            type = acc[i]['type']+'_'+str(acc[i]['subtype'])+'_'+str(acc[i]['official_name'])
+        for a in range(len(acc)):
+            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
 
             if type.split('_')[0]=='depository':
                 if type.split('_')[1]=='savings':
-                    balance += int(acc[i]['balances']['current'] or 0)
+                    balance += int(a['balances']['current'] or 0)
                 else:
-                    balance += int(acc[i]['balances']['available'] or 0)
+                    balance += int(a['balances']['available'] or 0)
             else:
-                balance += int(acc[i]['balances']['available'] or 0)
+                balance += int(a['balances']['available'] or 0)
 
         score = grid_double[np.digitize(balance, cum_balance, right=True)]
         return score
