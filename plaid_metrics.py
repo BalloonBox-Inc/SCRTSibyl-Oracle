@@ -325,7 +325,40 @@ def credit_mix(tx):
     except Exception as e:
         print('Error in credit_mix()')
 
+        
+        
 
+def interest(tx):
+    """
+    returns score based on number of times user was charged credit card interest fees in past 12 months
+    
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+        
+            Returns: 
+                score (float): gained based on interest charged
+    """
+    try:
+        id = dynamic_select(tx, 'credit')
+        txn = tx['transactions']
+        alltxn = [a for a in txn if a['account_id']==id]
+
+        interest = []
+        if len(alltxn)!=0:
+            for t in alltxn:
+                # keep only txn of type 'interest on credit card'
+                if 'Interest Charged' in t['category']:
+                    date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                    # keep only txn of last 24 months
+                    if date > datetime.now().date() - timedelta(days=2*365): 
+                        interest.append(t)
+
+        score = grid_double[np.digitize(len(interest), count_interest, right=True)]
+        return score
+    
+    except Exception as e:
+        print('Error in interest()')        
+        
 
 
 def credit_length(tx):
@@ -341,7 +374,7 @@ def credit_length(tx):
     try:
         id = dynamic_select(tx)
         txn = tx['transactions']
-        alltxn = [i for i in txn if i['account_id']==id]
+        alltxn = [a for a in txn if a['account_id']==id]
 
         if len(alltxn)!=0:
             oldest_txn = datetime.strptime(alltxn[-1]['date'], '%Y-%m-%d').date()
