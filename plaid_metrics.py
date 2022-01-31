@@ -1,4 +1,3 @@
-
 # Import libraries
 import os
 import json
@@ -9,7 +8,6 @@ from datetime import datetime
 from datetime import timedelta
 import plotly.express as px
 import matplotlib.pyplot as plt
-
 
 
 
@@ -35,15 +33,19 @@ e4x4sd1 = np.array([
                         [0.2, 0.6, 0.8, 1.0], 
                         [0.4, 0.8, 1.0, 1.0]], dtype=float)  
 
-cred_length = np.array([30, 90, 1800])                     #bins: 0-30 | 31-90 | 91-1800 | >1800
+cred_length = np.array([30, 90, 180])                     #bins: 0-30 | 31-90 | 91-180 | >180
 cred_count = np.array([0, 1, 2])                           #bins: 0 | 1 | 2 | >=3
 count1 = np.array([1, 2, 3])                               #bins: <=1 | (1,2] | (2,3] | >=3 
 cred_lively = np.array([5, 10, 15, 25])                    #bins: ...
 prod_count = np.array([1, 3, 4, 6])   
 count2 = np.array([5, 15, 25, 40])
+slope_checking = np.array([-1.5, -0.5, 0, 1, 3, 15])
+product_checking = np.array([0, 0.25, 0.5, 1, 1.5, 2])
 cum_balance = np.array([5000, 10000, 30000, 75000]) 
 grid_double = np.array([0, 0.125, 0.25, 0.50, 1]) 
 grid_triple = np.array([0, 0.3, 0.6, 0.9, 1])  
+grid_log = np.array([-0.3, -0.2, -0.1, 0.2, 0.4, 0.9, 1])
+volume_min_run = np.array([5000, 15000, 25000])
 volume_deposit = np.array([1000, 4000, 8000])
 volume_withdraw = np.array([500, 1000, 3000])
 volume_flow = np.array([500, 1000, 3000, 4000])
@@ -56,6 +58,7 @@ cred_lively.flags.writeable = False
 cum_balance.flags.writeable = False
 profile_mix.flags.writeable=False
 grid_double.flags.writeable = False
+
 
 
 
@@ -95,6 +98,7 @@ def get_tx(path_dir, userid):
     txn = list(np.concatenate(lol).flat) #flatten list 
     tx = {'accounts':acc, 'transactions':txn}
     return tx
+    
     
 
 
@@ -139,6 +143,8 @@ def dynamic_select(tx, acc_name):
     except Exception as e:
         print('Error in dynamic_select()')
 
+        
+
 
 
 
@@ -175,9 +181,102 @@ def get_acc(tx):
 
         
 
+
+
+def flows(tx):
+    """
+    returns monthly net flow
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
         
+            Returns: 
+                flow (df): pandas dataframe with amounts for monthly new flow and datetime index
+    """
+    try: 
+        acc = tx['accounts']
+        txn = tx['transactions']
+
+        dates = []
+        amounts = []
+        deposit_acc = []
+
+        # Keep only deposit->checking accounts
+        for a in acc:
+            id = a['account_id']
+            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
+            if type == 'depository_checking':
+                deposit_acc.append(id)
+
+        # Keep only txn in deposit->checking accounts
+        transat = [x for x in txn if x['account_id'] in deposit_acc]
+
+        # Keep only income and expense transactions
+        for t in transat:
+            if t['category'] is None:
+                pass
+            else:
+                category = t['category']
+                
+            #exclude micro txn and exclude internal transfers
+            if abs(t['amount']) > 5 and 'internal account transfer' not in category: 
+                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                dates.append(date)
+                amount = t['amount']
+                amounts.append(amount)
+        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+        # Bin by month
+        flow = df.groupby(pd.Grouper(freq='M')).sum()
+
+        # Exclude current month
+        if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
+            flow = flow[:-1] 
+
+        # Keep only past 12 months. If longer, then crop
+        daytoday = datetime.today().date().day
+        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
+        yearago = lastmonth - pd.offsets.DateOffset(months=12)
+        if yearago in flow.index:
+            flow = flow[flow.index.tolist().index(yearago):]
+
+        return flow
+
+    except Exception as e:
+        print('Error in flow(()')
 
 
+
+
+def balance_now(tx):
+    """
+    returns total balance available now across ALL accounts owned by the user
+    
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+
+            Returns:
+                balance (float): cumulative current balance
+    """
+    try:
+        acc = tx['accounts']
+
+        balance = 0
+        for a in acc:
+            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
+
+            if type.split('_')[0]=='depository':
+                if type.split('_')[1]=='savings':
+                    balance += int(a['balances']['current'] or 0)
+                else:
+                    balance += int(a['balances']['available'] or 0)
+            else:
+                balance += int(a['balances']['available'] or 0)
+
+        return balance
+
+    except Exception as e:
+        print('Error in balance_now()')
 
 
 # -------------------------------------------------------------------------- #
@@ -346,7 +445,6 @@ def withdrawals(tx):
 
 
 
-
 def deposits(tx):
     """
     returns score based on count and volumne of monthly automated deposits
@@ -386,7 +484,6 @@ def deposits(tx):
 
 
 
-
 def month_net_flow(tx):
     """
     returns score for monthly net flow
@@ -398,52 +495,7 @@ def month_net_flow(tx):
                 score (float): score associated with monthly new flow
     """
     try: 
-        acc = tx['accounts']
-        txn = tx['transactions']
-
-        dates = []
-        amounts = []
-        deposit_acc = []
-
-        # Keep only deposit->checking accounts
-        for a in acc:
-            id = a['account_id']
-            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
-            if type == 'depository_checking':
-                deposit_acc.append(id)
-
-        # Keep only txn in deposit->checking accounts
-        transat = [x for x in txn if x['account_id'] in deposit_acc]
-
-        # Keep only income and expense transactions
-        for t in transat:
-            if t['category'] is None:
-                pass
-            else:
-                category = t['category']
-                
-            #exclude micro txn and exclude internal transfers
-            if abs(t['amount']) > 5 and 'internal account transfer' not in category: 
-                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
-                dates.append(date)
-                amount = t['amount']
-                amounts.append(amount)
-        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
-
-        # Bin by month
-        flow = df.groupby(pd.Grouper(freq='M')).sum()
-
-        # Exclude current month
-        if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
-            flow = flow[:-1] 
-
-        # Keep only past 12 months
-        daytoday = datetime.today().date().day
-        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-        yearago = lastmonth - pd.offsets.DateOffset(months=12)
-        if yearago in flow.index:
-            flow = flow[flow.index.tolist().index(yearago):]
-
+        flow = flows(tx)
         avg_net_flow = sum(flow['amounts'].tolist())/len(flow)
         avg_net_flow
         score = grid_triple[np.digitize(avg_net_flow, volume_flow, right=True)]
@@ -514,6 +566,88 @@ def month_txn_count(tx):
 
 
 
+def slope(tx):
+    """
+    returns score for the historical behavior of the net monthly flow for past 24 months
+    
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+
+            Returns:
+                score (float): score for flow net behavior over past 24 months
+    """
+    try:
+        acc = tx['accounts']
+        txn = tx['transactions']
+
+        dates = []
+        amounts = []
+        deposit_acc = []
+
+        # Keep only deposit->checking accounts
+        for a in acc:
+            id = a['account_id']
+            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
+            if type == 'depository_checking':
+                deposit_acc.append(id)
+
+        # Keep only txn in deposit->checking accounts
+        transat = [x for x in txn if x['account_id'] in deposit_acc]
+
+        # Keep only income and expense transactions
+        for t in transat:
+            if t['category'] is None:
+                pass
+            else:
+                category = t['category']
+                
+            #exclude micro txn and exclude internal transfers
+            if abs(t['amount']) > 5 and 'internal account transfer' not in category: 
+                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                dates.append(date)
+                amount = t['amount']
+                amounts.append(amount)
+        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+        # Bin by month
+        flow = df.groupby(pd.Grouper(freq='M')).sum()
+
+        # Exclude current month
+        if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
+            flow = flow[:-1] 
+
+        # Keep only past 24 months
+        daytoday = datetime.today().date().day
+        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
+        yearago = lastmonth - pd.offsets.DateOffset(months=24)
+        if yearago in flow.index:
+            flow = flow[flow.index.tolist().index(yearago):]
+
+        # If you have more than 10 data points OR all net flows are positive, then perform linear regression
+        if len(flow) >= 10 or len(list(filter(lambda x: (x < 0), flow['amounts'].tolist())))==0 :
+            # Perform Linear Regression using numpy.polyfit() 
+            x = range(len(flow['amounts']))
+            y = flow['amounts']
+            a,b = np.polyfit(x, y, 1)
+            # Plot regression line
+            plt.plot(x, y, '.')
+            plt.plot(x, a*x +b)
+            score = grid_log[np.digitize(a, slope_checking, right=True)]
+
+        # If you have < 10 data points, then calculate the score by taking the product of two rations
+        else:
+            # Multiply two ratios by each other
+            neg= list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
+            pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
+            r = len(pos)/len(neg)*abs(sum(pos)/sum(neg))  # output in range [0, 2+]
+            score = grid_log[np.digitize(r, product_checking, right=True)]
+
+        return score
+
+    except Exception as e:
+        print('Error in slope(()')
+
+
 
 
 # -------------------------------------------------------------------------- #
@@ -531,20 +665,7 @@ def tot_balance_now(tx):
                 score (float): for cumulative current balance
     """
     try:
-        acc = tx['accounts']
-
-        balance = 0
-        for a in range(len(acc)):
-            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
-
-            if type.split('_')[0]=='depository':
-                if type.split('_')[1]=='savings':
-                    balance += int(a['balances']['current'] or 0)
-                else:
-                    balance += int(a['balances']['available'] or 0)
-            else:
-                balance += int(a['balances']['available'] or 0)
-
+        balance = balance_now(tx)
         score = grid_double[np.digitize(balance, cum_balance, right=True)]
         return score
 
@@ -552,6 +673,40 @@ def tot_balance_now(tx):
         print('Error in tot_balance_now()')
 
 
+
+
+def min_running_balance(tx):
+    """
+    returns score based on the minimum balance maintained for 12 months
+    
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+
+            Returns:
+                score (float): for volume of minimum balance and duration
+    """
+    try:
+        # Calculate net flow each month for past 12 months i.e, |income-expenses|
+        nets = flows(tx)['amounts'].tolist()
+        # Calculate current balance now
+        balance = balance_now(tx)
+
+        # Subtract net flow from balancenow to calculate the running balance for the past 12 months
+        running_balances = []
+        for n in reversed(nets):
+            balance = balance + n
+            running_balances.append(balance)
+        volume = np.mean(running_balances)
+        duration = len(running_balances)*30
+
+        # Compute the score
+        m = np.digitize(duration, cred_length, right=True)
+        n = np.digitize(volume, volume_min_run, right=True)
+        score = e4x4sd1[m][n] -0.05*len(list(filter(lambda x: (x < 0), running_balances))) #add 0.05 score penalty for each overdrafts
+        return score
+
+    except Exception as e:
+        print('Error in min_running_balance()')
 
 
 # -------------------------------------------------------------------------- #
@@ -574,6 +729,7 @@ def acc_count(tx):
         
     except Exception as e:
         print('Error in acc_count()')
+
 
 
 
@@ -611,3 +767,4 @@ def profile(tx):
 
     except Exception as e:
         print('Error in profile()')
+
