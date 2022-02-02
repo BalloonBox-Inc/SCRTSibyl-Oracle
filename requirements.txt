@@ -1,6 +1,6 @@
 asttokens==2.0.5
 certifi==2021.10.8
-charset-normalizer==2.0.10
+charset-normalizer==2.0.11
 click==8.0.3
 coinbase==2.1.0
 colorama==0.4.4
@@ -13,8 +13,8 @@ itsdangerous==2.0.1
 Jinja2==3.0.3
 MarkupSafe==2.0.1
 nulltype==2.3.1
-plaid-python==8.9.0
-pycryptodome==3.12.0
+plaid-python==8.10.0
+pycryptodome==3.14.0
 Pygments==2.11.2
 python-dateutil==2.8.2
 python-dotenv==0.19.2
