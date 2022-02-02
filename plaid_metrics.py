@@ -27,6 +27,11 @@ profile_mix = np.array([
                         [0.4, 0.8, 1.0, 1.0], 
                         [0.6, 1.0, 1.0, 1.0], 
                         [0.7, 1.0, 1.0, 1.0]], dtype=float)
+o4x4sd1 = np.array([
+                        [0.0, 0.1, 0.3, 0.3], 
+                        [0.1, 0.1, 0.3, 0.5], 
+                        [0.3, 0.3, 0.5, 0.7], 
+                        [0.3, 0.5, 0.7, 1.0]], dtype=float)  
 e4x4sd1 = np.array([
                         [0.0, 0.1, 0.2, 0.4], 
                         [0.1, 0.2, 0.6, 0.8], 
@@ -39,12 +44,15 @@ count1 = np.array([1, 2, 3])                               #bins: <=1 | (1,2] | 
 cred_lively = np.array([5, 10, 15, 25])                    #bins: ...
 prod_count = np.array([1, 3, 4, 6])   
 count2 = np.array([5, 15, 25, 40])
+frequency_interest  = np.array([0.5, 0.33, 0.125, 0])
+cred_util_percent = np.array([0.7, 0.55, 0.35])
 slope_checking = np.array([-1.5, -0.5, 0, 1, 3, 15])
 product_checking = np.array([0, 0.25, 0.5, 1, 1.5, 2])
 cum_balance = np.array([5000, 10000, 30000, 75000]) 
 grid_double = np.array([0, 0.125, 0.25, 0.50, 1]) 
 grid_triple = np.array([0, 0.3, 0.6, 0.9, 1])  
 grid_log = np.array([-0.3, -0.2, -0.1, 0.2, 0.4, 0.9, 1])
+cred_limit = np.array([1000, 8000, 20000])
 volume_min_run = np.array([5000, 15000, 25000])
 volume_deposit = np.array([1000, 4000, 8000])
 volume_withdraw = np.array([500, 1000, 3000])
@@ -114,7 +122,7 @@ def dynamic_select(tx, acc_name):
                 acc_name (str): acccepts 'credit' or 'checking'
         
             Returns: 
-                best (str): Plaid account_id of best credit account 
+                best (str or dict): Plaid account_id of best credit account 
     """
     try:
         acc = tx['accounts']
@@ -135,9 +143,9 @@ def dynamic_select(tx, acc_name):
                 info.append([id, type, limit, txn_count, length])
 
         if len(info)!=0:
-            best = info[0][0] #WIP # a = np.array(info).T # max(a[2])
+            best = {'id': info[0][0], 'limit': info[0][2]} #WIP # a = np.array(info).T # max(a[2])  #select as best only if it has a limit
         else:
-            best = 'inexistent'
+            best = {'id': 'inexistent', 'limit': None}
         return best
 
     except Exception as e:
@@ -148,12 +156,13 @@ def dynamic_select(tx, acc_name):
 
 
 
-def get_acc(tx):
+def get_acc(tx, acc_type):
     """
     returns list of all accounts owned by the user
 
             Parameters:
                 tx (dic): Plaid 'Transactions' product 
+                acc_type (str): accepts 'credit', 'depository', 'all'
         
             Returns: 
                 info (list of lists): all account owned by the user
@@ -161,19 +170,24 @@ def get_acc(tx):
     try: 
         acc = tx['accounts']
         txn = tx['transactions'] 
+
         info = []
         for a in acc:
             id = a['account_id']
-            type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
+            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
             mask = a['mask']
             limit = int(a['balances']['limit'] or 0)
             transat = [x for x in txn if x['account_id']==id]
-            txn_count = len(transat)
             if len(transat)!=0:
                 length = (datetime.today().date() - datetime.strptime(transat[-1]['date'], '%Y-%m-%d').date()).days
             else:
                 length=0
-            info.append([id, type, mask, limit, txn_count, length])
+
+            if acc_type is 'all':
+                info.append({'id':id, 'type':type, 'mask':mask, 'limit':limit, 'alltxn_count':len(transat), 'duration(days)':length})
+            else:
+                if acc_type in type:
+                    info.append({'id':id, 'type':type, 'mask':mask, 'limit':limit, 'alltxn_count':len(transat), 'duration(days)':length})
         return info
 
     except Exception as e:
@@ -325,12 +339,107 @@ def credit_mix(tx):
     except Exception as e:
         print('Error in credit_mix()')
 
+
+def credit_limit(tx):
+    """
+    returns score for the total credit limit of a user across ALL of his credit accounts
+
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
         
-        
+            Returns: 
+                score (float): gained based on the cumulative credit limit across credit accounts
+    """
+    try: 
+        # Fetch all 'credit' accounts
+        cred_acc = get_acc(tx, 'credit')
+
+        if len(cred_acc) == 0:
+            score = 0
+        else:
+            # Calculate cumulative limit and time passed from credit account issuance
+            limit = 0
+            length = []
+            for a in cred_acc:
+                limit += a['limit']
+                length.append(a['duration(days)'])
+
+            m = np.digitize(max(length), cred_length, right=True)
+            n = np.digitize(limit, cred_limit, right=True)
+            score = o4x4sd1[m][n]
+        return score
+
+    except Exception as e:
+        print('Error in credit_limit()')
+
+
+
+
+def credit_util_ratio(tx):
+    """
+    returns a score reflective of the user's credit utilization ratio, that is credit_used/credit_limit
+    
+            Parameters:
+                tx (dic): Plaid 'Transactions' product 
+
+            Returns:
+                score (float): score for avg percent of credit limit used
+    """
+    try:
+        txn = tx['transactions']
+        # Dynamically select best credit account
+        dynamic = dynamic_select(tx, 'credit')
+
+        if dynamic['id'] is 'inexistent' or dynamic['limit'] is None:
+            score = 'No Credit Account AND/OR No Credit Limit'
+
+        else:
+            id = dynamic['id']
+            limit = dynamic['limit']
+            # Keep ony transactions in best credit account
+            transat = [x for x in txn if x['account_id']==id]
+            if len(transat)==0:
+                score = 'No Credit History'
+            else:
+                dates = []
+                amounts = []
+                for t in transat:
+                    date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                    dates.append(date)
+                    amount = t['amount']
+                    amounts.append(amount) 
+                df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+                # Bin by month credti card 'purchases' and 'paybacks'
+                util = df.groupby(pd.Grouper(freq='M'))['amounts'].agg([('payback' , lambda x : x[x < 0].sum()) , ('purchases' , lambda x : x[x > 0].sum())])
+                util['cred_util'] = [x/limit for x in util['purchases']]
+
+                # Exclude current month
+                if util.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
+                    util = util[:-1] 
+
+                population_std = np.std(util['cred_util'], ddof=0) #WIP use 3D score matrix instead accounting for sigma too?!?
+                avg_util = np.mean(util['cred_util'])
+                m = np.digitize(len(util)*30, cred_length, right=True)
+                n = np.digitize(avg_util, cred_util_percent, right=True)
+                score = o4x4sd1[m][n]
+        return score
+
+                # # Plot txn in user's best credit account
+                # x = df.index.tolist()
+                # y = df['amounts'].tolist()
+                # fig, ax = plt.subplots(figsize=(16,12))
+                # ax.plot(x,y, linewidth=1.0)
+
+
+    except Exception as e:
+        print('Error in credit_util_ratio()')
+
+
 
 def interest(tx):
     """
-    returns score based on number of times user was charged credit card interest fees in past 12 months
+    returns score based on number of times user was charged credit card interest fees in past 24 months
     
             Parameters:
                 tx (dic): Plaid 'Transactions' product 
@@ -340,25 +449,31 @@ def interest(tx):
     """
     try:
         id = dynamic_select(tx, 'credit')
-        txn = tx['transactions']
-        alltxn = [a for a in txn if a['account_id']==id]
+        if id == 'inexistent':
+            score = 'No Credit Account'
+        else:
+            txn = tx['transactions']
+            alltxn = [a for a in txn if a['account_id']==id]
 
-        interest = []
-        if len(alltxn)!=0:
-            for t in alltxn:
-                # keep only txn of type 'interest on credit card'
-                if 'Interest Charged' in t['category']:
-                    date = datetime.strptime(t['date'], '%Y-%m-%d').date()
-                    # keep only txn of last 24 months
-                    if date > datetime.now().date() - timedelta(days=2*365): 
-                        interest.append(t)
+            interests = []
+            if len(alltxn)==0:
+                score = 'No Credit History'
+            else:
+                length = min(24, round((datetime.today().date() - datetime.strptime(alltxn[-1]['date'], '%Y-%m-%d').date()).days/30, 0))
+                for t in alltxn:
+                    # keep only txn of type 'interest on credit card'
+                    if 'Interest Charged' in t['category']:
+                        date = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                        # keep only txn of last 24 months
+                        if date > datetime.now().date() - timedelta(days=2*365): 
+                            interests.append(t)
 
-        score = grid_double[np.digitize(len(interest), count_interest, right=True)]
+                frequency = len(interests)/length
+                score = grid_double[np.digitize(frequency, frequency_interest, right=True)]
         return score
     
     except Exception as e:
-        print('Error in interest()')        
-        
+        print('Error in interest()')
 
 
 def credit_length(tx):
@@ -374,7 +489,7 @@ def credit_length(tx):
     try:
         id = dynamic_select(tx)
         txn = tx['transactions']
-        alltxn = [a for a in txn if a['account_id']==id]
+        alltxn = [i for i in txn if i['account_id']==id]
 
         if len(alltxn)!=0:
             oldest_txn = datetime.strptime(alltxn[-1]['date'], '%Y-%m-%d').date()
