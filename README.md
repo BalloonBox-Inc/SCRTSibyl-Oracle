@@ -33,7 +33,7 @@ APIs, Integration, Credit Score Algorithm
 |:----:|:----:|:----:|:----:|:----:|:----:|:----:|
 |17<br/>  `milestone#1 start date`|18<br/> `Access Plaid Quiskstart&Sandbox` |19|20<br/> `Plaid Algo design`|21<br/> `Plaid Algo Team brainstorm`|22|23|
 |24<br/>  `get 10PlaidDev items`|25<br/> `Understand Plaid data`|26<br/> `Plaid Algo`|27<br/> `Plaid Algo`|28<br/> `📌 Plaid Algo draft due` |29|30|
-|31<br/> `Plaid Algo`|1<br/> `Plaid Algo`|2<br/> |3<br/> `Plaid Algo wiring. Execute ion test data`|4<br/> `📌  finish building Plaid Algo` **due**|5|6|
+|31<br/> `Plaid Algo`|1<br/> `Plaid Algo`|2<br/> `Plaid Algo`|3<br/> `Plaid Algo wiring. Execute ion test data`|4<br/> `📌  finish building Plaid Algo` **due**|5|6|
 |7<br/> `Coinbase Algo`|8<br/> `Coinbase Algo`|9<br/> `Coinbase Algo` |10<br/> `Coinbase Algo`|11<br/> `📌 finish building Coinbase Algo` **due**|12|13|
 |14<br/> `Algos testing`|15<br/> `Algos testing`|16<br/> `Algos testing`|17<br/> `Algo deployment & wiring`|18<br/> `📌  Anticipated Milestone 1` **due**|19|20|
 |21|22|23|24|25|26|27| 
