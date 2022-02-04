@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 
 
+
 # Initialize 'feedback' dict
 feedback = {'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
 
@@ -25,7 +26,7 @@ e3x3sd1 = np.array([
 o3x4a = np.array([   
                         [0.0, 0.1, 0.3, 0.7],
                         [0.0, 0.1, 0.7, 0.9],
-                        [0.0, 0.3, 0.9, 1.0]], dtype=float) 
+                        [0.0, 0.3, 0.9, 1.0]], dtype=float) #asymmetric
 o4x4sd1 = np.array([
                         [0.0, 0.1, 0.3, 0.3], 
                         [0.1, 0.1, 0.3, 0.5], 
@@ -36,6 +37,11 @@ e4x4sd1 = np.array([
                         [0.1, 0.2, 0.6, 0.8], 
                         [0.2, 0.6, 0.8, 1.0], 
                         [0.4, 0.8, 1.0, 1.0]], dtype=float)  #lenient
+o4x4a = np.array([
+                        [0.0, -0.1, -0.3, -0.5], 
+                        [0.1, 0.3, 0.5, 0.7], 
+                        [0.3, 0.5, 0.7, 0.9], 
+                        [0.7, 0.9, 1.0, 1.0]], dtype=float) #asymmetric
 
 
 
@@ -50,9 +56,9 @@ count_txn_month = np.array([5, 15, 25, 40])
 
 volume_withdraw = np.array([500, 1000, 3000])
 volume_deposit = np.array([1000, 4000, 8000])
-volume_flow = np.array([500, 1000, 3000, 4000])
+volume_flow = np.array([1000, 2000, 4000])
 volume_cred_limit = np.array([1000, 8000, 20000])
-volume_min_run = np.array([5000, 15000, 25000])
+volume_min_run = np.array([10000, 20000, 50000])
 volume_balance_now = np.array([5000, 10000, 30000, 75000]) 
 
 grid_double = np.array([0, 0.125, 0.25, 0.50, 1]) 
@@ -63,8 +69,7 @@ percent_cred_util = np.array([0.7, 0.55, 0.35])
 frequency_interest  = np.array([0.5, 0.33, 0.125, 0])
 slope_linregression = np.array([-1.5, -0.5, 0, 1, 3, 15])
 slope_product = np.array([0, 0.25, 0.5, 1, 1.5, 2])
-
-duration.flags.writeable = False
+ratio_flows = np.array([1, 2.5, 4])
 
 
 
@@ -73,6 +78,8 @@ duration.flags.writeable = False
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
+  
+
 def get_tx(path_dir, userid):
     """
     returns the Plaid 'Transaction' product for one user
@@ -106,6 +113,7 @@ def get_tx(path_dir, userid):
     tx = {'accounts':acc, 'transactions':txn}
     return tx
     
+
 
 
 def dynamic_select(tx, acc_name):
@@ -155,7 +163,8 @@ def dynamic_select(tx, acc_name):
         return best
 
     except Exception as e:
-        print('Error in dynamic_select()')
+        print(str(e))
+
 
 
 
@@ -186,7 +195,7 @@ def get_acc(tx, acc_type):
             else:
                 length=0
 
-            if acc_type is 'all':
+            if acc_type == 'all':
                 info.append({'id':id, 'type':type, 'mask':mask, 'limit':limit, 'alltxn_count':len(transat), 'duration(days)':length})
             else:
                 if acc_type in type:
@@ -194,16 +203,18 @@ def get_acc(tx, acc_type):
         return info
 
     except Exception as e:
-        print('Error in get_acc()')
+        print(str(e))
 
 
 
-def flows(tx):
+
+def flows(tx, how_many_months):
     """
     returns monthly net flow
 
             Parameters:
                 tx (dic): Plaid 'Transactions' product 
+                how_many_month (float): how many months of transaction history are you considering? 
         
             Returns: 
                 flow (df): pandas dataframe with amounts for net monthly flow and datetime index
@@ -228,7 +239,7 @@ def flows(tx):
 
         # Keep only income and expense transactions
         for t in transat:
-            if t['category'] is None:
+            if not t['category']:
                 pass
             else:
                 category = t['category']
@@ -251,14 +262,15 @@ def flows(tx):
         # Keep only past 12 months. If longer, then crop
         daytoday = datetime.today().date().day
         lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-        yearago = lastmonth - pd.offsets.DateOffset(months=12)
+        yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
         if yearago in flow.index:
             flow = flow[flow.index.tolist().index(yearago):]
 
         return flow
 
     except Exception as e:
-        print('Error in flow(()')
+        print(str(e))
+
 
 
 
@@ -290,14 +302,14 @@ def balance_now(tx):
         return balance
 
     except Exception as e:
-        print('Error in balance_now()')
-
+        print(str(e))
 
 
 
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #    
+
 def credit_mix(tx):
     """
     returns score based on composition and status of user's credits accounts
@@ -337,7 +349,8 @@ def credit_mix(tx):
         return score
 
     except Exception as e:
-        print('Error in credit_mix()')
+        print(str(e))
+
 
 
 
@@ -371,7 +384,8 @@ def credit_limit(tx):
         return score
 
     except Exception as e:
-        print('Error in credit_limit()')
+        print(str(e))
+
 
 
 
@@ -391,7 +405,7 @@ def credit_util_ratio(tx):
         # Dynamically select best credit account
         dynamic = dynamic_select(tx, 'credit')
 
-        if dynamic['id'] is 'inexistent' or dynamic['limit'] is 0:
+        if dynamic['id'] == 'inexistent' or dynamic['limit'] == 0:
             score = 0
 
         else:
@@ -434,7 +448,8 @@ def credit_util_ratio(tx):
 
 
     except Exception as e:
-        print('Error in credit_util_ratio()')
+        print(str(e))
+
 
 
 
@@ -474,7 +489,8 @@ def credit_interest(tx):
         return score
     
     except Exception as e:
-        print('Error in credit_interest()')
+        print(str(e))
+
 
 
 
@@ -504,7 +520,7 @@ def credit_length(tx):
         return score
     
     except Exception as e:
-        print('Error in credit_length()')
+        print(str(e))
 
 
 
@@ -546,14 +562,14 @@ def credit_livelihood(tx):
         return score
         
     except Exception as e:
-        print('Error in credit_livelihood()')
-
+        print(str(e))
 
 
 
 # -------------------------------------------------------------------------- #
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- #   
+
 def velocity_withdrawals(tx):
     """
     returns score based on count and volumne of monthly automated withdrawals
@@ -590,7 +606,8 @@ def velocity_withdrawals(tx):
         return score
 
     except Exception as e:
-        print('Error in velocity_withdrawals()')
+        print(str(e))
+
 
 
 
@@ -629,7 +646,8 @@ def velocity_deposits(tx):
         return score
 
     except Exception as e:
-        print('Error in velocity_deposits()')
+        print(str(e))
+
 
 
 
@@ -644,14 +662,29 @@ def velocity_month_net_flow(tx):
                 score (float): score associated with monthly new flow
     """
     try: 
-        flow = flows(tx)
-        avg_net_flow = sum(flow['amounts'].tolist())/len(flow)
-        avg_net_flow
-        score = grid_triple[np.digitize(avg_net_flow, volume_flow, right=True)]
-        return score, avg_net_flow
+        flow = flows(tx, 12)
+
+        # Calculate magnitude of flow (how much is flowing monthly?)
+        cum_flow = [abs(x) for x in flow['amounts'].tolist()] 
+        magnitude = np.mean(cum_flow)
+
+        # Calculate direction of flow (is money coming in or oing out?)
+        neg= list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
+        pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
+        if len(neg)!=0:
+            direction = len(pos)/len(neg)  # output in range [0, ...)
+        else:
+            direction = 10
+
+        # Calculate score
+        m = np.digitize(magnitude, volume_flow, right=True)
+        n = np.digitize(direction, ratio_flows, right=True)
+        score = o4x4a[m][n]
+        return score
 
     except Exception as e:
-        print('Error in velocity_month_net_flow(()')
+        print(str(e))
+
 
 
 
@@ -709,7 +742,7 @@ def velocity_month_txn_count(tx):
 
 
     except Exception as e:
-        print('Error in velocity_month_txn_count()')
+        print(str(e))
 
 
 
@@ -725,51 +758,7 @@ def velocity_slope(tx):
                 score (float): score for flow net behavior over past 24 months
     """
     try:
-        acc = tx['accounts']
-        txn = tx['transactions']
-
-        dates = []
-        amounts = []
-        deposit_acc = []
-
-        # Keep only deposit->checking accounts
-        for a in acc:
-            id = a['account_id']
-            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
-            if type == 'depository_checking':
-                deposit_acc.append(id)
-
-        # Keep only txn in deposit->checking accounts
-        transat = [t for t in txn if t['account_id'] in deposit_acc]
-
-        # Keep only income and expense transactions
-        for t in transat:
-            if t['category'] is None:
-                pass
-            else:
-                category = t['category']
-                
-            #exclude micro txn and exclude internal transfers
-            if abs(t['amount']) > 5 and 'internal account transfer' not in category: 
-                date = datetime.strptime(t['date'], '%Y-%m-%d').date()
-                dates.append(date)
-                amount = t['amount']
-                amounts.append(amount)
-        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
-
-        # Bin by month
-        flow = df.groupby(pd.Grouper(freq='M')).sum()
-
-        # Exclude current month
-        if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
-            flow = flow[:-1] 
-
-        # Keep only past 24 months
-        daytoday = datetime.today().date().day
-        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-        yearago = lastmonth - pd.offsets.DateOffset(months=24)
-        if yearago in flow.index:
-            flow = flow[flow.index.tolist().index(yearago):]
+        flow = flows(tx, 24)
 
         # If you have > 10 data points OR all net flows are positive, then perform linear regression
         if len(flow) >= 10 or len(list(filter(lambda x: (x < 0), flow['amounts'].tolist())))==0 :
@@ -793,13 +782,15 @@ def velocity_slope(tx):
         return score
 
     except Exception as e:
-        print('Error in velocity_slope(()')
+        print(str(e))
+
 
 
 
 # -------------------------------------------------------------------------- #
 #                            Metric #3 Stability                             #
 # -------------------------------------------------------------------------- #  
+
 def stability_tot_balance_now(tx):
     """
     returns score based on total balance now across ALL accounts owned by the user
@@ -816,7 +807,7 @@ def stability_tot_balance_now(tx):
         return score
 
     except Exception as e:
-        print('Error in stability_tot_balance_now()')
+        print(str(e))
 
 
 
@@ -833,7 +824,7 @@ def stability_min_running_balance(tx):
     """
     try:
         # Calculate net flow each month for past 12 months i.e, |income-expenses|
-        nets = flows(tx)['amounts'].tolist()
+        nets = flows(tx, 12)['amounts'].tolist()
         # Calculate tot current balance now
         balance = balance_now(tx)
 
@@ -841,26 +832,26 @@ def stability_min_running_balance(tx):
         running_balances = []
         for n in reversed(nets):
             balance = balance + n
-            running_balances.append(balance)
-        volume = np.mean(running_balances)
-        duration = len(running_balances)*30
+            running_balances.append(balance) 
+        # Calculate volume using a weighted average
+        weights = np.linspace(0, 1, len(running_balances)).tolist() #define your weights
+        volume = sum([x*w for x in running_balances for w in reversed(weights)])/sum(weights) 
+        length = len(running_balances)*30
 
         # Compute the score
-        m = np.digitize(duration, duration, right=True)
+        m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
         score = e4x4sd1[m][n] -0.05*len(list(filter(lambda x: (x < 0), running_balances))) #add 0.05 score penalty for each overdrafts
         return score
 
     except Exception as e:
-        print('Error in stability_min_running_balance()')
-
-
+        print(str(e))
 
 
 
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
-# -------------------------------------------------------------------------- #   
+# -------------------------------------------------------------------------- # 
 def diversity_acc_count(tx):
     """
     returns score based on count of accounts owned by the user
@@ -876,7 +867,8 @@ def diversity_acc_count(tx):
         return score
         
     except Exception as e:
-        print('Error in diversity_acc_count()')
+        print(str(e))
+
 
 
 
@@ -912,4 +904,4 @@ def diversity_profile(tx):
         return score
 
     except Exception as e:
-        print('Error in diversity_profile()')
+        print(str(e))
