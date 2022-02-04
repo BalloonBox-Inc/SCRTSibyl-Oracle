@@ -1,0 +1,9 @@
+
+# Jupyter Notebook files
+*.ipynb
+
+# Environment variables
+.env
+
+# Virtual environment
+/SCRTSybil
