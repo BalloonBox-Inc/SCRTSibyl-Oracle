@@ -1,0 +1,9 @@
+{'data': {'id': '3b8e4b21-7165-5e47-961d-f6e90ff4cd8f',
+  'name': 'Michael Brink',
+  'username': None,
+  'profile_location': None,
+  'profile_bio': None,
+  'profile_url': None,
+  'resource': 'user',
+  'warnings': [{'id': 'missing_version',
+  'message': 'Please supply API version (YYYY-MM-DD) as CB-VERSION header'}]}
