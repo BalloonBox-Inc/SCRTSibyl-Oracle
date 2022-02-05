@@ -72,13 +72,9 @@ slope_product = np.array([0, 0.25, 0.5, 1, 1.5, 2])
 ratio_flows = np.array([1, 2.5, 4])
 
 
-
-
-
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
-  
 
 def get_tx(path_dir, userid):
     """
@@ -113,8 +109,6 @@ def get_tx(path_dir, userid):
     tx = {'accounts':acc, 'transactions':txn}
     return tx
     
-
-
 
 def dynamic_select(tx, acc_name):
     """
@@ -166,8 +160,6 @@ def dynamic_select(tx, acc_name):
         print(str(e))
 
 
-
-
 def get_acc(tx, acc_type):
     """
     returns list of all accounts owned by the user
@@ -204,8 +196,6 @@ def get_acc(tx, acc_type):
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def flows(tx, how_many_months):
@@ -270,8 +260,6 @@ def flows(tx, how_many_months):
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def balance_now(tx):
