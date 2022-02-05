@@ -831,29 +831,31 @@ def stability_min_running_balance(tx):
     try:
         # Calculate net flow each month for past 12 months i.e, |income-expenses|
         nets = flows(tx, 12)['amounts'].tolist()
-        # Calculate tot current balance now
+
+        # Calculate total current balance now
         balance = balance_now(tx)
 
         # Subtract net flow from balancenow to calculate the running balance for the past 12 months
         running_balances = list()
+
         for n in reversed(nets):
             balance = balance + n
-            running_balances.append(balance) 
+            running_balances.append(balance)
+
         # Calculate volume using a weighted average
-        weights = np.linspace(0, 1, len(running_balances)).tolist() #define your weights
-        volume = sum([x*w for x in running_balances for w in reversed(weights)])/sum(weights) 
+        weights = np.linspace(0, 1, len(running_balances)).tolist() # define your weights
+        volume = sum([x*w for x in running_balances for w in reversed(weights)]) / sum(weights) 
         length = len(running_balances)*30
 
         # Compute the score
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
-        score = e4x4sd1[m][n] -0.05*len(list(filter(lambda x: (x < 0), running_balances))) #add 0.05 score penalty for each overdrafts
+        score = e4x4sd1[m][n] -0.05*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.05 score penalty for each overdrafts
+        
         return score
 
     except Exception as e:
         print(str(e))
-
-
 
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
