@@ -592,30 +592,31 @@ def velocity_withdrawals(tx):
         withdraw = [['Service', 'Subscription'], ['Service', 'Financial', 'Loans and Mortgages'], ['Service', 'Insurance'], ['Payment', 'Rent']]
         dates = list()
         amounts = list()
+
         for t in txn:
             if t['category'] in withdraw and t['amount'] > 15:
                 date = datetime.strptime(t['date'], '%Y-%m-%d').date()
                 dates.append(date)
                 amount = abs(t['amount'])
                 amounts.append(amount)
+
         df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
 
-        if len(df)==0:
-            score = 0
-        else:
-            cnt = df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist()
-            how_many = np.mean(cnt)
-            volumes = df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist()
-            volume = np.mean(volumes)
+        if len(df.index) > 0:
+            how_many = np.mean(df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist())
+            volume = np.mean(df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist())
+
             m = np.digitize(how_many, count1*2, right=True)
             n = np.digitize(volume, volume_withdraw, right=True)
             score = e4x4sd1[m][n]
+
+        else:
+            score = 0
+            
         return score
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def velocity_deposits(tx):
@@ -632,30 +633,31 @@ def velocity_deposits(tx):
         txn = tx['transactions']
         dates = list()
         amounts = list()
+
         for t in txn:
             if t['amount'] < -200 and 'payroll' in [c.lower() for c in t['category']]:
                 date = datetime.strptime(t['date'], '%Y-%m-%d').date()
                 dates.append(date)
                 amount = abs(t['amount'])
                 amounts.append(amount)
+
         df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
 
-        if len(df)==0:
-            score = 0
-        else:
-            cnt = df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist()
-            how_many = np.mean(cnt)
-            volumes = df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist()
-            volume = np.mean(volumes)
+        if len(df.index) > 0:
+            how_many = np.mean(df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist())
+            volume = np.mean(df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist())
+
             m = np.digitize(how_many, count1, right=True)
             n = np.digitize(volume, volume_deposit, right=True)
             score = e4x4sd1[m][n]
+
+        else:
+            score = 0
+        
         return score
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def velocity_month_net_flow(tx):
@@ -676,9 +678,10 @@ def velocity_month_net_flow(tx):
         magnitude = np.mean(cum_flow)
 
         # Calculate direction of flow (is money coming in or oing out?)
-        neg= list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
+        neg = list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
         pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
-        if len(neg)!=0:
+
+        if neg:
             direction = len(pos)/len(neg)  # output in range [0, ...)
         else:
             direction = 10
@@ -687,12 +690,11 @@ def velocity_month_net_flow(tx):
         m = np.digitize(magnitude, volume_flow, right=True)
         n = np.digitize(direction, ratio_flows, right=True)
         score = o4x4a[m][n]
+
         return score
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def velocity_month_txn_count(tx):
@@ -709,7 +711,6 @@ def velocity_month_txn_count(tx):
         acc = tx['accounts']
         txn = tx['transactions']
 
-
         dates = list()
         amounts = list()
         mycounts = list()
@@ -719,6 +720,7 @@ def velocity_month_txn_count(tx):
         for a in acc:
             id = a['account_id']
             type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
+
             if type == 'depository_checking':
                 deposit_acc.append(id)
 
@@ -733,25 +735,25 @@ def velocity_month_txn_count(tx):
                     dates.append(date)
                     amount = t['amount']
                     amounts.append(amount)
+                    
             df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
 
             # Calculate avg count of monthly transactions for one checking account at a time
-            if len(df)==0:
-                score = 0
-            else:
+            if len(df.index) > 0:
                 cnt = df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist()
+            else:
+                score = 0
+            
             mycounts.append(cnt)
 
         mycounts = [x for y in mycounts for x in y]
-        how_many= np.mean(mycounts) 
+        how_many = np.mean(mycounts) 
         score = grid_triple[np.digitize(how_many, count_txn_month, right=True)]
-        return score
 
+        return score
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def velocity_slope(tx):
@@ -768,11 +770,12 @@ def velocity_slope(tx):
         flow = flows(tx, 24)
 
         # If you have > 10 data points OR all net flows are positive, then perform linear regression
-        if len(flow) >= 10 or len(list(filter(lambda x: (x < 0), flow['amounts'].tolist())))==0 :
+        if len(flow) >= 10 or len(list(filter(lambda x: (x < 0), flow['amounts'].tolist()))) == 0:
             # Perform Linear Regression using numpy.polyfit() 
             x = range(len(flow['amounts']))
             y = flow['amounts']
             a,b = np.polyfit(x, y, 1)
+            
             # Plot regression line
             plt.plot(x, y, '.')
             plt.plot(x, a*x +b)
@@ -781,18 +784,15 @@ def velocity_slope(tx):
         # If you have < 10 data points, then calculate the score by taking the product of two ratios
         else:
             # Multiply two ratios by each other
-            neg= list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
+            neg = list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
             pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
-            r = len(pos)/len(neg)*abs(sum(pos)/sum(neg))  # output in range [0, 2+]
+            r = len(pos) / len(neg) * abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             score = grid_log[np.digitize(r, slope_product, right=True)]
 
         return score
 
     except Exception as e:
         print(str(e))
-
-
-
 
 # -------------------------------------------------------------------------- #
 #                            Metric #3 Stability                             #
