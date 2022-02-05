@@ -811,12 +811,11 @@ def stability_tot_balance_now(tx):
     try:
         balance = balance_now(tx)
         score = grid_double[np.digitize(balance, volume_balance_now, right=True)]
+
         return score
 
     except Exception as e:
         print(str(e))
-
-
 
 
 def stability_min_running_balance(tx):
