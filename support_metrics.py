@@ -859,7 +859,8 @@ def stability_min_running_balance(tx):
 
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
-# -------------------------------------------------------------------------- # 
+# -------------------------------------------------------------------------- #
+
 def diversity_acc_count(tx):
     """
     returns score based on count of accounts owned by the user
@@ -872,12 +873,11 @@ def diversity_acc_count(tx):
     """
     try:
         score = grid_triple[np.digitize(len(tx['accounts']), count_products, right=True)]
+
         return score
         
     except Exception as e:
         print(str(e))
-
-
 
 
 def diversity_profile(tx):
@@ -893,22 +893,27 @@ def diversity_profile(tx):
     try:
         save = list()
         loan = list()
-        invest = list() 
-        acc = [x for x in tx['accounts'] if x['type']=='loan' or int(x['balances']['available'] or 0)!=0] #exclude $0 balance accounts
+        invest = list()
+
+        acc = [x for x in tx['accounts'] if x['type']=='loan' or int(x['balances']['available'] or 0) != 0] # exclude $0 balance accounts
 
         for a in acc:
             id = a['account_id']
             type = "{}_{}".format(a['type'], str(a['subtype']))
+
             if 'saving' in type:
                 save.append(id)
+            
             if 'loan' in type.split('_')[0]:
                 loan.append(id)
+            
             if type.split('_')[0] in ['investment', 'brokerage']:
                 invest.append(id)
 
         m = np.digitize(len(invest), count0, right=False)
         n = np.digitize(len(save), count0, right=False)
         score = e3x3sd1[m][n]
+        
         return score
 
     except Exception as e:
