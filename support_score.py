@@ -1,5 +1,5 @@
 from support_models import *
-from support_metrics import * # to be removed later since tx will come through the api
+from support_metrics_plaid import * # to be removed later since tx will come through the api
 
 
 # Plaid
