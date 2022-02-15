@@ -5,6 +5,16 @@ SCRTSybil: the first credit score check oracle for the Secret Network
 
 
 
+### Algorithm Architecture :page_facing_up:
+
+#### Coinbase
+![](https://github.com/BalloonBox-Inc/scrt-network-oracle/blob/dev/pix/credit_score_logic_coinbase.png)
+
+#### Plaid
+![](https://github.com/BalloonBox-Inc/scrt-network-oracle/blob/dev/pix/credit_score_logic_plaid.png)
+
+
+
 
 ### Deliverable 🎯 
 APIs, Integration, Credit Score Algorithm
@@ -38,4 +48,9 @@ APIs, Integration, Credit Score Algorithm
 |14<br/> `Algos testing`|15<br/> `Algos testing`|16<br/> `Algos testing`|17<br/> `Algo deployment & wiring`|18<br/> `📌  Anticipated Milestone 1` **due**|19|20|
 |21|22|23|24|25|26|27| 
 |🔥 28 🔥 <bd/>  `milestone#1` **due**|29|30|31||||
+
+
+
+
+
 
