@@ -2,13 +2,13 @@
 # Import libraries
 import os
 import json
-import requests
+
 import numpy as np
 import pandas as pd
 from datetime import datetime
 from datetime import timedelta
 from dotenv import dotenv_values
-import plotly.express as px
+
 import matplotlib.pyplot as plt
 
 
@@ -47,7 +47,7 @@ def build_2D_matrix_by_rule(size, exponent, rule):
 # -------------------------------------------------------------------------- # 
 
 # Initialize 'feedback' dict
-feedback = {'data fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
+# feedback = {'data fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
 warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
 
 # Scoring grids
@@ -358,7 +358,7 @@ def balance_now_checking_only(tx):
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #  
 
-def credit_mix(tx):
+def credit_mix(tx, feedback):
     """
     returns score based on composition and status of user's credits accounts
 
@@ -399,17 +399,17 @@ def credit_mix(tx):
         else:
             score = 0
 
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_mix.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def credit_limit(tx):
+def credit_limit(tx, feedback):
     """
     returns score for the cumulative credit limit of a user across ALL of his credit accounts
 
@@ -441,18 +441,18 @@ def credit_limit(tx):
             score = 0
             feedback['credit'].append('no credit limit')
             
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_limit.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
 
-def credit_util_ratio(tx):
+def credit_util_ratio(tx, feedback):
     """
     returns a score reflective of the user's credit utilization ratio, that is credit_used/credit_limit
     
@@ -509,17 +509,17 @@ def credit_util_ratio(tx):
                 score = 0
                 feedback['credit'].append('no credit history')
                 
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_util_ratio.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def credit_interest(tx):
+def credit_interest(tx, feedback):
     """
     returns score based on number of times user was charged credit card interest fees in past 24 months
     
@@ -559,17 +559,17 @@ def credit_interest(tx):
             else:
                 score = 0
                 
-        return score
+        return score, feedback
     
     except Exception as e:
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_interest.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def credit_length(tx):
+def credit_length(tx, feedback):
     """
     returns score based on length of user's best credit account
     
@@ -594,17 +594,17 @@ def credit_length(tx):
         else:
             score = 0
 
-        return score
+        return score, feedback
     
     except Exception as e:
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_length.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def credit_livelihood(tx):
+def credit_livelihood(tx, feedback):
     """
     returns score quantifying the avg monthly txn count for your best credit account
 
@@ -644,12 +644,12 @@ def credit_livelihood(tx):
         else:
             score = 0
         
-        return score
+        return score, feedback
         
     except Exception as e:
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_livelihood.__name__, e))
-        return score
+        return score, feedback
   
 
 
@@ -658,7 +658,7 @@ def credit_livelihood(tx):
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- # 
 
-def velocity_withdrawals(tx):
+def velocity_withdrawals(tx, feedback):
     """
     returns score based on count and volumne of monthly automated withdrawals
 
@@ -695,17 +695,17 @@ def velocity_withdrawals(tx):
         else:
             score = 0
             
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_withdrawals.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def velocity_deposits(tx):
+def velocity_deposits(tx, feedback):
     """
     returns score based on count and volumne of monthly automated deposits
 
@@ -741,17 +741,17 @@ def velocity_deposits(tx):
         else:
             score = 0
         
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_deposits.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def velocity_month_net_flow(tx):
+def velocity_month_net_flow(tx, feedback):
     """
     returns score for monthly net flow
 
@@ -783,18 +783,18 @@ def velocity_month_net_flow(tx):
         score = m7x7_11_m12_n4[m][n]
         feedback['velocity'].append('Avg monthly net flow for last year = ${}'.format(round(magnitude, 2)))
 
-        return score
+        return score, feedback
 
 
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_month_net_flow.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def velocity_month_txn_count(tx):
+def velocity_month_txn_count(tx, feedback):
     """
     returns score based on count of mounthly transactions
 
@@ -847,18 +847,18 @@ def velocity_month_txn_count(tx):
         how_many = np.mean(mycounts) 
         score = fico_medians[np.digitize(how_many, count_txn_month, right=True)]
 
-        return score
+        return score, feedback
 
 
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_month_txn_count.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def velocity_slope(tx):
+def velocity_slope(tx, feedback):
     """
     returns score for the historical behavior of the net monthly flow for past 24 months
     
@@ -892,13 +892,13 @@ def velocity_slope(tx):
             score = grid_log[np.digitize(r, slope_product, right=True)]
             feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(r))
 
-        return score
+        return score, feedback
 
 
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_slope.__name__, e))
-        return score
+        return score, feedback
 
 
 
@@ -908,7 +908,7 @@ def velocity_slope(tx):
 #                            Metric #3 Stability                             #
 # -------------------------------------------------------------------------- #  
 
-def stability_tot_balance_now(tx):
+def stability_tot_balance_now(tx, feedback):
     """
     returns score based on total balance now across ALL accounts owned by the user
     
@@ -923,17 +923,17 @@ def stability_tot_balance_now(tx):
         score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
         feedback['stability'].append('Tot balance now = ${}'.format(balance))
 
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['stability'].append("{} {} in {}(): {}".format(warning, e.__class__, stability_tot_balance_now.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def stability_min_running_balance(tx):
+def stability_min_running_balance(tx, feedback):
     """
     returns score based on the minimum balance maintained for 12 months
     
@@ -968,12 +968,12 @@ def stability_min_running_balance(tx):
         score = m7x7_11_m7_n9[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
         feedback['stability'].append('Avg of min running balance for last {} days = ${}'.format(length, round(volume, 2)))
         
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['stability'].append("{} {} in {}(): {}".format(warning, e.__class__, stability_min_running_balance.__name__, e))
-        return score
+        return score, feedback
 
 
 
@@ -983,7 +983,7 @@ def stability_min_running_balance(tx):
 # -------------------------------------------------------------------------- #
 
 
-def diversity_acc_count(tx):
+def diversity_acc_count(tx, feedback):
     """
     returns score based on count of accounts owned by the user
     
@@ -997,17 +997,17 @@ def diversity_acc_count(tx):
         score = fico_medians[np.digitize(len(tx['accounts']), count_invest_acc, right=True)]
         feedback['diversity'].append('User owns a tot of {} different bank accounts'.format(len(tx['accounts'])))
 
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['diversity'].append("{} {} in {}(): {}".format(warning, e.__class__, diversity_acc_count.__name__, e))
-        return score
+        return score, feedback
 
 
 
 
-def diversity_profile(tx):
+def diversity_profile(tx, feedback):
     """
     returns score for number of saving and investment accounts owned
     
@@ -1046,9 +1046,9 @@ def diversity_profile(tx):
             score = 0
             feedback['diversity'].append('no investing nor saving accounts')
 
-        return score
+        return score, feedback
 
     except Exception as e:
         score = 0
         feedback['diversity'].append("{} {} in {}(): {}".format(warning, e.__class__, diversity_profile.__name__, e))
-        return score
+        return score, feedback
