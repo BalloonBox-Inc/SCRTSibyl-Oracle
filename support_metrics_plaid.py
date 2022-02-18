@@ -1,3 +1,4 @@
+
 # Import libraries
 import os
 import json
@@ -6,76 +7,97 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from datetime import timedelta
+from dotenv import dotenv_values
 import plotly.express as px
 import matplotlib.pyplot as plt
 
 
 
-
-# Initialize 'feedback' dict
-feedback = {'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
-
-# Declare scoring grids as immutable np arrays
-# naming convention: content+shape+symmetry, Even+4x4+SymmetricAlongDyagonal1 -> e4x4sd1
-# naming convention: content+shape+symmetry, Odd+3x4+Asymmetric -> o3x4a
-
-e3x3sd1 = np.array([
-                        [0.0, 0.4, 0.8], 
-                        [0.4, 0.8, 1.0], 
-                        [0.8, 1.0, 1.0]], dtype=float) #generous
-o3x4a = np.array([   
-                        [0.0, 0.1, 0.3, 0.7],
-                        [0.0, 0.1, 0.7, 0.9],
-                        [0.0, 0.3, 0.9, 1.0]], dtype=float) #asymmetric
-o4x4sd1 = np.array([
-                        [0.0, 0.1, 0.3, 0.3], 
-                        [0.1, 0.1, 0.3, 0.5], 
-                        [0.3, 0.3, 0.5, 0.7], 
-                        [0.3, 0.5, 0.7, 1.0]], dtype=float)  #moderate
-e4x4sd1 = np.array([
-                        [0.0, 0.1, 0.2, 0.4], 
-                        [0.1, 0.2, 0.6, 0.8], 
-                        [0.2, 0.6, 0.8, 1.0], 
-                        [0.4, 0.8, 1.0, 1.0]], dtype=float)  #lenient
-o4x4a = np.array([
-                        [0.0, -0.1, -0.3, -0.5], 
-                        [0.1, 0.3, 0.5, 0.7], 
-                        [0.3, 0.5, 0.7, 0.9], 
-                        [0.7, 0.9, 1.0, 1.0]], dtype=float) #asymmetric
-
-
-
-
-duration = np.array([30, 90, 180])                          #bins: 0-30 | 31-90 | 91-180 | >180 days
-
-count0 = np.array([1, 2])                                   #bins: 0-1 | 2 | >=3
-count1 = np.array([1, 2, 3])                                #bins: <=1 | (1,2] | (2,3] | >=3 
-count_products = np.array([1, 2, 4, 5])                     #bins: ...
-count_lively = np.array([5, 10, 15, 25])  
-count_txn_month = np.array([5, 15, 25, 40])
-
-volume_withdraw = np.array([500, 1000, 3000])
-volume_deposit = np.array([1000, 4000, 8000])
-volume_flow = np.array([1000, 2000, 4000])
-volume_cred_limit = np.array([1000, 8000, 20000])
-volume_min_run = np.array([10000, 20000, 50000])
-volume_balance_now = np.array([5000, 10000, 30000, 75000]) 
-
-grid_double = np.array([0, 0.125, 0.25, 0.50, 1]) 
-grid_triple = np.array([0, 0.3, 0.6, 0.9, 1])  
-grid_log = np.array([-0.3, -0.2, -0.1, 0.2, 0.4, 0.9, 1])
-
-percent_cred_util = np.array([0.7, 0.55, 0.35])
-frequency_interest  = np.array([0.5, 0.33, 0.125, 0])
-slope_linregression = np.array([-1.5, -0.5, 0, 1, 3, 15])
-slope_product = np.array([0, 0.25, 0.5, 1, 1.5, 2])
-ratio_flows = np.array([1, 2.5, 4])
-
-
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
+#                                    -utils-                                 #
 # -------------------------------------------------------------------------- #
 
+def build_2D_matrix_by_rule(size, exponent, rule):
+    """
+    returns a matrix of given size, built through a generalized rule. The matrix must be 2D
+
+            Parameters:
+                size (tuple): declare the matrix size in this format (m, n), where m = rows and n = columns
+                exponent (tuple): exponents to raise your row and column number by. Follow the format (m_exp, n_exp)
+                rule (tuple): value of cells in the matrix. Follow the format (m_float, n_float)
+                              m_float: the current cell is equal to a float * row # 
+                              n_float: the current cell is equal to a float * column #
+
+            Returns:
+                a matrix of size m x n whose cell are given by m_float+n_float
+    """
+    # Initialize a zero-matrix of size = (m x n)
+    matrix = np.zeros(size)
+    for m in range(matrix.shape[0]):
+        for n in range(matrix.shape[1]):
+            matrix[m][n] = round((m**exponent[0]*rule[0] + n**exponent[1]*rule[1])/100, 2)
+
+    return matrix
+
+
+
+# -------------------------------------------------------------------------- #
+#                               Score Matrices                               #
+# -------------------------------------------------------------------------- # 
+
+# Initialize 'feedback' dict
+feedback = {'data fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
+warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
+
+# Scoring grids
+# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.15_column#**1*0.05 -> m7x7_11_m12_n4
+# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.05_column#**2*0.03 -> m7x7_12_m4_n2
+m7x7_12_m4_n2 = build_2D_matrix_by_rule((7,7), (1,2), (4.5,2))
+m7x7_11_m7_n9 = build_2D_matrix_by_rule((7,7), (1,1), (7,9.5))
+m7x7_11_m12_n4 = build_2D_matrix_by_rule((7,7), (1,1), (12.5,4))
+m3x7_11_m20_n10 = build_2D_matrix_by_rule((3,7), (1,1), (20,10))
+m3x7_12_m14_n2 = build_2D_matrix_by_rule((3,7), (1,2), (14,2))
+
+fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300)/600  # Fico score binning - normalized
+fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2) for i in range(len(fico)-1)] # Medians of Fico scoring bins
+fico_medians.append(1)
+fico_medians = np.array(fico_medians)
+grid_log = np.array([0, 0.1, 0.3, 0.4, 0.7, 0.8, 1])
+
+
+# Categorical bins
+duration = np.array([90, 120, 150, 180, 210, 270])          #bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
+count0 = np.array([1, 2])                                   #bins: 0-1 | 2 | >=3
+count1 = np.array([1, 2, 3])                                #bins: <=1 | (1,2] | (2,3] | >=3 
+count_lively = np.array([round(x, 0) for x in fico*25])[1:]
+count_txn_month = np.array([round(x, 0) for x in fico*40])[1:]
+count_invest_acc = np.array([1, 2, 3, 4, 5, 6])
+
+
+volume_flow = np.array([round(x, 0) for x in fico*4000])[1:]
+volume_cred_limit = np.array([1, 5, 8, 10, 14, 18])*1000
+volume_withdraw = np.array([round(x, 0) for x in fico*3000])[1:]
+volume_deposit = np.array([round(x, 0) for x in fico*7000])[1:]
+volume_invest = np.array([3, 4, 5.5, 7, 8, 10])*1000
+volume_balance_now = np.array([round(x, 0) for x in fico*25000])[1:]
+volume_min_run = np.array([round(x, 0) for x in fico*10000])[1:]
+
+
+percent_cred_util = np.array([round(x, 2) for x in reversed(fico*0.9)][:-1])
+frequency_interest = np.array([round(x, 2) for x in reversed(fico*0.6)][:-1])
+ratio_flows = np.array([0.7, 1, 1.7, 2.5, 3, 4])
+slope_product = np.array([0, 0.25, 0.5, 1, 1.5, 2])
+slope_linregression = np.array([-1.5, -0.5, 0, 1, 3, 15])
+
+
+
+
+# -------------------------------------------------------------------------- #
+#                         Helper Functions - local                           #
+# -------------------------------------------------------------------------- #
+
+# Remove this function eventually. It's used only to fetch local data for testing purposes.
 def get_tx(path_dir, userid):
     """
     returns the Plaid 'Transaction' product for one user
@@ -108,7 +130,11 @@ def get_tx(path_dir, userid):
     txn = list(np.concatenate(lol).flat) #flatten list 
     tx = {'accounts':acc, 'transactions':txn}
     return tx
-    
+
+
+# -------------------------------------------------------------------------- #
+#                               Helper Functions                             #
+# -------------------------------------------------------------------------- #
 
 def dynamic_select(tx, acc_name):
     """
@@ -157,7 +183,9 @@ def dynamic_select(tx, acc_name):
         return best
 
     except Exception as e:
-        print(str(e))
+        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, dynamic_select.__name__, e))
+
+
 
 
 def get_acc(tx, acc_type):
@@ -195,7 +223,9 @@ def get_acc(tx, acc_type):
         return info
 
     except Exception as e:
-        print(str(e))
+        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, get_acc.__name__, e))
+
+
 
 
 def flows(tx, how_many_months):
@@ -259,9 +289,12 @@ def flows(tx, how_many_months):
         return flow
 
     except Exception as e:
-        print(str(e))
+        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, flows.__name__, e))
 
 
+
+
+    
 def balance_now(tx):
     """
     returns total balance available now across ALL accounts owned by the user
@@ -280,21 +313,50 @@ def balance_now(tx):
             type = "{1}{0}{2}{0}{3}".format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
 
             if type.split('_')[0]=='depository':
-                if type.split('_')[1]=='savings':
-                    balance += int(a['balances']['current'] or 0)
-                else:
-                    balance += int(a['balances']['available'] or 0)
+                balance += int(a['balances']['current'] or 0)
+                
             else:
                 balance += int(a['balances']['available'] or 0)
 
         return balance
 
     except Exception as e:
-        print(str(e))
+        feedback['stability'].append("{} in {}(): {}".format(e.__class__, balance_now.__name__, e))
+
+
+
+
+
+def balance_now_checking_only(tx):
+    """
+    returns total balance available now in the user's checking accounts
+    
+            Parameters:
+                tx (dict): Plaid 'Transactions' product
+
+            Returns:
+                balance (float): cumulative current balance in checking accounts
+    """
+    try:
+        acc = tx['accounts']
+
+        balance = 0
+        for a in acc:
+            type = "{1}{0}{2}".format('_', str(a['type']), str(a['subtype'])).lower()
+            if type == 'depository_checking':
+                balance += int(a['balances']['current'] or 0)
+                
+        return balance
+
+    except Exception as e:
+        feedback['stability'].append("{} in {}(): {}".format(e.__class__, balance_now.__name__, e))
+
+
+
 
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
-# -------------------------------------------------------------------------- #    
+# -------------------------------------------------------------------------- #  
 
 def credit_mix(tx):
     """
@@ -332,7 +394,7 @@ def credit_mix(tx):
            
             m = np.digitize(how_many, count0, right=True)
             n = np.digitize(how_long, duration, right=True)
-            score = o3x4a[m][n]
+            score = m3x7_11_m20_n10[m][n]
         
         else:
             score = 0
@@ -340,7 +402,11 @@ def credit_mix(tx):
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_mix.__name__, e))
+        return score
+
+
 
 
 def credit_limit(tx):
@@ -368,15 +434,22 @@ def credit_limit(tx):
 
             m = np.digitize(max(length), duration, right=True)
             n = np.digitize(limit, volume_cred_limit, right=True)
-            score = o4x4sd1[m][n]
+            score = m7x7_11_m7_n9[m][n]
+            feedback['credit'].append('Cumulative credit limit = {}'.format(limit))
 
         else:
             score = 0
+            feedback['credit'].append('no credit limit')
             
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_limit.__name__, e))
+        return score
+
+
+
 
 
 def credit_util_ratio(tx):
@@ -429,15 +502,21 @@ def credit_util_ratio(tx):
                 avg_util = np.mean(util['cred_util'])
                 m = np.digitize(len(util)*30, duration, right=True)
                 n = np.digitize(avg_util, percent_cred_util, right=True)
-                score = o4x4sd1[m][n]
+                score = m7x7_11_m7_n9[m][n]
+                feedback['credit'].append('Credit util ratio (mean of monthly mean) = {}'.format(avg_util))
 
             else:
                 score = 0
+                feedback['credit'].append('no credit history')
                 
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_util_ratio.__name__, e))
+        return score
+
+
 
 
 def credit_interest(tx):
@@ -475,7 +554,7 @@ def credit_interest(tx):
                             interests.append(t)
 
                 frequency = len(interests)/length
-                score = grid_double[np.digitize(frequency, frequency_interest, right=True)]
+                score = fico_medians[np.digitize(frequency, frequency_interest, right=True)]
             
             else:
                 score = 0
@@ -483,7 +562,11 @@ def credit_interest(tx):
         return score
     
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_interest.__name__, e))
+        return score
+
+
 
 
 def credit_length(tx):
@@ -505,7 +588,8 @@ def credit_length(tx):
             oldest_txn = datetime.strptime(alltxn[-1]['date'], '%Y-%m-%d').date()
             date_today = datetime.today().date() 
             how_long = (date_today - oldest_txn).days # date today - date of oldest credit transaction
-            score = grid_double[np.digitize(how_long, duration, right=True)]
+            score = fico_medians[np.digitize(how_long, duration, right=True)]
+            feedback['credit'].append('Duration of best credit card = {} (days)'.format(how_long))
 
         else:
             score = 0
@@ -513,7 +597,11 @@ def credit_length(tx):
         return score
     
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_length.__name__, e))
+        return score
+
+
 
 
 def credit_livelihood(tx):
@@ -551,7 +639,7 @@ def credit_livelihood(tx):
                     d = d[:-1]
 
             mean = d['amounts'].mean()
-            score = grid_double[np.digitize(mean, count_lively, right=True)]
+            score = fico_medians[np.digitize(mean, count_lively, right=True)]
         
         else:
             score = 0
@@ -559,11 +647,16 @@ def credit_livelihood(tx):
         return score
         
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_livelihood.__name__, e))
+        return score
+  
+
+
 
 # -------------------------------------------------------------------------- #
 #                            Metric #2 Velocity                              #
-# -------------------------------------------------------------------------- #   
+# -------------------------------------------------------------------------- # 
 
 def velocity_withdrawals(tx):
     """
@@ -592,11 +685,12 @@ def velocity_withdrawals(tx):
 
         if len(df.index) > 0:
             how_many = np.mean(df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist())
-            volume = np.mean(df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist())
+            if how_many > 0 :
+                volume = np.mean(df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist())
 
-            m = np.digitize(how_many, count1*2, right=True)
-            n = np.digitize(volume, volume_withdraw, right=True)
-            score = e4x4sd1[m][n]
+                m = np.digitize(how_many, count0, right=True)
+                n = np.digitize(volume, volume_withdraw, right=True)
+                score = m3x7_12_m14_n2[m][n]
 
         else:
             score = 0
@@ -604,7 +698,11 @@ def velocity_withdrawals(tx):
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_withdrawals.__name__, e))
+        return score
+
+
 
 
 def velocity_deposits(tx):
@@ -633,11 +731,12 @@ def velocity_deposits(tx):
 
         if len(df.index) > 0:
             how_many = np.mean(df.groupby(pd.Grouper(freq='M')).count().iloc[:,0].tolist())
-            volume = np.mean(df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist())
+            if how_many > 0 :
+                volume = np.mean(df.groupby(pd.Grouper(freq='M')).sum().iloc[:,0].tolist())
 
-            m = np.digitize(how_many, count1, right=True)
-            n = np.digitize(volume, volume_deposit, right=True)
-            score = e4x4sd1[m][n]
+                m = np.digitize(how_many, count0, right=True)
+                n = np.digitize(volume, volume_deposit, right=True)
+                score = m3x7_12_m14_n2[m][n]
 
         else:
             score = 0
@@ -645,7 +744,11 @@ def velocity_deposits(tx):
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_deposits.__name__, e))
+        return score
+
+
 
 
 def velocity_month_net_flow(tx):
@@ -665,7 +768,7 @@ def velocity_month_net_flow(tx):
         cum_flow = [abs(x) for x in flow['amounts'].tolist()] 
         magnitude = np.mean(cum_flow)
 
-        # Calculate direction of flow (is money coming in or oing out?)
+        # Calculate direction of flow (is money coming in or going out?)
         neg = list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
         pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
 
@@ -677,12 +780,18 @@ def velocity_month_net_flow(tx):
         # Calculate score
         m = np.digitize(magnitude, volume_flow, right=True)
         n = np.digitize(direction, ratio_flows, right=True)
-        score = o4x4a[m][n]
+        score = m7x7_11_m12_n4[m][n]
+        feedback['velocity'].append('Avg monthly net flow for last year = ${}'.format(round(magnitude, 2)))
 
         return score
 
+
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_month_net_flow.__name__, e))
+        return score
+
+
 
 
 def velocity_month_txn_count(tx):
@@ -736,12 +845,17 @@ def velocity_month_txn_count(tx):
 
         mycounts = [x for y in mycounts for x in y]
         how_many = np.mean(mycounts) 
-        score = grid_triple[np.digitize(how_many, count_txn_month, right=True)]
+        score = fico_medians[np.digitize(how_many, count_txn_month, right=True)]
 
         return score
 
+
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_month_txn_count.__name__, e))
+        return score
+
+
 
 
 def velocity_slope(tx):
@@ -776,11 +890,19 @@ def velocity_slope(tx):
             pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
             r = len(pos) / len(neg) * abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             score = grid_log[np.digitize(r, slope_product, right=True)]
+            feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(r))
 
         return score
 
+
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_slope.__name__, e))
+        return score
+
+
+
+
 
 # -------------------------------------------------------------------------- #
 #                            Metric #3 Stability                             #
@@ -798,12 +920,17 @@ def stability_tot_balance_now(tx):
     """
     try:
         balance = balance_now(tx)
-        score = grid_double[np.digitize(balance, volume_balance_now, right=True)]
+        score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
+        feedback['stability'].append('Tot balance now = ${}'.format(balance))
 
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['stability'].append("{} {} in {}(): {}".format(warning, e.__class__, stability_tot_balance_now.__name__, e))
+        return score
+
+
 
 
 def stability_min_running_balance(tx):
@@ -821,7 +948,7 @@ def stability_min_running_balance(tx):
         nets = flows(tx, 12)['amounts'].tolist()
 
         # Calculate total current balance now
-        balance = balance_now(tx)
+        balance = balance_now_checking_only(tx)
 
         # Subtract net flow from balancenow to calculate the running balance for the past 12 months
         running_balances = list()
@@ -831,23 +958,30 @@ def stability_min_running_balance(tx):
             running_balances.append(balance)
 
         # Calculate volume using a weighted average
-        weights = np.linspace(0, 1, len(running_balances)).tolist() # define your weights
-        volume = sum([x*w for x in running_balances for w in reversed(weights)]) / sum(weights) 
+        weights = np.linspace(0.01, 1, len(running_balances)).tolist() # define your weights
+        volume = sum([x*w for x,w in zip(running_balances, reversed(weights))]) / sum(weights) 
         length = len(running_balances)*30
 
         # Compute the score
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
-        score = e4x4sd1[m][n] -0.05*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.05 score penalty for each overdrafts
+        score = m7x7_11_m7_n9[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
+        feedback['stability'].append('Avg of min running balance for last {} days = ${}'.format(length, round(volume, 2)))
         
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['stability'].append("{} {} in {}(): {}".format(warning, e.__class__, stability_min_running_balance.__name__, e))
+        return score
+
+
+
 
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
 # -------------------------------------------------------------------------- #
+
 
 def diversity_acc_count(tx):
     """
@@ -860,12 +994,17 @@ def diversity_acc_count(tx):
                 score (float): score for accounts count
     """
     try:
-        score = grid_triple[np.digitize(len(tx['accounts']), count_products, right=True)]
+        score = fico_medians[np.digitize(len(tx['accounts']), count_invest_acc, right=True)]
+        feedback['diversity'].append('User owns a tot of {} different bank accounts'.format(len(tx['accounts'])))
 
         return score
-        
+
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['diversity'].append("{} {} in {}(): {}".format(warning, e.__class__, diversity_acc_count.__name__, e))
+        return score
+
+
 
 
 def diversity_profile(tx):
@@ -879,30 +1018,37 @@ def diversity_profile(tx):
                 score (float): points scored for accounts owned
     """
     try:
-        save = list()
-        loan = list()
-        invest = list()
+        myacc = list()
 
-        acc = [x for x in tx['accounts'] if x['type']=='loan' or int(x['balances']['available'] or 0) != 0] # exclude $0 balance accounts
+        acc = [x for x in tx['accounts'] if x['type']=='loan' or int(x['balances']['current'] or 0) != 0] # exclude $0 balance accounts
 
+        balance = 0
         for a in acc:
             id = a['account_id']
             type = "{}_{}".format(a['type'], str(a['subtype']))
 
-            if 'saving' in type:
-                save.append(id)
-            
-            if 'loan' in type.split('_')[0]:
-                loan.append(id)
-            
-            if type.split('_')[0] in ['investment', 'brokerage']:
-                invest.append(id)
+            # Account for savings, hda, cd, money mart, paypal, prepaid, cash management, edt accounts
+            if (type.split('_')[0]=='depository') & (type.split('_')[1]!='checking'): 
+                balance += int(a['balances']['current'] or 0)
+                myacc.append(id)
 
-        m = np.digitize(len(invest), count0, right=False)
-        n = np.digitize(len(save), count0, right=False)
-        score = e3x3sd1[m][n]
-        
+            # Account for ANY type of investment account
+            if type.split('_')[0] == 'investment': 
+                balance += int(a['balances']['current'] or 0)
+                myacc.append(id)
+
+        if myacc and balance != 0:
+            m = np.digitize(len(myacc), count1, right=False)
+            n = np.digitize(balance, volume_invest, right=False)
+            score = m7x7_11_m7_n9[m][n]
+            feedback['diversity'].append('User owns {} investment/saving accounts with cum balance now of ${}'.format(len(myacc), balance))
+        else:
+            score = 0
+            feedback['diversity'].append('no investing nor saving accounts')
+
         return score
 
     except Exception as e:
-        print(str(e))
+        score = 0
+        feedback['diversity'].append("{} {} in {}(): {}".format(warning, e.__class__, diversity_profile.__name__, e))
+        return score

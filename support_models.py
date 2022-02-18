@@ -12,9 +12,9 @@ def plaid_credit(tx):
 
     score = 0.05*mix \
         + 0.15*lim \
-        + 0.80*0.40*util \
+        + 0.80*0.35*util \
         + 0.80*0.15*interest \
-        + 0.80*0.35*leng \
+        + 0.80*0.40*leng \
         + 0.80*0.10*liv \
 
     return score
@@ -42,8 +42,8 @@ def plaid_stability(tx):
     bal = stability_tot_balance_now(tx)
     run = stability_min_running_balance(tx)
 
-    score = 0.35*bal \
-        + 0.65*run \
+    score = 0.65*bal \
+        + 0.35*run \
 
     return score
 

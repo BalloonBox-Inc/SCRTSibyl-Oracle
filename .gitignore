@@ -1,9 +1,14 @@
+# environment variables
+.env
+
+# macOS custom attributes
+.DS_Store
+
+# python interpreter
+**.pyc
 
 # Jupyter Notebook files
-*.ipynb
-
-# Environment variables
-.env
+**.ipynb
 
 # Virtual environment
 /SCRTSybil
