@@ -34,7 +34,7 @@ def credit_score():
         plaid_txn = plaid_transactions(plaid_token, client_plaid, 360)
         return plaid_txn
         # # compute score
-        # output = plaid_score(plaid_txn)
+        # output, feedback = plaid_score(plaid_txn)
     
     # # coinbase credit score
     # elif coinbase_token:
