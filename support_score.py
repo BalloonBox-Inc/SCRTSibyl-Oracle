@@ -1,13 +1,19 @@
 from support_models import *
 
 
-def create_feedback():
+# Initialize feedback dict
+def create_feedback_plaid():
     return {'data_fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
+
+def create_feedback_coinbase():
+    return {'data fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+
+
 
 # Plaid
 def plaid_score(txn):
 
-    feedback = create_feedback()
+    feedback = create_feedback_plaid()
 
     credit = plaid_credit(txn, feedback)
     velocity = plaid_velocity(txn, feedback)
@@ -22,7 +28,7 @@ def plaid_score(txn):
 # Coinbase
 def coinbase_score():
 
-    feedback = create_feedback()
+    feedback = create_feedback_coinbase()
 
     return None
 
