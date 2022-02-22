@@ -1,4 +1,6 @@
 from support_models import *
+from support_metrics_plaid import * # to be removed later since tx will come through the api
+
 
 
 # Initialize feedback dict
@@ -20,18 +22,34 @@ def plaid_score(txn):
     stability = plaid_stability(txn, feedback)
     diversity = plaid_diversity(txn, feedback)
 
-    score = 300 + 600*(0.45*credit + 0.35*velocity + 0.15*stability + 0.05*diversity)
-    
+    # credit score, range = [300, 900]
+    score = 300 + 600*(
+        0.45*credit \
+        + 0.35*velocity \
+        + 0.15*stability \
+        + 0.05*diversity)
     return score, feedback
+    
 
 
 # Coinbase
-def coinbase_score():
-
+def coinbase_score(acc, tx):
+    
     feedback = create_feedback_coinbase()
 
-    return None
+    # kyc = plaid_kyc(acc, tx)
+    # history = plaid_history(acc)
+    # liquidity = plaid_liquidity(acc, tx)
+    # activity = plaid_activity(acc, tx)
 
+    # # credit score, range = [300, 900]
+    # score = 300 + 600*(
+    #     0.10*kyc \
+    #     + 0.10*history \
+    #     + 0.40*liquidity \
+    #     + 0.40*activity)
+    # return score, feedback
+    return None
 
 
 
