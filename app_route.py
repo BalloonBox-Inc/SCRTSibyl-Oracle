@@ -20,24 +20,23 @@ def credit_score():
     # coinbase_token = request.json.get('coinbase_public_token', None)
     # keplr_token = request.json.get('keplr_token', None)
 
-    # plaid_token = getenv('PLAID_ACCESS_TOKEN')
     plaid_token = getenv('ACCESS_TOKEN')
     coinbase_token = None
 
     # plaid credit score
     if plaid_token:
         # create client connection
-        # client_plaid = plaid_client('sandbox', getenv('PLAID_CLIENT_ID'), getenv('PLAID_SECRET'))
-        client_plaid = plaid_client('production', getenv('CLIENT_ID'), getenv('SECRET'))
+        client_plaid = plaid_client('sandbox', getenv('CLIENT_ID'), getenv('SECRET'))
+        # client_plaid = plaid_client('production', getenv('CLIENT_ID'), getenv('SECRET'))
         
         # fetch data
-        plaid_txn = plaid_transactions(plaid_token, client_plaid, 360)
+        plaid_txn = plaid_transactions(plaid_token, client_plaid, 330)
         # format data
         tx = dict_to_json(plaid_txn)
         # compute score
         output, feedback = plaid_score(tx)
         return output, feedback
-        # return plaid_txn
+
     
     # # coinbase credit score
     # elif coinbase_token:
@@ -55,8 +54,3 @@ def credit_score():
 
 
 
-# Remove once you've completed testing
-s, f = credit_score()
-print(s)
-print()
-print(f)
