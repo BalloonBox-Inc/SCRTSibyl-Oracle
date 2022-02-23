@@ -32,9 +32,12 @@ def credit_score():
         
         # fetch data
         plaid_txn = plaid_transactions(plaid_token, client_plaid, 360)
-        return plaid_txn
-        # # compute score
-        # output, feedback = plaid_score(plaid_txn)
+        # format data
+        tx = dict_to_json(plaid_txn)
+        # compute score
+        output, feedback = plaid_score(tx)
+        return output, feedback
+        # return plaid_txn
     
     # # coinbase credit score
     # elif coinbase_token:
@@ -48,3 +51,12 @@ def credit_score():
     #     output = coinbase_score(coinbase_attr)
     
     # return make_response(output, 200)
+
+
+
+
+# Remove once you've completed testing
+s, f = credit_score()
+print(s)
+print()
+print(f)

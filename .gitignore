@@ -11,4 +11,7 @@
 **.ipynb
 
 # virtual environment
-/SCRTSybil
+/SCRTSibyl
+
+# Json files
+**.json

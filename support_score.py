@@ -17,10 +17,10 @@ def plaid_score(txn):
 
     feedback = create_feedback_plaid()
 
-    credit = plaid_credit(txn, feedback)
-    velocity = plaid_velocity(txn, feedback)
-    stability = plaid_stability(txn, feedback)
-    diversity = plaid_diversity(txn, feedback)
+    credit, feedback = plaid_credit(txn, feedback)
+    velocity, feedback = plaid_velocity(txn, feedback)
+    stability, feedback = plaid_stability(txn, feedback)
+    diversity, feedback = plaid_diversity(txn, feedback)
 
     # credit score, range = [300, 900]
     score = 300 + 600*(
