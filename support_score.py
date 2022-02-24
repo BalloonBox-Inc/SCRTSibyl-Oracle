@@ -30,12 +30,14 @@ def coinbase_score(acc, txn):
 
     feedback = create_feedback_coinbase()
 
-    kyc, feedback = plaid_kyc(acc, txn, feedback)
-    history, feedback = plaid_history(acc, feedback)
-    liquidity, feedback = plaid_liquidity(acc, txn, feedback)
-    activity, feedback = plaid_activity(acc, txn, feedback)
+    kyc, feedback = coinbase_kyc(acc, txn, feedback)
+    history, feedback = coinbase_history(acc, feedback)
+    liquidity, feedback = coinbase_liquidity(acc, txn, feedback)
+    activity, feedback = coinbase_activity(acc, txn, feedback)
 
     score = 300 + 600*(0.10*kyc + 0.10*history + 0.40*liquidity + 0.40*activity)
 
     return score, feedback
+
+
 

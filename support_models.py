@@ -1,6 +1,9 @@
 from support_metrics_plaid import *
+from support_metrics_coinbase import *
 
-
+# -------------------------------------------------------------------------- #
+#                                Plaid Model                                 #
+# -------------------------------------------------------------------------- #
 def plaid_credit(txn, feedback):
 
     mix, feedback = credit_mix(txn, feedback)
@@ -54,4 +57,51 @@ def plaid_diversity(txn, feedback):
 
     score = 0.60*acc_count + 0.40*profile
 
+    return score, feedback
+
+
+
+
+
+# -------------------------------------------------------------------------- #
+#                               Coinbase Model                               #
+# -------------------------------------------------------------------------- #
+def coinbase_kyc(acc, txn, feedback):
+
+    score, feedback = kyc(acc, txn, feedback)
+
+    return score, feedback
+
+
+def coinbase_history(acc, feedback):
+
+    score, feedback = history_acc_longevity(acc, feedback)
+
+    return score, feedback
+
+
+def coinbase_liquidity(acc, txn, feedback):
+
+    balance, feedback = liquidity_tot_balance_now(acc, feedback)
+    run_balance, feedback = liquidity_avg_running_balance(acc, txn, feedback)
+
+    score = 0.60*balance + 0.40*run_balance
+
+    return score, feedback
+
+
+def coinbase_activity(acc, txn, feedback):
+
+    credit_volume, feedback = activity_tot_volume_tot_count(txn, 'credit', feedback)
+    debit_volume, feedback = activity_tot_volume_tot_count(txn, 'debit', feedback)
+    credit_consistency, feedback = activity_consistency(txn, 'credit', feedback)
+    debit_consistency, feedback = activity_consistency(txn, 'debit', feedback)
+    inception, feedback = activity_profit_since_inception(acc, txn, feedback)
+
+    score = 0.2*credit_volume \
+        + 0.2* debit_volume \
+        + 0.2*credit_consistency \
+        + 0.2*debit_consistency \
+        + 0.2*inception \
+    
     return score, feedback
