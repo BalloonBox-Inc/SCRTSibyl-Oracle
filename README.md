@@ -1,4 +1,4 @@
-SCRTSybil: the first credit score check oracle for the Secret Network
+SCRTSibyl: the first credit score check oracle for the Secret Network
 
 
 ## Milestone 1 
