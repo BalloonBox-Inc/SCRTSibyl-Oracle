@@ -62,6 +62,8 @@ def credit_score_coinbase():
         top_coins = top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret)
 
         # fetch data
+        # acc = unfiltered_acc(coinbase_api_key, coinbase_api_secret)
+        # tx = unfiltered_tx(coinbase_api_key, coinbase_api_secret, acc)
         acc = filter_acc(coinbase_api_key, coinbase_api_secret, top_coins)
         tx = filter_tx(coinbase_api_key, coinbase_api_secret, acc)
         tx = refactor_send_tx(tx)

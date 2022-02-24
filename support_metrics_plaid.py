@@ -433,7 +433,8 @@ def credit_mix(tx, feedback):
                 credit_ids.append(a['account_id'])
                 
         how_many = len(credit_acc)
-        feedback['credit'].append('User owns {} credit account(s), named {}'.format(str(how_many), credit_acc))
+        feedback['credit'].append('User owns {} credit account(s)'.format(str(how_many)))
+        # feedback['credit'].append('{}'.format(credit_acc)) #print names of credit accoutns
         
         if credit_acc:
             # How long has the user owned their credit accounts for?
@@ -487,7 +488,7 @@ def credit_limit(tx, feedback):
             m = np.digitize(max(length), duration, right=True)
             n = np.digitize(limit, volume_cred_limit, right=True)
             score = m7x7_11_m7_n9[m][n]
-            feedback['credit'].append('Cumulative credit limit = {}'.format(limit))
+            feedback['credit'].append('Cumulative credit limit = ${}'.format(limit))
 
         else:
             score = 0
@@ -555,7 +556,7 @@ def credit_util_ratio(tx, feedback):
                 m = np.digitize(len(util)*30, duration, right=True)
                 n = np.digitize(avg_util, percent_cred_util, right=True)
                 score = m7x7_11_m7_n9[m][n]
-                feedback['credit'].append('Credit util ratio (mean of monthly mean) = {}'.format(avg_util))
+                feedback['credit'].append('Credit util ratio (monthly avg) = {}'.format(round(avg_util, 2)))
 
             else:
                 score = 0
@@ -942,7 +943,7 @@ def velocity_slope(tx, feedback):
             pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
             r = len(pos) / len(neg) * abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             score = grid_log[np.digitize(r, slope_product, right=True)]
-            feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(r))
+            feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(round(r, 4)))
 
         return score, feedback
 

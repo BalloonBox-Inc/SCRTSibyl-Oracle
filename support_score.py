@@ -6,7 +6,7 @@ def create_feedback_plaid():
     return {'data_fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
 
 def create_feedback_coinbase():
-    return {'data fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+    return {'data_fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
 
 
 
