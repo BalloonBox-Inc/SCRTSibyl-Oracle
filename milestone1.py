@@ -66,8 +66,8 @@ path_dir = config['PATH_REAL_USERS_DATA']
 # -------------------------------------------------------------------------- # 
 
 config = dotenv_values()
-APIKey = config['COINBASE_API_KEY']
-APISecret = config['COINBASE_API_SECRET']
+APIKey = config['COINBASE_CLIENT_ID']
+APISecret = config['COINBASE_CLIENT_SECRET']
 coinmarketcap_key = config['COINMARKETCAP_KEY']
 path_dir_coinbase = config['PATH_DIR_COINBASE_DATA']
 
