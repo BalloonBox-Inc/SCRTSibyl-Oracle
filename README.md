@@ -1,53 +1,93 @@
-SCRTSybil: the first credit score check oracle for the Secret Network
+# 🚀 SCRT SYBIL
+
+![scrt sibyl image](./images/logo_horizontal.png)
+
+## At a Glance
+SCRTSibyl is an oracle for credit scoring developed for the Secret Network. The oracle returns a numerical, private, and encrypted credit score affirming users' credibility and trustworthiness within the Secret Network ecosystem. The DApp was designed with one specific use case in mind: P2P micro-lending, which is facilitating lending and borrowing of microloans ranging between $1-25K USD. Running a credit score check on a user you are considering lending money to or borrowing money from, will inform you whether and how much a user can pay back upon loan issuance. 
+
+The DApp works as follow: 
+ - it acquires user's financial data by integrating with two validators ([Plaid](https://dashboard.plaid.com/overview) & [Coinbase](https://developers.coinbase.com/))
+ - it runs an algorithm on given data to compute a score representing the financial health of a user
+ - it writes the score to the Secret blockchain via a CosmWasm smart contract
+ - it makes the score available to service providers (i.e., loan issuers) by releasing permission/viewing Secret keys. 
+
+Ultimately, this will incentivize on-chain traffic, it will affirm the reputation of those users requesting a credit score, and it will execute a credit score check to validate their credibility, while also preserving their privacy. 
+
+ ---
 
 
-## Milestone 1 
+## Executing Locally 
+ * download or clone the repo to your machine
+ * install dependancies 
+ * set up ```.env``` file 
+ * execute 
 
 
+### Package Manager Required :package:
+npm or yarn
+
+Run in local terminal following command:
+```
+git clone  ... my-project-name
+cd my-project-name
+yarn install
+```
+
+
+### Credentials Required :old_key: :lock:
+
+You'll need to create a Developer Coinmarket Cap API Key, following the CoinMarketCap Developers guide [here.](https://coinmarketcap.com/api/documentation/v1/#section/Introduction)
+
+Next, create a ```.env``` local file in your root folder: 
+
+```
+PLAID_CLIENT_ID=your_client_id
+PLAID_CLIENT_SECRET=your_sandbox_key
+PLAID_ACCESS_TOKEN=your_unique_access_token
+PLAID_URL_SANDBOX="sandbox.plaid.com"
+
+COINBASE_CLIENT_ID=your_client_Id
+COINBASE_CLIENT_SECRET=your_client_secret
+
+COINMARKETCAP_KEY=your_coinmarketcap_key
+```
+
+
+
+
+## Credit Score Model 
 
 ### Algorithm Architecture :page_facing_up:
+Understand the credit score model at a glance. 
 
-#### Coinbase
-![](https://github.com/BalloonBox-Inc/scrt-network-oracle/blob/dev/pix/credit_score_logic_coinbase.png)
+There are two distinct models, one for each of our chosen validators, namely Plaid & Coinbase.
 
-#### Plaid
-![](https://github.com/BalloonBox-Inc/scrt-network-oracle/blob/dev/pix/credit_score_logic_plaid.png)
+[**Plaid model**](./images/logic_plaid.png) diagram and features:
+- :curling_stone: analyze 5 years of transaction history
+- :gem: dynamically select user's best credit card products
+- :dart: detect recurring deposits and withdrawals (monthly)
+- :hammer_and_wrench: deploy linear regression on minimum running balance over the past 24 months
+- :magnet: auto-filter & discard micro transactions
+- :pushpin: inspect loan, investment, and saving accounts
 
-
-
-
-### Deliverable 🎯 
-APIs, Integration, Credit Score Algorithm
-- **Estimated duration:** Week 1-6
-- **Start date:** Jan 17, 2022
-- **End Date:** Feb 28, 2022
-- **Costs:** 42,500 USD
-
-
-| Number | Deliverable | Specification |
-| -----: | ----------- | ------------- |
-| 0a. | License | Apache 2.0 |
-| 0b. | Documentation | Provide inline documentation of the code. |
-| 1. | API module | Build APIs to selected validators. For this initial grant, we will limit our validators to Coinbase & Plaid. | 
-| 2. | Data Cleaning | Setup VM with sufficient resources for score computation. |
-| 3. | Data Integration | Overlay web2 with web3 validation data for each API. |
-| 4. | ML Module - Build | Build an light ML model to calculate user credit score. |
-
-
+[**Coinbase model**](./images/logic_coinbase.png) diagram and features:
+- :bell: check for user KYC status
+- :key: live fetch of top 20 cryptos by market cap via [CoinMarketCap](https://coinmarketcap.com/) API
+- :fire: dynamically select user's best crypto wallets
+- :closed_lock_with_key: auto-convert any currency to USD in real-time
+- :bulb: analyze all transactions since Coinbase account inception
+- :moneybag: compute user's net profit
  
+ 
+  
+## Interpret Your Score :mag:
 
-### Timeline 🏁
-2022/1 and 2022/2
+SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins describing qualitatively the score (see fuel gauge in diagram below) compared to average scores obtained by other users. Each bin is associated with a USD equivalent, which represents the maximum amount of loan in USD the user qualified for based on the SCRTSibyl oracle calculation.
 
-|Mon|Tue|Wed|Thu|Fri|Sat|Sun|
-|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
-|17<br/>  `milestone#1 start date`|18<br/> `Access Plaid Quiskstart&Sandbox` |19|20<br/> `Plaid Algo design`|21<br/> `Plaid Algo Team brainstorm`|22|23|
-|24<br/>  `get 10PlaidDev items`|25<br/> `Understand Plaid data`|26<br/> `Plaid Algo`|27<br/> `Plaid Algo`|28<br/> `📌 Plaid Algo draft due` |29|30|
-|31<br/> `Plaid Algo`|1<br/> `Plaid Algo`|2<br/> `Plaid Algo`|3<br/> `Plaid Algo wiring. Run it on test data`|4<br/> `📌  finish building Plaid Algo` **due**|5|6|
-|7<br/> `Coinbase Algo`|8<br/> `Coinbase Algo`|9<br/> `Coinbase Algo` |10<br/> `Coinbase Algo`|11<br/> `📌 finish building Coinbase Algo` **due**|12|13|
-|14<br/> `Algos testing`|15<br/> `Algos testing`|16<br/> `Algos testing`|17<br/> `Algo deployment & wiring`|18<br/> `📌  Anticipated Milestone 1` **due**|19|20|
-|21|22|23|24|25|26|27| 
-|🔥 28 🔥 <bd/>  `milestone#1` **due**|29|30|31||||
+![](./images/ranges.png)
+
+
+
 
 
 
