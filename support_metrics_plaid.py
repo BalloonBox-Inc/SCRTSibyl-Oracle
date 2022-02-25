@@ -5,7 +5,7 @@ import json
 
 import numpy as np
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, date
 from datetime import timedelta
 from dotenv import dotenv_values
 
@@ -135,6 +135,58 @@ def get_tx(path_dir, userid):
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
+
+def datetime_to_str(o):
+    """
+    cast a datetime or date object into its string representation
+
+            Parameters:
+                o: datetime or date object
+
+            Returns:
+                string representation for its associated datetime or date object
+
+    """
+    if (isinstance(o, date)) | (isinstance(o, datetime)):
+        return o.__str__()
+
+
+
+
+
+def dict_to_json(plaid_txn):
+    """
+    serialize a Python data structure (dict) as JSON using the json.dumps method
+
+            Parameters:
+                plaid_txn (dict): data dictionary fetched through Plaid API
+
+            Returns:
+                tx (dict): serialized json file containing user accounts and transactions. Datetime objects are parsed into their string representation
+     """
+    try:
+        # Write Plaid API data to json    
+        with open('data_plaid.json', 'w') as fp:
+            # Keep only compleetd ransactions (filter out pending transactions)
+            all_txn = []
+            for t in plaid_txn['transactions']:
+                if t['pending'] == False:
+                    all_txn.append(t)
+
+            # Prettify and write to json
+            tx = {'accounts':plaid_txn['accounts'], 'transactions':all_txn}
+            json.dump(tx, fp,  indent=4, default=datetime_to_str)
+
+        # Open json file
+        tx = json.load(open('data_plaid.json'))
+        return tx
+
+    except Exception as e:
+        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, dict_to_json.__name__, e))
+
+
+
+
 
 def dynamic_select(tx, acc_name):
     """
@@ -376,12 +428,13 @@ def credit_mix(tx, feedback):
         
         for a in acc:
             if 'credit' in a['type']:
-                name = '{}_{}_{}'.format(a['type'], a['subtype'], a['official_name'])
+                name = '{}_{}'.format(a['subtype'], a['official_name'])
                 credit_acc.append(name)
                 credit_ids.append(a['account_id'])
                 
         how_many = len(credit_acc)
-        feedback['credit'].append('User owns {} credit account(s), named {}'.format(str(how_many), credit_acc))
+        feedback['credit'].append('User owns {} credit account(s)'.format(str(how_many)))
+        # feedback['credit'].append('{}'.format(credit_acc)) #print names of credit accoutns
         
         if credit_acc:
             # How long has the user owned their credit accounts for?
@@ -435,7 +488,7 @@ def credit_limit(tx, feedback):
             m = np.digitize(max(length), duration, right=True)
             n = np.digitize(limit, volume_cred_limit, right=True)
             score = m7x7_11_m7_n9[m][n]
-            feedback['credit'].append('Cumulative credit limit = {}'.format(limit))
+            feedback['credit'].append('Cumulative credit limit = ${}'.format(limit))
 
         else:
             score = 0
@@ -503,7 +556,7 @@ def credit_util_ratio(tx, feedback):
                 m = np.digitize(len(util)*30, duration, right=True)
                 n = np.digitize(avg_util, percent_cred_util, right=True)
                 score = m7x7_11_m7_n9[m][n]
-                feedback['credit'].append('Credit util ratio (mean of monthly mean) = {}'.format(avg_util))
+                feedback['credit'].append('Credit util ratio (monthly avg) = {}'.format(round(avg_util, 2)))
 
             else:
                 score = 0
@@ -890,7 +943,7 @@ def velocity_slope(tx, feedback):
             pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
             r = len(pos) / len(neg) * abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             score = grid_log[np.digitize(r, slope_product, right=True)]
-            feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(r))
+            feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(round(r, 4)))
 
         return score, feedback
 
@@ -1041,7 +1094,7 @@ def diversity_profile(tx, feedback):
             m = np.digitize(len(myacc), count1, right=False)
             n = np.digitize(balance, volume_invest, right=False)
             score = m7x7_11_m7_n9[m][n]
-            feedback['diversity'].append('User owns {} investment/saving accounts with cum balance now of ${}'.format(len(myacc), balance))
+            feedback['diversity'].append('User owns {} investment/saving accounts with cum balance now = ${}'.format(len(myacc), balance))
         else:
             score = 0
             feedback['diversity'].append('no investing nor saving accounts')
