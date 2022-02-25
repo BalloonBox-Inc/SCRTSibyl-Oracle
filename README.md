@@ -1,6 +1,6 @@
 # 🚀 SCRT SYBIL
 
-![scrt sybil image](./images/logo_horizontal.png)
+![scrt sibyl image](./images/logo_horizontal.png)
 ⚡️ This is the *credit score algorithm* Repo for our SCRTSibyl oracle. 
 
 ## At a Glance
@@ -14,17 +14,17 @@ The dapp works as follow:
 
 Ultimately, this will incentivize on-chain traffic, it will affirm the reputation of those users requesting a credit score, and it will execute a credit score check to validate their credibility, while also preserving their privacy. 
 
+ ---
 
 
-
-## Executing Locally :shipit:
+## Executing Locally 
  - download or clone the repo to your machine
  - install dependancies 
  - set up ```.env``` file 
  - execute 
 
 
-#### Package Manager Required
+#### Package Manager Required :shipit:
 npm or yarn
 
 
@@ -60,39 +60,40 @@ COINMARKETCAP_KEY=your_coinmarketcap_key
 ## Credit Score Model 
 
 #### Algorithm Architecture :page_facing_up:
-Undertsand the credit score model at a glance. 
+Understand the credit score model at a glance. 
 
 We developed two distinct models, one for each of our chosen validators, namely Plaid & Coinbase.
 
- -  :dollar: credit score model for [**Plaid**](./images/logic_plaid.png) 
-
- -  :moneybag: credit score model for[** Coinbase**](./images/logic_coinbase.png) 
-
-#### Features
-Plaid model highlights
-- :fire: fetch 5 yrs transaction history in < 1 second
-- :dark_sunglasses: select dynamically user's best credit card products
+[**Plaid model**](./images/logic_plaid.png) diagram and features:
+- :satellite: fetch 5 yrs transaction history in < 1 second
+- :gem: select dynamically user's best credit card products
 - :dart: smart detection of recurring deposits and withdrawals (monthly)
-- :chart: linear regression on minimum running balance past 24 months
-- :anchor: auto-filter & discard micro transactions
-- :magnet: inspect loan, investment, saving accounts
+- :hammer_and_wrench: linear regression on minimum running balance past 24 months
+- :magnet: auto-filter & discard micro transactions
+- :pushpin: inspect loan, investment, saving accounts
 
-Coinbase model highlight
-- :key: check for user KYC status
-- :atom_symbol: live fetch of top 20 cryptos via [CoinMarketCap](https://coinmarketcap.com/) API
-- :gem: dynamic selection of user's best crypto wallets
-- :safety_pin: real-time automatic conversion of any currency to USD
-- :satellite: analyze all transactions since Coinbase account inception
-- :hammer_and_wrench: smart user's net profit calculator
+[**Coinbase model**](./images/logic_coinbase.png) diagram and features:
+- :bell: check for user KYC status
+- :key: live fetch of top 20 cryptos via [CoinMarketCap](https://coinmarketcap.com/) API
+- :fire: dynamic selection of user's best crypto wallets
+- :closed_lock_with_key: real-time automatic conversion of any currency to USD
+- :bulb: analyze all transactions since Coinbase account inception
+- :moneybag: smart user's net profit calculator
+ 
  
   
 ## Interpret Your Score :mag:
 
+SCRTSibyl returns to the user a numerical score ranging from 300-900 points. 
+
+The score is partitioned into categorical bins describing qualitatively the score (see fuel gauge in diagram below) compared to average scores obtained by other users.
+
+Each bin is associated with a USD equivalent. This is the maximum amount of loan in USD the user qualified for based on the SCRTSibyl oracle calculation.
 ![](./images/ranges.png)
 
 
 
- ---
+
 
 
 
