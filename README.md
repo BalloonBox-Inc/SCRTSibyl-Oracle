@@ -18,15 +18,14 @@ Ultimately, this will incentivize on-chain traffic, it will affirm the reputatio
 
 
 ## Executing Locally 
- - download or clone the repo to your machine
- - install dependancies 
- - set up ```.env``` file 
- - execute 
+ * download or clone the repo to your machine
+ * install dependancies 
+ * set up ```.env``` file 
+ * execute 
 
 
-#### Package Manager Required :shipit:
+### Package Manager Required :package:
 npm or yarn
-
 
 Run in local terminal following command:
 ```
@@ -36,7 +35,7 @@ yarn install
 ```
 
 
-#### Credentials Required :old_key: :lock:
+### Credentials Required :old_key: :lock:
 
 You'll need to create a Developer Coinmarket Cap API Key, following the CoinMarketCap Developers guide [here.](https://coinmarketcap.com/api/documentation/v1/#section/Introduction)
 
@@ -59,13 +58,13 @@ COINMARKETCAP_KEY=your_coinmarketcap_key
 
 ## Credit Score Model 
 
-#### Algorithm Architecture :page_facing_up:
+### Algorithm Architecture :page_facing_up:
 Understand the credit score model at a glance. 
 
 We developed two distinct models, one for each of our chosen validators, namely Plaid & Coinbase.
 
 [**Plaid model**](./images/logic_plaid.png) diagram and features:
-- :satellite: fetch 5 yrs transaction history in < 1 second
+- :curling_stone: fetch 5 yrs transaction history in < 1 second
 - :gem: select dynamically user's best credit card products
 - :dart: smart detection of recurring deposits and withdrawals (monthly)
 - :hammer_and_wrench: linear regression on minimum running balance past 24 months
@@ -84,11 +83,8 @@ We developed two distinct models, one for each of our chosen validators, namely 
   
 ## Interpret Your Score :mag:
 
-SCRTSibyl returns to the user a numerical score ranging from 300-900 points. 
+SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins describing qualitatively the score (see fuel gauge in diagram below) compared to average scores obtained by other users. Each bin is associated with a USD equivalent. This is the maximum amount of loan in USD the user qualified for based on the SCRTSibyl oracle calculation.
 
-The score is partitioned into categorical bins describing qualitatively the score (see fuel gauge in diagram below) compared to average scores obtained by other users.
-
-Each bin is associated with a USD equivalent. This is the maximum amount of loan in USD the user qualified for based on the SCRTSibyl oracle calculation.
 ![](./images/ranges.png)
 
 
