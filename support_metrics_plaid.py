@@ -434,6 +434,7 @@ def credit_mix(tx, feedback):
                 
         how_many = len(credit_acc)
         feedback['credit'].append('User owns {} credit account(s)'.format(str(how_many)))
+        feedback['credit'].append('{}'.format(credit_acc))
         # feedback['credit'].append('{}'.format(credit_acc)) #print names of credit accoutns
         
         if credit_acc:
