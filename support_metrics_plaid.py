@@ -1095,7 +1095,7 @@ def diversity_profile(tx, feedback):
             m = np.digitize(len(myacc), count1, right=False)
             n = np.digitize(balance, volume_invest, right=False)
             score = m7x7_11_m7_n9[m][n]
-            feedback['diversity'].append('User owns {} investment/saving accounts with cum balance now = ${}'.format(len(myacc), balance))
+            feedback['diversity'].append('User owns {} saving accounts with cum balance now = ${}'.format(len(myacc), balance))
         else:
             score = 0
             feedback['diversity'].append('no investing nor saving accounts')
