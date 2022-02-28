@@ -26,7 +26,7 @@ Ultimately, this will incentivize on-chain traffic, it will affirm the reputatio
 ### Package Manager Required :package:
 npm or yarn
 
-Run in local terminal following command:
+Run in local terminal the following command:
 ```
 git clone  ... my-project-name
 cd my-project-name
@@ -82,10 +82,9 @@ There are two distinct models, one for each of our chosen validators, namely Pla
   
 ## Interpret Your Score :mag:
 
-SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins describing qualitatively the score (see fuel gauge in diagram below) compared to average scores obtained by other users. Each bin is associated with a USD equivalent, which represents the maximum amount of loan in USD the user qualified for based on the SCRTSibyl oracle calculation.
+SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor/poor/fair/good/very good/excellent/exceptional) which describe the score qualitatively (see fuel gauge in diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTSibyl oracle calculation.
 
 ![](./images/ranges.png)
-
 
 
 
