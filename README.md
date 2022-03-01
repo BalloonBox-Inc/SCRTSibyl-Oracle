@@ -1,4 +1,4 @@
-# 🚀 SCRT SYBIL
+# 🚀 SCRT SIBYL
 
 ![scrt sibyl image](./images/logo_horizontal.png)
 
