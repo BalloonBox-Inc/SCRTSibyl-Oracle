@@ -14,13 +14,21 @@ def create_feedback_coinbase():
 def plaid_score(txn):
 
     feedback = create_feedback_plaid()
+    mix, feedback = credit_mix(txn, feedback)
+    feedback = create_feedback_plaid()
 
-    credit, feedback = plaid_credit(txn, feedback)
-    velocity, feedback = plaid_velocity(txn, feedback)
-    stability, feedback = plaid_stability(txn, feedback)
-    diversity, feedback = plaid_diversity(txn, feedback)
+    if mix == 0:
+        feedback['credit'].append("User owns NO credit cards")
+        velocity, feedback = plaid_velocity(txn, feedback)
+        stability, feedback = plaid_stability(txn, feedback)
+        diversity, feedback = plaid_diversity(txn, feedback)
+        score = 300 + 600*(0.42*velocity + 0.42*stability + 0.16*diversity) # adds up to 0.95
 
-    score = 300 + 600*(0.45*credit + 0.35*velocity + 0.15*stability + 0.05*diversity)
+    else:   
+        velocity, feedback = plaid_velocity(txn, feedback)
+        stability, feedback = plaid_stability(txn, feedback)
+        diversity, feedback = plaid_diversity(txn, feedback)
+        score = 300 + 600*(0.45*credit + 0.25*velocity + 0.25*stability + 0.05*diversity)
     
     return score, feedback
 

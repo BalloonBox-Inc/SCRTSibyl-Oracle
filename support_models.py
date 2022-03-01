@@ -14,11 +14,11 @@ def plaid_credit(txn, feedback):
     livelihood, feedback = credit_livelihood(txn, feedback)
 
     score = 0.05*mix \
-        + 0.15*limit \
-        + 0.80*0.35*util_ratio \
-        + 0.80*0.15*interest \
-        + 0.80*0.40*length \
-        + 0.80*0.10*livelihood \
+        + 0.40*limit \
+        + 0.12*util_ratio \
+        + 0.05*interest \
+        + 0.26*length \
+        + 0.12*livelihood 
 
     return score, feedback
 
@@ -31,11 +31,11 @@ def plaid_velocity(txn, feedback):
     txn_count, feedback = velocity_month_txn_count(txn, feedback)
     slope, feedback = velocity_slope(txn, feedback)
 
-    score = 0.05*withdrawals \
-        + 0.15*deposits \
-        + 0.40*net_flow \
-        + 0.10*txn_count \
-        + 0.30*slope \
+    score = 0.16*withdrawals \
+        + 0.20*deposits \
+        + 0.30*net_flow \
+        + 0.16*txn_count \
+        + 0.18*slope 
 
     return score, feedback
 
@@ -45,7 +45,7 @@ def plaid_stability(txn, feedback):
     balance, feedback = stability_tot_balance_now(txn, feedback)
     run_balance, feedback = stability_min_running_balance(txn, feedback)
 
-    score = 0.65*balance + 0.35*run_balance
+    score = 0.70*balance + 0.30*run_balance
 
     return score, feedback
 
@@ -102,6 +102,6 @@ def coinbase_activity(acc, txn, feedback):
         + 0.2* debit_volume \
         + 0.2*credit_consistency \
         + 0.2*debit_consistency \
-        + 0.2*inception \
+        + 0.2*inception 
     
     return score, feedback

@@ -18,16 +18,15 @@ import matplotlib.pyplot as plt
 #                                    -utils-                                 #
 # -------------------------------------------------------------------------- #
 
-def build_2D_matrix_by_rule(size, exponent, rule):
+def build_2D_matrix_by_rule(size, scalar):
     """
     returns a matrix of given size, built through a generalized rule. The matrix must be 2D
 
             Parameters:
                 size (tuple): declare the matrix size in this format (m, n), where m = rows and n = columns
-                exponent (tuple): exponents to raise your row and column number by. Follow the format (m_exp, n_exp)
-                rule (tuple): value of cells in the matrix. Follow the format (m_float, n_float)
-                              m_float: the current cell is equal to a float * row # 
-                              n_float: the current cell is equal to a float * column #
+                scalar (tuple): scalars to multiply the log_10 by. Follow the format (m_scalar, n_scalar)
+                    m_float: the current cell is equal to m_scalar * log_10(row #) 
+                    n_float: the current cell is equal to n_scalar * log_10(column #) 
 
             Returns:
                 a matrix of size m x n whose cell are given by m_float+n_float
@@ -36,8 +35,8 @@ def build_2D_matrix_by_rule(size, exponent, rule):
     matrix = np.zeros(size)
     for m in range(matrix.shape[0]):
         for n in range(matrix.shape[1]):
-            matrix[m][n] = round((m**exponent[0]*rule[0] + n**exponent[1]*rule[1])/100, 2)
-
+            matrix[m][n] = round(scalar[0]*np.log10(m+1) + scalar[1]*np.log10(n+1), 2)
+            
     return matrix
 
 
@@ -51,13 +50,12 @@ def build_2D_matrix_by_rule(size, exponent, rule):
 warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
 
 # Scoring grids
-# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.15_column#**1*0.05 -> m7x7_11_m12_n4
-# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.05_column#**2*0.03 -> m7x7_12_m4_n2
-m7x7_12_m4_n2 = build_2D_matrix_by_rule((7,7), (1,2), (4.5,2))
-m7x7_11_m7_n9 = build_2D_matrix_by_rule((7,7), (1,1), (7,9.5))
-m7x7_11_m12_n4 = build_2D_matrix_by_rule((7,7), (1,1), (12.5,4))
-m3x7_11_m20_n10 = build_2D_matrix_by_rule((3,7), (1,1), (20,10))
-m3x7_12_m14_n2 = build_2D_matrix_by_rule((3,7), (1,2), (14,2))
+# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.15_column#**1*0.05 -> m7x7_03_17.T
+# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.05_column#**2*0.03 -> m7x7_03_17
+m7x7_03_17 = build_2D_matrix_by_rule((7,7), (1/3.03, 1/1.17))
+m7x7_85_55 = build_2D_matrix_by_rule((7,7), (1/1.85, 1/1.55))
+m3x7_2_4 = build_2D_matrix_by_rule((3,7), (1/1.2, 1/1.4))
+m3x7_73_17 = build_2D_matrix_by_rule((3,7), (1/1.73, 1/1.17))
 
 fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300)/600  # Fico score binning - normalized
 fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2) for i in range(len(fico)-1)] # Medians of Fico scoring bins
@@ -76,8 +74,8 @@ count_invest_acc = np.array([1, 2, 3, 4, 5, 6])
 
 
 volume_flow = np.array([round(x, 0) for x in fico*4000])[1:]
-volume_cred_limit = np.array([1, 5, 8, 10, 14, 18])*1000
-volume_withdraw = np.array([round(x, 0) for x in fico*3000])[1:]
+volume_cred_limit = np.array([0.5, 1, 5, 8, 13, 18])*1000
+volume_withdraw = np.array([round(x, 0) for x in fico*1500])[1:]
 volume_deposit = np.array([round(x, 0) for x in fico*7000])[1:]
 volume_invest = np.array([3, 4, 5.5, 7, 8, 10])*1000
 volume_balance_now = np.array([round(x, 0) for x in fico*25000])[1:]
@@ -434,8 +432,7 @@ def credit_mix(tx, feedback):
                 
         how_many = len(credit_acc)
         feedback['credit'].append('User owns {} credit account(s)'.format(str(how_many)))
-        feedback['credit'].append('{}'.format(credit_acc))
-        # feedback['credit'].append('{}'.format(credit_acc)) #print names of credit accoutns
+        feedback['credit'].append('{}'.format(credit_acc)) #print names of credit accoutns
         
         if credit_acc:
             # How long has the user owned their credit accounts for?
@@ -448,7 +445,8 @@ def credit_mix(tx, feedback):
            
             m = np.digitize(how_many, count0, right=True)
             n = np.digitize(how_long, duration, right=True)
-            score = m3x7_11_m20_n10[m][n]
+            score = m3x7_2_4[m][n]
+            feedback['credit'].append(score)
         
         else:
             score = 0
@@ -488,8 +486,8 @@ def credit_limit(tx, feedback):
 
             m = np.digitize(max(length), duration, right=True)
             n = np.digitize(limit, volume_cred_limit, right=True)
-            score = m7x7_11_m7_n9[m][n]
-            feedback['credit'].append('Cumulative credit limit = ${}'.format(limit))
+            score = m7x7_85_55[m][n]
+            feedback['credit'].append('{} Cumulative credit limit = ${}'.format(score, limit))
 
         else:
             score = 0
@@ -556,8 +554,8 @@ def credit_util_ratio(tx, feedback):
                 avg_util = np.mean(util['cred_util'])
                 m = np.digitize(len(util)*30, duration, right=True)
                 n = np.digitize(avg_util, percent_cred_util, right=True)
-                score = m7x7_11_m7_n9[m][n]
-                feedback['credit'].append('Credit util ratio (monthly avg) = {}'.format(round(avg_util, 2)))
+                score = m7x7_85_55[m][n]
+                feedback['credit'].append('{} Credit util ratio (monthly avg) = {}'.format(score, round(avg_util, 2)))
 
             else:
                 score = 0
@@ -609,6 +607,7 @@ def credit_interest(tx, feedback):
 
                 frequency = len(interests)/length
                 score = fico_medians[np.digitize(frequency, frequency_interest, right=True)]
+                feedback['credit'].append('{} Count interest charged (last 2 yrs) = {}'.format(score, round(frequency, 0)))
             
             else:
                 score = 0
@@ -643,7 +642,7 @@ def credit_length(tx, feedback):
             date_today = datetime.today().date() 
             how_long = (date_today - oldest_txn).days # date today - date of oldest credit transaction
             score = fico_medians[np.digitize(how_long, duration, right=True)]
-            feedback['credit'].append('Duration of best credit card = {} (days)'.format(how_long))
+            feedback['credit'].append('{} Duration of best credit card = {} (days)'.format(score, how_long))
 
         else:
             score = 0
@@ -694,7 +693,8 @@ def credit_livelihood(tx, feedback):
 
             mean = d['amounts'].mean()
             score = fico_medians[np.digitize(mean, count_lively, right=True)]
-        
+            feedback['credit'].append('{} Avg cunt monthly txn = {}'.format(score, round(mean, 0)))
+            
         else:
             score = 0
         
@@ -744,7 +744,8 @@ def velocity_withdrawals(tx, feedback):
 
                 m = np.digitize(how_many, count0, right=True)
                 n = np.digitize(volume, volume_withdraw, right=True)
-                score = m3x7_12_m14_n2[m][n]
+                score = m3x7_73_17[m][n]
+                feedback['velocity'].append('{} Monthly withdrawals: count = {}, volume = {}'.format(score, round(how_many, 0), round(volume, 0)))
 
         else:
             score = 0
@@ -790,7 +791,8 @@ def velocity_deposits(tx, feedback):
 
                 m = np.digitize(how_many, count0, right=True)
                 n = np.digitize(volume, volume_deposit, right=True)
-                score = m3x7_12_m14_n2[m][n]
+                score = m3x7_73_17[m][n]
+                feedback['velocity'].append('{} Monthly deposits: count = {}, volume = {}'.format(score, round(how_many, 0), round(volume, 0)))
 
         else:
             score = 0
@@ -834,8 +836,8 @@ def velocity_month_net_flow(tx, feedback):
         # Calculate score
         m = np.digitize(magnitude, volume_flow, right=True)
         n = np.digitize(direction, ratio_flows, right=True)
-        score = m7x7_11_m12_n4[m][n]
-        feedback['velocity'].append('Avg monthly net flow for last year = ${}'.format(round(magnitude, 2)))
+        score = m7x7_03_17.T[m][n]
+        feedback['velocity'].append('{} Avg monthly net flow for last year = ${}'.format(score, round(magnitude, 2)))
 
         return score, feedback
 
@@ -900,6 +902,7 @@ def velocity_month_txn_count(tx, feedback):
         mycounts = [x for y in mycounts for x in y]
         how_many = np.mean(mycounts) 
         score = fico_medians[np.digitize(how_many, count_txn_month, right=True)]
+        feedback['velocity'].append('{} Avg count monthly txn = {}'.format(score, round(how_many, 0)))
 
         return score, feedback
 
@@ -936,6 +939,7 @@ def velocity_slope(tx, feedback):
             plt.plot(x, y, '.')
             plt.plot(x, a*x +b)
             score = grid_log[np.digitize(a, slope_linregression, right=True)]
+            feedback['velocity'].append('{} Slope of net monthly flow (< 2 yrs) = {}'.format(score, round(a, 2)))
 
         # If you have < 10 data points, then calculate the score by taking the product of two ratios
         else:
@@ -944,7 +948,7 @@ def velocity_slope(tx, feedback):
             pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
             r = len(pos) / len(neg) * abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             score = grid_log[np.digitize(r, slope_product, right=True)]
-            feedback['velocity'].append('Slope of net monthly flow for last 2 yrs = {}'.format(round(r, 4)))
+            feedback['velocity'].append('{} Slope of net monthly flow for last 2 yrs = {}'.format(score, round(r, 4)))
 
         return score, feedback
 
@@ -975,7 +979,7 @@ def stability_tot_balance_now(tx, feedback):
     try:
         balance = balance_now(tx)
         score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
-        feedback['stability'].append('Tot balance now = ${}'.format(balance))
+        feedback['stability'].append('{} Tot balance now = ${}'.format(score, balance))
 
         return score, feedback
 
@@ -989,7 +993,7 @@ def stability_tot_balance_now(tx, feedback):
 
 def stability_min_running_balance(tx, feedback):
     """
-    returns score based on the minimum balance maintained for 12 months
+    returns score based on the average minimum balance maintained for 12 months
     
             Parameters:
                 tx (dic): Plaid 'Transactions' product 
@@ -1019,8 +1023,8 @@ def stability_min_running_balance(tx, feedback):
         # Compute the score
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
-        score = m7x7_11_m7_n9[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
-        feedback['stability'].append('Avg of min running balance for last {} days = ${}'.format(length, round(volume, 2)))
+        score = m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
+        feedback['stability'].append('{} Avg of min running balance for last {} days = ${}'.format(score, length, round(volume, 2)))
         
         return score, feedback
 
@@ -1049,7 +1053,7 @@ def diversity_acc_count(tx, feedback):
     """
     try:
         score = fico_medians[np.digitize(len(tx['accounts']), count_invest_acc, right=True)]
-        feedback['diversity'].append('User owns a tot of {} different bank accounts'.format(len(tx['accounts'])))
+        feedback['diversity'].append('{} User owns a tot of {} different bank accounts'.format(score, len(tx['accounts'])))
 
         return score, feedback
 
@@ -1094,8 +1098,8 @@ def diversity_profile(tx, feedback):
         if myacc and balance != 0:
             m = np.digitize(len(myacc), count1, right=False)
             n = np.digitize(balance, volume_invest, right=False)
-            score = m7x7_11_m7_n9[m][n]
-            feedback['diversity'].append('User owns {} saving accounts with cum balance now = ${}'.format(len(myacc), balance))
+            score = m7x7_85_55[m][n]
+            feedback['diversity'].append('{} User owns {} saving accounts with cum balance now = ${}'.format(score, len(myacc), balance))
         else:
             score = 0
             feedback['diversity'].append('no investing nor saving accounts')
