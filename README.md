@@ -9,7 +9,7 @@ The DApp works as follow:
  - it acquires user's financial data by integrating with two validators ([Plaid](https://dashboard.plaid.com/overview) & [Coinbase](https://developers.coinbase.com/))
  - it runs an algorithm on given data to compute a score representing the financial health of a user
  - it writes the score to the Secret blockchain via a CosmWasm smart contract
- - it makes the score available to service providers (i.e., loan issuers) by releasing permission/viewing Secret keys. 
+ - it makes the score available to service providers (i.e., loan issuers) by releasing Secret [permission keys](https://github.com/SecretFoundation/SNIPs/blob/master/SNIP-24.md#secretd). 
 
 Ultimately, this will incentivize on-chain traffic, it will affirm the reputation of those users requesting a credit score, and it will execute a credit score check to validate their credibility, while also preserving their privacy. 
 
