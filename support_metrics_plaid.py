@@ -61,13 +61,11 @@ fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300)/600  # Fico score bin
 fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2) for i in range(len(fico)-1)] # Medians of Fico scoring bins
 fico_medians.append(1)
 fico_medians = np.array(fico_medians)
-grid_log = np.array([0, 0.1, 0.3, 0.4, 0.7, 0.8, 1])
 
 
 # Categorical bins
 duration = np.array([90, 120, 150, 180, 210, 270])          #bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
 count0 = np.array([1, 2])                                   #bins: 0-1 | 2 | >=3
-count1 = np.array([1, 2, 3])                                #bins: <=1 | (1,2] | (2,3] | >=3 
 count_lively = np.array([round(x, 0) for x in fico*25])[1:]
 count_txn_month = np.array([round(x, 0) for x in fico*40])[1:]
 count_invest_acc = np.array([1, 2, 3, 4, 5, 6])
@@ -77,7 +75,7 @@ volume_flow = np.array([round(x, 0) for x in fico*4000])[1:]
 volume_cred_limit = np.array([0.5, 1, 5, 8, 13, 18])*1000
 volume_withdraw = np.array([round(x, 0) for x in fico*1500])[1:]
 volume_deposit = np.array([round(x, 0) for x in fico*7000])[1:]
-volume_invest = np.array([3, 4, 5.5, 7, 8, 10])*1000
+volume_invest = np.array([0.5, 1, 2, 4, 6, 8])*1000
 volume_balance_now = np.array([round(x, 0) for x in fico*25000])[1:]
 volume_min_run = np.array([round(x, 0) for x in fico*10000])[1:]
 
@@ -85,8 +83,8 @@ volume_min_run = np.array([round(x, 0) for x in fico*10000])[1:]
 percent_cred_util = np.array([round(x, 2) for x in reversed(fico*0.9)][:-1])
 frequency_interest = np.array([round(x, 2) for x in reversed(fico*0.6)][:-1])
 ratio_flows = np.array([0.7, 1, 1.7, 2.5, 3, 4])
-slope_product = np.array([0, 0.25, 0.5, 1, 1.5, 2])
-slope_linregression = np.array([-1.5, -0.5, 0, 1, 3, 15])
+slope_product = np.array([0.5, 0.8, 1, 1.3, 1.6, 2])
+slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
 
 
 
@@ -938,17 +936,24 @@ def velocity_slope(tx, feedback):
             # Plot regression line
             plt.plot(x, y, '.')
             plt.plot(x, a*x +b)
-            score = grid_log[np.digitize(a, slope_linregression, right=True)]
-            feedback['velocity'].append('{} Slope of net monthly flow (< 2 yrs) = {}'.format(score, round(a, 2)))
+            score = fico_medians[np.digitize(a, slope_linregression, right=True)]
+            feedback['velocity'].append('{} Slope of net monthly flow (last 2 yrs) = {}'.format(score, round(a, 2)))
 
-        # If you have < 10 data points, then calculate the score by taking the product of two ratios
+        # If you have < 10 data points, then calculate the score accounting for two ratios
         else:
             # Multiply two ratios by each other
             neg = list(filter(lambda x: (x < 0), flow['amounts'].tolist()))
             pos = list(filter(lambda x: (x >= 0), flow['amounts'].tolist()))
-            r = len(pos) / len(neg) * abs(sum(pos)/sum(neg))  # output in range [0, 2+]
-            score = grid_log[np.digitize(r, slope_product, right=True)]
-            feedback['velocity'].append('{} Slope of net monthly flow for last 2 yrs = {}'.format(score, round(r, 4)))
+            direction = len(pos) / len(neg) # output in range [0, 2+]
+            magnitude = abs(sum(pos)/sum(neg))  # output in range [0, 2+]
+            if direction >= 1:
+                direct = '+'
+            else:
+                direct = '-'
+            m = np.digitize(direction, slope_product, right=True)
+            n = np.digitize(magnitude, slope_product, right=True)
+            score = m7x7_03_17.T[m][n]
+            feedback['velocity'].append('{} Magnitude of net monthly flow (< 2 yrs) = {}{}'.format(score, direct, round(magnitude, 4)))
 
         return score, feedback
 
@@ -1056,9 +1061,9 @@ def diversity_acc_count(tx, feedback):
         oldest_tx = datetime.strptime(tx['transactions'][-1]['date'], '%Y-%m-%d').date()
         how_long = (datetime.today().date() - oldest_tx).days
 
-        m = np.digitize(len(tx['accounts']), count_invest_acc, right=True)
+        m = np.digitize(len(tx['accounts']), [i+2 for i in count0], right=False)
         n = np.digitize(how_long, duration, right=True)
-        score =  m7x7_03_17[m][n]
+        score =  m3x7_73_17[m][n]
         feedback['diversity'].append('{} User owns a tot of {} different bank accounts'.format(score, len(tx['accounts'])))
 
         return score, feedback
