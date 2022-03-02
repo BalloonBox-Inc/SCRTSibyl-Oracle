@@ -834,9 +834,9 @@ def velocity_month_net_flow(tx, feedback):
             direction = 10
 
         # Calculate score
-        m = np.digitize(magnitude, volume_flow, right=True)
-        n = np.digitize(direction, ratio_flows, right=True)
-        score = m7x7_03_17.T[m][n]
+        m = np.digitize(direction, ratio_flows, right=True)
+        n = np.digitize(magnitude, volume_flow, right=True)
+        score = m7x7_03_17[m][n]
         feedback['velocity'].append('{} Avg monthly net flow for last year = ${}'.format(score, round(magnitude, 2)))
 
         return score, feedback
@@ -1041,9 +1041,10 @@ def stability_min_running_balance(tx, feedback):
 # -------------------------------------------------------------------------- #
 
 
+
 def diversity_acc_count(tx, feedback):
     """
-    returns score based on count of accounts owned by the user
+    returns score based on count of accounts owned by the user and account duration
     
             Parameters:
                 tx (dict): Plaid 'Transactions' product 
@@ -1052,7 +1053,12 @@ def diversity_acc_count(tx, feedback):
                 score (float): score for accounts count
     """
     try:
-        score = fico_medians[np.digitize(len(tx['accounts']), count_invest_acc, right=True)]
+        oldest_tx = datetime.strptime(tx['transactions'][-1]['date'], '%Y-%m-%d').date()
+        how_long = (datetime.today().date() - oldest_tx).days
+
+        m = np.digitize(len(tx['accounts']), count_invest_acc, right=True)
+        n = np.digitize(how_long, duration, right=True)
+        score =  m7x7_03_17[m][n]
         feedback['diversity'].append('{} User owns a tot of {} different bank accounts'.format(score, len(tx['accounts'])))
 
         return score, feedback
@@ -1095,10 +1101,8 @@ def diversity_profile(tx, feedback):
                 balance += int(a['balances']['current'] or 0)
                 myacc.append(id)
 
-        if myacc and balance != 0:
-            m = np.digitize(len(myacc), count1, right=False)
-            n = np.digitize(balance, volume_invest, right=False)
-            score = m7x7_85_55[m][n]
+        if balance != 0:
+            score = fico_medians[np.digitize(balance, volume_invest, right=True)]
             feedback['diversity'].append('{} User owns {} saving accounts with cum balance now = ${}'.format(score, len(myacc), balance))
         else:
             score = 0
