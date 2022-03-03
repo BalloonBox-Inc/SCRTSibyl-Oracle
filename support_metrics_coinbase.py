@@ -14,16 +14,15 @@ from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 #                                    -utils-                                 #
 # -------------------------------------------------------------------------- #
 
-def build_2D_matrix_by_rule(size, exponent, rule):
+def build_2D_matrix_by_rule(size, scalar):
     """
     returns a matrix of given size, built through a generalized rule. The matrix must be 2D
 
             Parameters:
                 size (tuple): declare the matrix size in this format (m, n), where m = rows and n = columns
-                exponent (tuple): exponents to raise your row and column number by. Follow the format (m_exp, n_exp)
-                rule (tuple): value of cells in the matrix. Follow the format (m_float, n_float)
-                              m_float: the current cell is equal to a float * row # 
-                              n_float: the current cell is equal to a float * column #
+                scalar (tuple): scalars to multiply the log_10 by. Follow the format (m_scalar, n_scalar)
+                    m_float: the current cell is equal to m_scalar * log_10(row #) 
+                    n_float: the current cell is equal to n_scalar * log_10(column #) 
 
             Returns:
                 a matrix of size m x n whose cell are given by m_float+n_float
@@ -32,8 +31,8 @@ def build_2D_matrix_by_rule(size, exponent, rule):
     matrix = np.zeros(size)
     for m in range(matrix.shape[0]):
         for n in range(matrix.shape[1]):
-            matrix[m][n] = round((m**exponent[0]*rule[0] + n**exponent[1]*rule[1])/100, 2)
-
+            matrix[m][n] = round(scalar[0]*np.log10(m+1) + scalar[1]*np.log10(n+1), 2)
+            
     return matrix
 
 
@@ -59,10 +58,10 @@ volume_profit = np.array([500, 1000, 2000, 2500, 3000, 4000])
 count_cred_deb_txn = np.array([10, 20, 30, 35, 40, 50])
 
 # Scoring grids
-# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.15_column#**1*0.05 -> m7x7_11_m12_n4
-# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.05_column#**2*0.03 -> m7x7_12_m4_n2
-m7x7_12_m4_n2 = build_2D_matrix_by_rule((7,7), (1,2), (4.5,2))
-m7x7_11_m12_n4 = build_2D_matrix_by_rule((7,7), (1,1), (12.5,4))
+# naming convention: shape+denominator, m7x7+Scalars+1.3+1.17 -> m7x7_03_17
+# naming convention: shape+denominator, m3x7+Scalars+1.2+1.4 -> m3x7_2_4
+m7x7_03_17 = build_2D_matrix_by_rule((7,7), (1/3.03, 1/1.17))
+m7x7_85_55 = build_2D_matrix_by_rule((7,7), (1/1.85, 1/1.55))
 fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300)/600  # Fico score binning - normalized
 fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2) for i in range(len(fico)-1)] # Medians of Fico scoring bins
 fico_medians.append(1)
@@ -75,8 +74,8 @@ duration.flags.writeable = False
 volume_balance_now.flags.writeable = False
 volume_profit.flags.writeable = False
 count_cred_deb_txn.flags.writeable = False
-m7x7_12_m4_n2.flags.writeable = False
-m7x7_11_m12_n4.flags.writeable = False
+m7x7_03_17.flags.writeable = False
+m7x7_85_55.flags.writeable = False
 fico_medians.flags.writeable = False
 
 
@@ -672,7 +671,7 @@ def liquidity_avg_running_balance(acc, tx, feedback):
                 m = np.digitize(volume, volume_balance_now, right=True) 
                 n = np.digitize(length, duration, right=True)
                 # Get the score and add 0.025 score penalty for each 'overdraft'
-                score = m7x7_11_m12_n4[m][n] -0.025 * len(list(filter(lambda x: (x < 0), running_balances))) 
+                score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), running_balances))) 
                 feedback['liquidity'].append('avg_running_balance for last {} months = ${}'.format(len(running_balances), round(volume, 2)))
 
         return score, feedback
@@ -713,7 +712,7 @@ def activity_tot_volume_tot_count(tx, type, feedback):
         # Calculate score
         m = np.digitize(count, count_cred_deb_txn, right=True)
         n = np.digitize(volume, volume_balance_now, right=True)
-        score = m7x7_12_m4_n2[m][n]
+        score = m7x7_03_17[m][n]
         return score, feedback
         
     except Exception as e:
@@ -771,7 +770,7 @@ def activity_consistency(tx, type, feedback):
                 # Calculate the score
                 m = np.digitize(w_avg, volume_profit*1.5, right=True)
                 n = np.digitize(length, duration, right=True)
-                score = m7x7_11_m12_n4[m][n]
+                score = m7x7_85_55[m][n]
             else:
                 score = 0
 
