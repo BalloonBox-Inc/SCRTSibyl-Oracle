@@ -1,7 +1,5 @@
 from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
-from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
 from plaid.model.transactions_get_request import TransactionsGetRequest
-from plaid.model.accounts_get_request import AccountsGetRequest
 
 from plaid.api import plaid_api
 from datetime import timedelta
@@ -44,35 +42,6 @@ def format_error(e):
                 'error_type': response['error_type']
                 }
             }
-
-
-def plaid_accounts(access_token, client):
-
-    try:
-        request = AccountsGetRequest(
-            access_token=access_token
-            )
-        response = client.accounts_get(request).to_dict()
-        
-    except plaid.ApiException as e:
-        response = format_error(e)
-    
-    return response
-
-
-def plaid_balance(access_token, client):
-
-    try:
-        request = AccountsBalanceGetRequest(
-            access_token=access_token
-            )
-
-        response = client.accounts_balance_get(request).to_dict()
-        
-    except plaid.ApiException as e:
-        response = format_error(e)
-    
-    return response
 
 
 def plaid_transactions(access_token, client, timeframe):
