@@ -4,9 +4,8 @@ import json
 import numpy as np
 import pandas as pd
 from datetime import datetime
-import matplotlib.pyplot as plt
 from coinbase.wallet.client import Client
-from requests import Request, Session
+from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 
 # -------------------------------------------------------------------------- #

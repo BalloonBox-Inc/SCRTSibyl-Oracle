@@ -1,5 +1,4 @@
 
-# Import libraries
 import os
 import json
 
@@ -7,9 +6,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, date
 from datetime import timedelta
-from dotenv import dotenv_values
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 
@@ -45,8 +43,6 @@ def build_2D_matrix_by_rule(size, scalar):
 #                               Score Matrices                               #
 # -------------------------------------------------------------------------- # 
 
-# Initialize 'feedback' dict
-# feedback = {'data_fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
 warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
 
 # Scoring grids
