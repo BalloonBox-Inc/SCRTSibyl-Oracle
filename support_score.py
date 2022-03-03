@@ -29,7 +29,7 @@ def plaid_score(txn):
         velocity, feedback = plaid_velocity(txn, feedback)
         stability, feedback = plaid_stability(txn, feedback)
         diversity, feedback = plaid_diversity(txn, feedback)
-        score = 300 + 600*(0.40*credit + 0.20*velocity + 0.25*stability + 0.10*diversity)
+        score = 300 + 600*(0.42*credit + 0.20*velocity + 0.28*stability + 0.10*diversity)
     
     return score, feedback
 

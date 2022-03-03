@@ -6,15 +6,13 @@ from support_metrics_coinbase import *
 # -------------------------------------------------------------------------- #
 def plaid_credit(txn, feedback):
 
-    mix, feedback = credit_mix(txn, feedback)
     limit, feedback = credit_limit(txn, feedback)
     util_ratio, feedback = credit_util_ratio(txn, feedback)
     interest, feedback = credit_interest(txn, feedback)
     length, feedback = credit_length(txn, feedback)
     livelihood, feedback = credit_livelihood(txn, feedback)
 
-    score = 0.05*mix \
-        + 0.40*limit \
+    score = 0.45*limit \
         + 0.12*util_ratio \
         + 0.05*interest \
         + 0.26*length \
@@ -32,8 +30,8 @@ def plaid_velocity(txn, feedback):
     slope, feedback = velocity_slope(txn, feedback)
 
     score = 0.16*withdrawals \
-        + 0.20*deposits \
-        + 0.30*net_flow \
+        + 0.25*deposits \
+        + 0.25*net_flow \
         + 0.16*txn_count \
         + 0.18*slope 
 
@@ -55,7 +53,7 @@ def plaid_diversity(txn, feedback):
     acc_count, feedback = diversity_acc_count(txn, feedback)
     profile, feedback = diversity_profile(txn, feedback)
 
-    score = 0.60*acc_count + 0.40*profile
+    score = 0.40*acc_count + 0.60*profile
 
     return score, feedback
 

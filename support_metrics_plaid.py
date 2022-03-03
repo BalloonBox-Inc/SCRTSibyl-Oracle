@@ -71,18 +71,18 @@ count_txn_month = np.array([round(x, 0) for x in fico*40])[1:]
 count_invest_acc = np.array([1, 2, 3, 4, 5, 6])
 
 
-volume_flow = np.array([round(x, 0) for x in fico*4000])[1:]
+volume_flow = np.array([round(x, 0) for x in fico*1500])[1:]
 volume_cred_limit = np.array([0.5, 1, 5, 8, 13, 18])*1000
 volume_withdraw = np.array([round(x, 0) for x in fico*1500])[1:]
 volume_deposit = np.array([round(x, 0) for x in fico*7000])[1:]
 volume_invest = np.array([0.5, 1, 2, 4, 6, 8])*1000
-volume_balance_now = np.array([round(x, 0) for x in fico*25000])[1:]
+volume_balance_now = np.array([3, 5, 9, 12, 15, 18])*1000
 volume_min_run = np.array([round(x, 0) for x in fico*10000])[1:]
 
 
 percent_cred_util = np.array([round(x, 2) for x in reversed(fico*0.9)][:-1])
 frequency_interest = np.array([round(x, 2) for x in reversed(fico*0.6)][:-1])
-ratio_flows = np.array([0.7, 1, 1.7, 2.5, 3, 4])
+ratio_flows = np.array([0.7, 1, 1.4, 2, 3, 4])
 slope_product = np.array([0.5, 0.8, 1, 1.3, 1.6, 2])
 slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
 
@@ -327,7 +327,7 @@ def flows(tx, how_many_months):
         if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
             flow = flow[:-1] 
 
-        # Keep only past 12 months. If longer, then crop
+        # Keep only past X months. If longer, then crop
         daytoday = datetime.today().date().day
         lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
         yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
@@ -484,8 +484,8 @@ def credit_limit(tx, feedback):
 
             m = np.digitize(max(length), duration, right=True)
             n = np.digitize(limit, volume_cred_limit, right=True)
-            score = m7x7_85_55[m][n]
-            feedback['credit'].append('{} Cumulative credit limit = ${}'.format(score, limit))
+            score = m7x7_03_17[m][n]
+            feedback['credit'].append('Cumulative credit limit = ${}'.format(limit))
 
         else:
             score = 0
@@ -553,7 +553,7 @@ def credit_util_ratio(tx, feedback):
                 m = np.digitize(len(util)*30, duration, right=True)
                 n = np.digitize(avg_util, percent_cred_util, right=True)
                 score = m7x7_85_55[m][n]
-                feedback['credit'].append('{} Credit util ratio (monthly avg) = {}'.format(score, round(avg_util, 2)))
+                feedback['credit'].append('Credit util ratio (monthly avg) = {}'.format(round(avg_util, 2)))
 
             else:
                 score = 0
@@ -605,7 +605,7 @@ def credit_interest(tx, feedback):
 
                 frequency = len(interests)/length
                 score = fico_medians[np.digitize(frequency, frequency_interest, right=True)]
-                feedback['credit'].append('{} Count interest charged (last 2 yrs) = {}'.format(score, round(frequency, 0)))
+                feedback['credit'].append('Count interest charged (last 2 yrs) = {}'.format(round(frequency, 0)))
             
             else:
                 score = 0
@@ -640,7 +640,7 @@ def credit_length(tx, feedback):
             date_today = datetime.today().date() 
             how_long = (date_today - oldest_txn).days # date today - date of oldest credit transaction
             score = fico_medians[np.digitize(how_long, duration, right=True)]
-            feedback['credit'].append('{} Duration of best credit card = {} (days)'.format(score, how_long))
+            feedback['credit'].append('Duration of best credit card = {} (days)'.format(how_long))
 
         else:
             score = 0
@@ -691,7 +691,7 @@ def credit_livelihood(tx, feedback):
 
             mean = d['amounts'].mean()
             score = fico_medians[np.digitize(mean, count_lively, right=True)]
-            feedback['credit'].append('{} Avg cunt monthly txn = {}'.format(score, round(mean, 0)))
+            feedback['credit'].append('Avg cunt monthly txn = {}'.format(round(mean, 0)))
             
         else:
             score = 0
@@ -743,7 +743,7 @@ def velocity_withdrawals(tx, feedback):
                 m = np.digitize(how_many, count0, right=True)
                 n = np.digitize(volume, volume_withdraw, right=True)
                 score = m3x7_73_17[m][n]
-                feedback['velocity'].append('{} Monthly withdrawals: count = {}, volume = {}'.format(score, round(how_many, 0), round(volume, 0)))
+                feedback['velocity'].append('Monthly withdrawals: count = {}, volume = {}'.format(round(how_many, 0), round(volume, 0)))
 
         else:
             score = 0
@@ -790,7 +790,7 @@ def velocity_deposits(tx, feedback):
                 m = np.digitize(how_many, count0, right=True)
                 n = np.digitize(volume, volume_deposit, right=True)
                 score = m3x7_73_17[m][n]
-                feedback['velocity'].append('{} Monthly deposits: count = {}, volume = {}'.format(score, round(how_many, 0), round(volume, 0)))
+                feedback['velocity'].append('Monthly deposits: count = {}, volume = {}'.format(round(how_many, 0), round(volume, 0)))
 
         else:
             score = 0
@@ -835,7 +835,7 @@ def velocity_month_net_flow(tx, feedback):
         m = np.digitize(direction, ratio_flows, right=True)
         n = np.digitize(magnitude, volume_flow, right=True)
         score = m7x7_03_17[m][n]
-        feedback['velocity'].append('{} Avg monthly net flow for last year = ${}'.format(score, round(magnitude, 2)))
+        feedback['velocity'].append('Avg monthly net flow for last year = ${}'.format(round(magnitude, 2)))
 
         return score, feedback
 
@@ -900,7 +900,7 @@ def velocity_month_txn_count(tx, feedback):
         mycounts = [x for y in mycounts for x in y]
         how_many = np.mean(mycounts) 
         score = fico_medians[np.digitize(how_many, count_txn_month, right=True)]
-        feedback['velocity'].append('{} Avg count monthly txn = {}'.format(score, round(how_many, 0)))
+        feedback['velocity'].append('Avg count monthly txn = {}'.format(round(how_many, 0)))
 
         return score, feedback
 
@@ -937,7 +937,7 @@ def velocity_slope(tx, feedback):
             plt.plot(x, y, '.')
             plt.plot(x, a*x +b)
             score = fico_medians[np.digitize(a, slope_linregression, right=True)]
-            feedback['velocity'].append('{} Slope of net monthly flow (last 2 yrs) = {}'.format(score, round(a, 2)))
+            feedback['velocity'].append('Slope of net monthly flow (last 2 yrs) = {}'.format(round(a, 2)))
 
         # If you have < 10 data points, then calculate the score accounting for two ratios
         else:
@@ -953,7 +953,7 @@ def velocity_slope(tx, feedback):
             m = np.digitize(direction, slope_product, right=True)
             n = np.digitize(magnitude, slope_product, right=True)
             score = m7x7_03_17.T[m][n]
-            feedback['velocity'].append('{} Magnitude of net monthly flow (< 2 yrs) = {}{}'.format(score, direct, round(magnitude, 4)))
+            feedback['velocity'].append('Magnitude of net monthly flow (< 2 yrs) = {}{}'.format(direct, round(magnitude, 4)))
 
         return score, feedback
 
@@ -983,8 +983,14 @@ def stability_tot_balance_now(tx, feedback):
     """
     try:
         balance = balance_now(tx)
-        score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
-        feedback['stability'].append('{} Tot balance now = ${}'.format(score, balance))
+
+        # Reward only positive balances
+        if balance > 0:
+            score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
+        else:
+            score = 0
+
+        feedback['stability'].append('Tot balance now = ${}'.format(balance))
 
         return score, feedback
 
@@ -1029,7 +1035,7 @@ def stability_min_running_balance(tx, feedback):
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
         score = m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
-        feedback['stability'].append('{} Avg of min running balance for last {} days = ${}'.format(score, length, round(volume, 2)))
+        feedback['stability'].append('Avg of min running balance for last {} days = ${}'.format(length, round(volume, 2)))
         
         return score, feedback
 
@@ -1064,7 +1070,7 @@ def diversity_acc_count(tx, feedback):
         m = np.digitize(len(tx['accounts']), [i+2 for i in count0], right=False)
         n = np.digitize(how_long, duration, right=True)
         score =  m3x7_73_17[m][n]
-        feedback['diversity'].append('{} User owns a tot of {} different bank accounts'.format(score, len(tx['accounts'])))
+        feedback['diversity'].append('User owns a tot of {} different bank accounts'.format(len(tx['accounts'])))
 
         return score, feedback
 
@@ -1108,7 +1114,7 @@ def diversity_profile(tx, feedback):
 
         if balance != 0:
             score = fico_medians[np.digitize(balance, volume_invest, right=True)]
-            feedback['diversity'].append('{} User owns {} saving accounts with cum balance now = ${}'.format(score, len(myacc), balance))
+            feedback['diversity'].append('User owns {} saving accounts with cum balance now = ${}'.format(len(myacc), balance))
         else:
             score = 0
             feedback['diversity'].append('no investing nor saving accounts')

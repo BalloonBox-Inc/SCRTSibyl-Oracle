@@ -17,7 +17,7 @@ from support_metrics_plaid import *
 config = dotenv_values()
 path_dir = config['PATH_REAL_USERS_DATA']
 # Calculate score for all users you have data for
-for userid in [i for i in range(13, 23)]:
+for userid in [i for i in range(23)]:
     start_time = time.time()
     tx = get_tx(path_dir, userid)
     score, feedback = plaid_score(tx)
