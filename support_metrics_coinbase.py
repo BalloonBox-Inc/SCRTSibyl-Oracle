@@ -47,7 +47,7 @@ def build_2D_matrix_by_rule(size, scalar):
 
 
 # Initialize our qualitative score feedback (dict).
-feedback = {'data fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+# feedback = {'data_fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
 warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
 
 
@@ -59,7 +59,7 @@ count_cred_deb_txn = np.array([10, 20, 30, 35, 40, 50])
 
 # Scoring grids
 # naming convention: shape+denominator, m7x7+Scalars+1.3+1.17 -> m7x7_03_17
-# naming convention: shape+denominator, m3x7+Scalars+1.2+1.4 -> m3x7_2_4
+# naming convention: shape+denominator, m7x7+Scalars+1.85+1.55 -> m7x7_85_55
 m7x7_03_17 = build_2D_matrix_by_rule((7,7), (1/3.03, 1/1.17))
 m7x7_85_55 = build_2D_matrix_by_rule((7,7), (1/1.85, 1/1.55))
 fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300)/600  # Fico score binning - normalized
@@ -84,7 +84,7 @@ fico_medians.flags.writeable = False
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
-def top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret):
+def top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret, feedback):
     """
     returns a list of all fiat currencies and top 15 cryptos. The functions uses 2 APIs:
     - a Coinmarketcap API to get top 15 cryptos by market capitalization
@@ -148,13 +148,13 @@ def top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret):
         return top_coins
 
     except (ConnectionError, Timeout, TooManyRedirects) as e:
-        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, top_currencies.__name__, e))
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, top_currencies.__name__, e))
         
 
 
 
 
-def filter_acc(coinbase_api_key, coinbase_api_secret, top_coins):
+def filter_acc(coinbase_api_key, coinbase_api_secret, top_coins, feedback):
    """
    returns list of accounts with balance > $0 and with currency type in the top 15.
    Current balances are reported both in native currency and in USD for each account.
@@ -196,13 +196,13 @@ def filter_acc(coinbase_api_key, coinbase_api_secret, top_coins):
       return user_top_acc
 
    except Exception as e:
-      feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, filter_acc.__name__, e))
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, filter_acc.__name__, e))
 
 
 
 
 
-def filter_tx(coinbase_api_key, coinbase_api_secret, user_top_acc):
+def filter_tx(coinbase_api_key, coinbase_api_secret, user_top_acc, feedback):
    """
    returns list of transactions occurred in the user's best Coinbase accounts
 
@@ -247,13 +247,13 @@ def filter_tx(coinbase_api_key, coinbase_api_secret, user_top_acc):
       return filtered_tx
 
    except Exception as e:
-      feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, filter_tx.__name__, e))
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, filter_tx.__name__, e))
 
 
 
 
 
-def refactor_send_tx(tx):
+def refactor_send_tx(tx, feedback):
    """
    returns list of transactions after re-labeling all 'send' type transactions either into 'send_credit' or into 'send_debit'
 
@@ -284,13 +284,13 @@ def refactor_send_tx(tx):
       return new_tx
       
    except Exception as e:
-      feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, refactor_send_tx.__name__, e))
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, refactor_send_tx.__name__, e))
 
 
 
 
 
-def net_flow(tx, how_many_months):
+def net_flow(tx, how_many_months, feedback):
     """
     returns monthly net flow (income-expenses)
 
@@ -364,7 +364,7 @@ def net_flow(tx, how_many_months):
 #                                 -local data-                               #
 # -------------------------------------------------------------------------- #
 # Eventually remove this next function, which is merely used to import local json data to test the Coinbase model during development phase. 
-def local_get_data(path_dir, userid, top_coins):
+def local_get_data(path_dir, userid, top_coins, feedback):
     """
     returns the Coinbase json data for the accounts and the transactions of one user
 
@@ -377,44 +377,46 @@ def local_get_data(path_dir, userid, top_coins):
                 acc (dict): all accounts owned by the user
                 tx (dict): with transactions of all user's accoutns in chronological order (newest to oldest)
     """
+    try:
+        # Iterate through all files in a directory
+        directory = os.fsencode(path_dir)
+        coinbase_files = list()
+        for f in os.listdir(directory):
+            filename = os.fsdecode(f)
+            coinbase_files.append(filename) #append file names to list
+        coinbase_files =  sorted(coinbase_files) 
 
-    # Iterate through all files in a directory
-    directory = os.fsencode(path_dir)
-    coinbase_files = list()
-    for f in os.listdir(directory):
-        filename = os.fsdecode(f)
-        coinbase_files.append(filename) #append file names to list
-    coinbase_files =  sorted(coinbase_files) 
+        # Select one user and retrieve the lits of their accounts and their transaction history
+        for f in coinbase_files:
+            if f.startswith("{}_acc".format(userid)): #choose your user
+                acc = json.load(open(path_dir+f))['data'] #open json
+            if f.startswith("{}_tx".format(userid)): #choose your user
+                tx = json.load(open(path_dir+f))['data'] #open json
+                
+        # Filter accounts        
+        filtered_acc = list()
+        for a in acc:
+            # Keep only accounts with non-zero balance AND accounts whose currency is in the list of top_coins
+            if float(a['balance']['amount'])!=0 and a['currency'] in list(top_coins.keys()):
+                filtered_acc.append(a)
 
-    # Select one user and retrieve the lits of their accounts and their transaction history
-    for f in coinbase_files:
-        if f.startswith("{}_acc".format(userid)): #choose your user
-            acc = json.load(open(path_dir+f))['data'] #open json
-        if f.startswith("{}_tx".format(userid)): #choose your user
-            tx = json.load(open(path_dir+f))['data'] #open json
-            
-    # Filter accounts        
-    filtered_acc = list()
-    for a in acc:
-        # Keep only accounts with non-zero balance AND accounts whose currency is in the list of top_coins
-        if float(a['balance']['amount'])!=0 and a['currency'] in list(top_coins.keys()):
-            filtered_acc.append(a)
+        # Filter transactions
+        filtered_tx = list()
+        accepted_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+        for t in tx:
+            if (t['amount']['currency'] in list(top_coins.keys())) & (t['status']=='completed') & (t['type'] in accepted_types):
+                filtered_tx.append(t)
 
-    # Filter transactions
-    filtered_tx = list()
-    accepted_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-    for t in tx:
-        if (t['amount']['currency'] in list(top_coins.keys())) & (t['status']=='completed') & (t['type'] in accepted_types):
-            filtered_tx.append(t)
-
-    return filtered_acc, filtered_tx
+        return filtered_acc, filtered_tx
     
+    except Exception as e:
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
 
 
 
 
     
-def unfiltered_acc(coinbase_api_key, coinbase_api_secret):
+def unfiltered_acc(coinbase_api_key, coinbase_api_secret, feedback):
    """
    returns list of accounts with balance > $0 and ANY currency type.
    Current balances are reported both in native currency and in USD for each account.
@@ -453,13 +455,13 @@ def unfiltered_acc(coinbase_api_key, coinbase_api_secret):
       return user_top_acc
 
    except Exception as e:
-      feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_acc.__name__, e))
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_acc.__name__, e))
 
 
 
 
 
-def unfiltered_tx(coinbase_api_key, coinbase_api_secret, user_top_acc):
+def unfiltered_tx(coinbase_api_key, coinbase_api_secret, user_top_acc, feedback):
    """
    returns list of transactions occurred in ALL of user's accounts
 
@@ -504,7 +506,7 @@ def unfiltered_tx(coinbase_api_key, coinbase_api_secret, user_top_acc):
       return filtered_tx
 
    except Exception as e:
-      feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_tx.__name__, e))
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_tx.__name__, e))
 
 
 
@@ -575,7 +577,7 @@ def history_acc_longevity(acc, feedback):
 
         else:
             score = 0
-            feedback['history'].append('no reputable account')
+            feedback['history'].append('unknown account longevity')
 
         return score, feedback
 
@@ -616,7 +618,7 @@ def liquidity_tot_balance_now(acc, feedback):
         else:
             score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
             
-        feedback['liquidity'].append('tot_balance_now = ${}'.format(round(balance, 2)))
+        feedback['liquidity'].append('tot balance now = ${}'.format(round(balance, 2)))
 
 
         return score, feedback
@@ -646,7 +648,7 @@ def liquidity_avg_running_balance(acc, tx, feedback):
             feedback['liquidity'].append('no transaction history , hence cannot calculate avg_running_balance')
         else:
             # Calculate net flow (i.e, |income-expenses|) each month for past 12 months 
-            nets = net_flow(tx, 12)['amounts'].tolist()
+            nets = net_flow(tx, 12, feedback)['amounts'].tolist()
 
             # Calculate tot current balance now
             balance = 0
@@ -672,7 +674,7 @@ def liquidity_avg_running_balance(acc, tx, feedback):
                 n = np.digitize(length, duration, right=True)
                 # Get the score and add 0.025 score penalty for each 'overdraft'
                 score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), running_balances))) 
-                feedback['liquidity'].append('avg_running_balance for last {} months = ${}'.format(len(running_balances), round(volume, 2)))
+                feedback['liquidity'].append('avg running balance for last {} months = ${}'.format(len(running_balances), round(volume, 2)))
 
         return score, feedback
 

@@ -46,12 +46,12 @@ def build_2D_matrix_by_rule(size, scalar):
 # -------------------------------------------------------------------------- # 
 
 # Initialize 'feedback' dict
-# feedback = {'data fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
+# feedback = {'data_fetch': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
 warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
 
 # Scoring grids
-# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.15_column#**1*0.05 -> m7x7_03_17.T
-# naming convention: matrix+shape+rule, Matrix+6x6+Rule+row#**1*0.05_column#**2*0.03 -> m7x7_03_17
+# naming convention: shape+denominator, m7x7+Scalars+1.3+1.17 -> m7x7_03_17
+# naming convention: shape+denominator, m3x7+Scalars+1.2+1.4 -> m3x7_2_4
 m7x7_03_17 = build_2D_matrix_by_rule((7,7), (1/3.03, 1/1.17))
 m7x7_85_55 = build_2D_matrix_by_rule((7,7), (1/1.85, 1/1.55))
 m3x7_2_4 = build_2D_matrix_by_rule((3,7), (1/1.2, 1/1.4))
@@ -94,7 +94,7 @@ slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
 # -------------------------------------------------------------------------- #
 
 # Remove this function eventually. It's used only to fetch local data for testing purposes.
-def get_tx(path_dir, userid):
+def get_tx(path_dir, userid, feedback):
     """
     returns the Plaid 'Transaction' product for one user
 
@@ -105,27 +105,31 @@ def get_tx(path_dir, userid):
             Returns: 
                 tx (dict of lists): with transactions of all user's bank accoutns (credit, checking, saving, loan, etc.) in chronological order (newest to oldest)
     """
+    try:
+        # Iterate through all files in a directory
+        directory = os.fsencode(path_dir)
+        mobi_plaid = list()
+        for f in os.listdir(directory):
+            filename = os.fsdecode(f)
+            if filename.endswith(".json"): #filter by .json files
+                mobi_plaid.append(filename) #append file names to list
+        mobi_plaid =  sorted(mobi_plaid) 
 
-    # Iterate through all files in a directory
-    directory = os.fsencode(path_dir)
-    mobi_plaid = list()
-    for f in os.listdir(directory):
-        filename = os.fsdecode(f)
-        if filename.endswith(".json"): #filter by .json files
-            mobi_plaid.append(filename) #append file names to list
-    mobi_plaid =  sorted(mobi_plaid) 
 
+        # Select one user and retrieve their transaction history
+        lol = list()
+        for f in mobi_plaid:
+            if f.startswith("{}-tx_".format(userid)): #choose your user
+                tx_one_page = json.load(open(path_dir+f)) #open json
+                acc = tx_one_page['accounts']
+                lol.append(tx_one_page['transactions']) #append txn data only
+        txn = list(np.concatenate(lol).flat) #flatten list 
+        tx = {'accounts':acc, 'transactions':txn}
+        return tx
 
-    # Select one user and retrieve their transaction history
-    lol = list()
-    for f in mobi_plaid:
-        if f.startswith("{}-tx_".format(userid)): #choose your user
-            tx_one_page = json.load(open(path_dir+f)) #open json
-            acc = tx_one_page['accounts']
-            lol.append(tx_one_page['transactions']) #append txn data only
-    txn = list(np.concatenate(lol).flat) #flatten list 
-    tx = {'accounts':acc, 'transactions':txn}
-    return tx
+    except Exception as e:
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, get_tx.__name__, e))
+
 
 
 # -------------------------------------------------------------------------- #
@@ -150,7 +154,7 @@ def datetime_to_str(o):
 
 
 
-def dict_to_json(plaid_txn):
+def dict_to_json(plaid_txn, feedback):
     """
     serialize a Python data structure (dict) as JSON using the json.dumps method
 
@@ -163,7 +167,7 @@ def dict_to_json(plaid_txn):
     try:
         # Write Plaid API data to json    
         with open('data_plaid.json', 'w') as fp:
-            # Keep only compleetd ransactions (filter out pending transactions)
+            # Keep only completed transactions (filter out pending transactions)
             all_txn = []
             for t in plaid_txn['transactions']:
                 if t['pending'] == False:
@@ -178,13 +182,13 @@ def dict_to_json(plaid_txn):
         return tx
 
     except Exception as e:
-        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, dict_to_json.__name__, e))
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, dict_to_json.__name__, e))
 
 
 
 
 
-def dynamic_select(tx, acc_name):
+def dynamic_select(tx, acc_name, feedback):
     """
     dynamically pick the best credit account,
     i.e. the account that performs best in 2 out of these 3 categories:
@@ -231,12 +235,12 @@ def dynamic_select(tx, acc_name):
         return best
 
     except Exception as e:
-        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, dynamic_select.__name__, e))
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, dynamic_select.__name__, e))
 
 
 
 
-def get_acc(tx, acc_type):
+def get_acc(tx, acc_type, feedback):
     """
     returns list of all accounts owned by the user
 
@@ -271,12 +275,12 @@ def get_acc(tx, acc_type):
         return info
 
     except Exception as e:
-        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, get_acc.__name__, e))
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, get_acc.__name__, e))
 
 
 
 
-def flows(tx, how_many_months):
+def flows(tx, how_many_months, feedback):
     """
     returns monthly net flow
 
@@ -337,13 +341,13 @@ def flows(tx, how_many_months):
         return flow
 
     except Exception as e:
-        feedback['data fetch'].append("{} in {}(): {}".format(e.__class__, flows.__name__, e))
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, flows.__name__, e))
 
 
 
 
     
-def balance_now(tx):
+def balance_now(tx, feedback):
     """
     returns total balance available now across ALL accounts owned by the user
     
@@ -375,7 +379,7 @@ def balance_now(tx):
 
 
 
-def balance_now_checking_only(tx):
+def balance_now_checking_only(tx, feedback):
     """
     returns total balance available now in the user's checking accounts
     
@@ -471,7 +475,7 @@ def credit_limit(tx, feedback):
     """
     try: 
         # Fetch all 'credit' accounts
-        cred_acc = get_acc(tx, 'credit')
+        cred_acc = get_acc(tx, 'credit', feedback)
 
         if cred_acc:
             # Calculate cumulative limit and time passed from credit account issuance
@@ -516,7 +520,7 @@ def credit_util_ratio(tx, feedback):
         txn = tx['transactions']
 
         # Dynamically select best credit account
-        dynamic = dynamic_select(tx, 'credit')
+        dynamic = dynamic_select(tx, 'credit', feedback)
 
         if dynamic['id'] == 'inexistent' or dynamic['limit'] == 0:
             score = 0
@@ -580,7 +584,7 @@ def credit_interest(tx, feedback):
                 score (float): gained based on interest charged
     """
     try:
-        id = dynamic_select(tx, 'credit')['id']
+        id = dynamic_select(tx, 'credit', feedback)['id']
 
         if id == 'inexistent':
             score = 0
@@ -631,7 +635,7 @@ def credit_length(tx, feedback):
                 score (float): gained because of credit account duration
     """
     try:
-        id = dynamic_select(tx, 'credit')['id']
+        id = dynamic_select(tx, 'credit', feedback)['id']
         txn = tx['transactions']
         alltxn = [t for t in txn if t['account_id']==id]
 
@@ -666,7 +670,7 @@ def credit_livelihood(tx, feedback):
                 score (float): based on avg monthly txn count
     """
     try:
-        id = dynamic_select(tx, 'credit')['id']
+        id = dynamic_select(tx, 'credit', feedback)['id']
         txn = tx['transactions']
         alltxn = [t for t in txn if t['account_id']==id]
 
@@ -816,7 +820,7 @@ def velocity_month_net_flow(tx, feedback):
                 score (float): score associated with monthly new flow
     """
     try: 
-        flow = flows(tx, 12)
+        flow = flows(tx, 12, feedback)
 
         # Calculate magnitude of flow (how much is flowing monthly?)
         cum_flow = [abs(x) for x in flow['amounts'].tolist()] 
@@ -924,7 +928,7 @@ def velocity_slope(tx, feedback):
                 score (float): score for flow net behavior over past 24 months
     """
     try:
-        flow = flows(tx, 24)
+        flow = flows(tx, 24, feedback)
 
         # If you have > 10 data points OR all net flows are positive, then perform linear regression
         if len(flow) >= 10 or len(list(filter(lambda x: (x < 0), flow['amounts'].tolist()))) == 0:
@@ -982,7 +986,7 @@ def stability_tot_balance_now(tx, feedback):
                 score (float): for cumulative current balance
     """
     try:
-        balance = balance_now(tx)
+        balance = balance_now(tx, feedback)
 
         # Reward only positive balances
         if balance > 0:
@@ -1014,10 +1018,10 @@ def stability_min_running_balance(tx, feedback):
     """
     try:
         # Calculate net flow each month for past 12 months i.e, |income-expenses|
-        nets = flows(tx, 12)['amounts'].tolist()
+        nets = flows(tx, 12, feedback)['amounts'].tolist()
 
         # Calculate total current balance now
-        balance = balance_now_checking_only(tx)
+        balance = balance_now_checking_only(tx, feedback)
 
         # Subtract net flow from balancenow to calculate the running balance for the past 12 months
         running_balances = list()

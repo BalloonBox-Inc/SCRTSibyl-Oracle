@@ -35,9 +35,7 @@ def plaid_score(txn):
 
 
 # Coinbase
-def coinbase_score(acc, txn):
-
-    feedback = create_feedback_coinbase()
+def coinbase_score(acc, txn, feedback):
 
     kyc, feedback = coinbase_kyc(acc, txn, feedback)
     history, feedback = coinbase_history(acc, feedback)
