@@ -132,58 +132,6 @@ def get_tx(path_dir, userid, feedback):
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
 
-def datetime_to_str(o):
-    """
-    cast a datetime or date object into its string representation
-
-            Parameters:
-                o: datetime or date object
-
-            Returns:
-                string representation for its associated datetime or date object
-
-    """
-    if (isinstance(o, date)) | (isinstance(o, datetime)):
-        return o.__str__()
-
-
-
-
-
-def dict_to_json(plaid_txn, feedback):
-    """
-    serialize a Python data structure (dict) as JSON using the json.dumps method
-
-            Parameters:
-                plaid_txn (dict): data dictionary fetched through Plaid API
-
-            Returns:
-                tx (dict): serialized json file containing user accounts and transactions. Datetime objects are parsed into their string representation
-     """
-    try:
-        # Write Plaid API data to json    
-        with open('data_plaid.json', 'w') as fp:
-            # Keep only completed transactions (filter out pending transactions)
-            all_txn = []
-            for t in plaid_txn['transactions']:
-                if t['pending'] == False:
-                    all_txn.append(t)
-
-            # Prettify and write to json
-            tx = {'accounts':plaid_txn['accounts'], 'transactions':all_txn}
-            json.dump(tx, fp,  indent=4, default=datetime_to_str)
-
-        # Open json file
-        tx = json.load(open('data_plaid.json'))
-        return tx
-
-    except Exception as e:
-        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, dict_to_json.__name__, e))
-
-
-
-
-
 def dynamic_select(tx, acc_name, feedback):
     """
     dynamically pick the best credit account,
