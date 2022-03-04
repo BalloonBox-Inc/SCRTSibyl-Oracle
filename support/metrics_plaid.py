@@ -1,5 +1,3 @@
-# import matplotlib.pyplot as plt
-import collections, functools, operator
 from datetime import timedelta
 from datetime import datetime
 import pandas as pd
@@ -10,7 +8,11 @@ import os
 from runtime import *
 
 now = datetime.now().date()
-warning = 'WARNING! An error has occured during computation. The score has been rounded to zero. Please retry later.'
+warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
+
+# import matplotlib.pyplot as plt
+
+
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -38,6 +40,8 @@ def build_2D_matrix_by_rule(size, scalar):
             
     return matrix
 
+
+
 # -------------------------------------------------------------------------- #
 #                               Score Matrices                               #
 # -------------------------------------------------------------------------- # 
@@ -54,12 +58,14 @@ fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2) for i in range(len(fico)
 fico_medians.append(1)
 fico_medians = np.array(fico_medians)
 
+
 # Categorical bins
 duration = np.array([90, 120, 150, 180, 210, 270])          #bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
 count0 = np.array([1, 2])                                   #bins: 0-1 | 2 | >=3
 count_lively = np.array([round(x, 0) for x in fico*25])[1:]
 count_txn_month = np.array([round(x, 0) for x in fico*40])[1:]
 count_invest_acc = np.array([1, 2, 3, 4, 5, 6])
+
 
 volume_flow = np.array([round(x, 0) for x in fico*1500])[1:]
 volume_cred_limit = np.array([0.5, 1, 5, 8, 13, 18])*1000
@@ -69,11 +75,15 @@ volume_invest = np.array([0.5, 1, 2, 4, 6, 8])*1000
 volume_balance_now = np.array([3, 5, 9, 12, 15, 18])*1000
 volume_min_run = np.array([round(x, 0) for x in fico*10000])[1:]
 
+
 percent_cred_util = np.array([round(x, 2) for x in reversed(fico*0.9)][:-1])
 frequency_interest = np.array([round(x, 2) for x in reversed(fico*0.6)][:-1])
 ratio_flows = np.array([0.7, 1, 1.4, 2, 3, 4])
 slope_product = np.array([0.5, 0.8, 1, 1.3, 1.6, 2])
 slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
+
+
+
 
 # -------------------------------------------------------------------------- #
 #                         Helper Functions - local                           #
@@ -101,6 +111,7 @@ def get_tx(path_dir, userid, feedback):
                 mobi_plaid.append(filename) #append file names to list
         mobi_plaid =  sorted(mobi_plaid) 
 
+
         # Select one user and retrieve their transaction history
         lol = list()
         for f in mobi_plaid:
@@ -114,6 +125,8 @@ def get_tx(path_dir, userid, feedback):
 
     except Exception as e:
         feedback['data'].append("{} in {}(): {}".format(e.__class__, get_tx.__name__, e))
+
+
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -169,6 +182,8 @@ def dynamic_select(tx, acc_name, feedback):
         feedback['data'].append("{} in {}(): {}".format(e.__class__, dynamic_select.__name__, e))
 
 
+
+
 def get_acc(tx, acc_type, feedback):
     '''
     returns list of all accounts owned by the user
@@ -192,7 +207,7 @@ def get_acc(tx, acc_type, feedback):
             limit = int(a['balances']['limit'] or 0)
             transat = [x for x in txn if x['account_id']==id]
             if len(transat)!=0:
-                length = (now - transat[-1]['date']).days
+                length = (datetime.today().date() - datetime.strptime(transat[-1]['date'], '%Y-%m-%d').date()).days
             else:
                 length=0
 
@@ -205,6 +220,8 @@ def get_acc(tx, acc_type, feedback):
 
     except Exception as e:
         feedback['data'].append("{} in {}(): {}".format(e.__class__, get_acc.__name__, e))
+
+
 
 
 def flows(tx, how_many_months, feedback):
@@ -271,6 +288,9 @@ def flows(tx, how_many_months, feedback):
         feedback['data'].append("{} in {}(): {}".format(e.__class__, flows.__name__, e))
 
 
+
+
+    
 def balance_now(tx, feedback):
     '''
     returns total balance available now across ALL accounts owned by the user
@@ -300,6 +320,9 @@ def balance_now(tx, feedback):
         feedback['stability'].append("{} in {}(): {}".format(e.__class__, balance_now.__name__, e))
 
 
+
+
+
 def balance_now_checking_only(tx, feedback):
     '''
     returns total balance available now in the user's checking accounts
@@ -325,14 +348,16 @@ def balance_now_checking_only(tx, feedback):
         feedback['stability'].append("{} in {}(): {}".format(e.__class__, balance_now.__name__, e))
 
 
+
+
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #
-@timeit
+
 def credit_mix(data, feedback):
     '''
     Description:
-        A score based on user's credits accounts composition and status
+        Returns a score based on user's credits accounts composition and status
     
     Parameters:
         data (dict): Plaid 'Transactions' product
@@ -347,80 +372,72 @@ def credit_mix(data, feedback):
         credit = [d for d in data['accounts'] if d['type']=='credit']
 
         if credit:
-            size = len(credit)
-            
-            # credit_acc = ['{} - {}'.format(d['subtype'], d['official_name']) for d in credit]
+            credit_acc = ['{} - {}'.format(d['subtype'], d['official_name']) for d in credit]
             credit_ids = [d['account_id'] for d in credit]
-            credit_txn = [d for d in data['transactions'] if d['account_id'] in credit_ids]
+            credit_txn = [t for t in data['transactions'] if t['account_id'] in credit_ids]
             
             first_txn = credit_txn[-1]['date']
             date_diff = (now - first_txn).days
 
-            m = np.digitize(size, count0, right=True)
+            m = np.digitize(len(credit_acc), count0, right=True)
             n = np.digitize(date_diff, duration, right=True)
             score = m3x7_2_4[m][n]
-            
-            feedback['credit']['score'] = score
-            feedback['credit']['accounts'] = size
-            # feedback['credit']['accounts'] = credit_acc
+
+            feedback['credit'].append(score)
+            feedback['credit'].append('User owns {} credit account(s)'.format(str(len(credit_acc))))
+            feedback['credit'].append('{}'.format(credit_acc))
         else:
-            raise Exception('no credit accounts')
+            raise Exception('')
     
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
-        feedback['credit']['error'] = str(e)
+        feedback['credit'].append('{} {} in {}(): {}'.format(warning, e.__class__, credit_mix.__name__, e))
         
     finally:
         return score, feedback
 
-@timeit
-def credit_limit(data, feedback):
-    '''
-    Description:
-        A score of the cumulative credit limit of a user across ALL of his credit accounts
 
-    Parameters:
-        data (dict): Plaid 'Transactions' product
-        feedback (dict): score feedback
+def credit_limit(tx, feedback):
+    '''
+    returns score for the cumulative credit limit of a user across ALL of his credit accounts
+
+            Parameters:
+                tx (dict): Plaid 'Transactions' product 
         
-    Returns: 
-        score (float): gained based on the cumulative credit limit across all credit accounts
-        feedback (dict): score feedback
+            Returns: 
+                score (float): gained based on the cumulative credit limit across all credit accounts
     '''
+    try: 
+        # Fetch all 'credit' accounts
+        cred_acc = get_acc(tx, 'credit', feedback)
 
-    try:
-        credit = [d for d in data['accounts'] if d['type']=='credit']
+        if cred_acc:
+            # Calculate cumulative limit and time passed from credit account issuance
+            limit = 0
+            length = list()
 
-        if credit:
-            credit_lim = sum([int(d['balances']['limit']) if d['balances']['limit'] else 0 for d in credit])
+            for a in cred_acc:
+                limit += a['limit']
+                length.append(a['duration(days)'])
 
-            credit_ids = [d['account_id'] for d in credit]
-            credit_txn = [d for d in data['transactions'] if d['account_id'] in credit_ids]
-
-            first_txn = credit_txn[-1]['date']
-            date_diff = (now - first_txn).days
-            
-            # cred_sum = dict(functools.reduce(operator.add, map(collections.Counter, cred_acc)))
-            # limit = cred_sum['limit']
-            # length = max(d['duration(days)'] for d in cred_acc)
-
-            m = np.digitize(date_diff, duration, right=True)
-            n = np.digitize(credit_lim, volume_cred_limit, right=True)
+            m = np.digitize(max(length), duration, right=True)
+            n = np.digitize(limit, volume_cred_limit, right=True)
             score = m7x7_03_17[m][n]
-            
-            feedback['credit']['score'] = score
-            feedback['credit']['credit_limit'] = credit_lim
+            feedback['credit'].append('Cumulative credit limit = ${}'.format(limit))
+
         else:
-            raise Exception('no credit limit')
-        
+            score = 0
+            feedback['credit'].append('no credit limit')
+            
+        return score, feedback
+
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
-        feedback['credit']['error'] = str(e)
-        
-    finally:
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_limit.__name__, e))
         return score, feedback
+
+
+
 
 
 def credit_util_ratio(tx, feedback):
@@ -488,6 +505,8 @@ def credit_util_ratio(tx, feedback):
         return score, feedback
 
 
+
+
 def credit_interest(tx, feedback):
     '''
     returns score based on number of times user was charged credit card interest fees in past 24 months
@@ -537,6 +556,8 @@ def credit_interest(tx, feedback):
         return score, feedback
 
 
+
+
 def credit_length(tx, feedback):
     '''
     returns score based on length of user's best credit account
@@ -568,6 +589,8 @@ def credit_length(tx, feedback):
         score = 0
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_length.__name__, e))
         return score, feedback
+
+
 
 
 def credit_livelihood(tx, feedback):
@@ -618,6 +641,9 @@ def credit_livelihood(tx, feedback):
         feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_livelihood.__name__, e))
         return score, feedback
   
+
+
+
 # -------------------------------------------------------------------------- #
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- # 
@@ -668,6 +694,8 @@ def velocity_withdrawals(tx, feedback):
         return score, feedback
 
 
+
+
 def velocity_deposits(tx, feedback):
     '''
     returns score based on count and volumne of monthly automated deposits
@@ -713,6 +741,8 @@ def velocity_deposits(tx, feedback):
         return score, feedback
 
 
+
+
 def velocity_month_net_flow(tx, feedback):
     '''
     returns score for monthly net flow
@@ -752,6 +782,8 @@ def velocity_month_net_flow(tx, feedback):
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_month_net_flow.__name__, e))
         return score, feedback
+
+
 
 
 def velocity_month_txn_count(tx, feedback):
@@ -810,10 +842,13 @@ def velocity_month_txn_count(tx, feedback):
 
         return score, feedback
 
+
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_month_txn_count.__name__, e))
         return score, feedback
+
+
 
 
 def velocity_slope(tx, feedback):
@@ -860,10 +895,14 @@ def velocity_slope(tx, feedback):
 
         return score, feedback
 
+
     except Exception as e:
         score = 0
         feedback['velocity'].append("{} {} in {}(): {}".format(warning, e.__class__, velocity_slope.__name__, e))
         return score, feedback
+
+
+
 
 
 # -------------------------------------------------------------------------- #
@@ -897,6 +936,8 @@ def stability_tot_balance_now(tx, feedback):
         score = 0
         feedback['stability'].append("{} {} in {}(): {}".format(warning, e.__class__, stability_tot_balance_now.__name__, e))
         return score, feedback
+
+
 
 
 def stability_min_running_balance(tx, feedback):
@@ -941,9 +982,14 @@ def stability_min_running_balance(tx, feedback):
         feedback['stability'].append("{} {} in {}(): {}".format(warning, e.__class__, stability_min_running_balance.__name__, e))
         return score, feedback
 
+
+
+
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
 # -------------------------------------------------------------------------- #
+
+
 
 def diversity_acc_count(tx, feedback):
     '''
@@ -970,6 +1016,8 @@ def diversity_acc_count(tx, feedback):
         score = 0
         feedback['diversity'].append("{} {} in {}(): {}".format(warning, e.__class__, diversity_acc_count.__name__, e))
         return score, feedback
+
+
 
 
 def diversity_profile(tx, feedback):
