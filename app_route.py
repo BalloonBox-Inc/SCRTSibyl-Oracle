@@ -17,7 +17,7 @@ def create_feedback_plaid():
 
 
 def create_feedback_coinbase():
-    return {'data': {}, 'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
+    return {'data_fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
 
 
 # @app.route('/credit_score', methods=['POST'])
