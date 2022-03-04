@@ -23,8 +23,14 @@ def timeit(method):
             func = method.__name__
             size = len(func)
             if size <= 10:
+                print('> %r:\t\t\t\t%s' % (func, span))
+            elif size <= 18:
+                print('> %r:\t\t\t%s' % (func, span))
+            elif size <= 26:
                 print('> %r:\t\t%s' % (func, span))
-            else:
+            elif size <= 34:
                 print('> %r:\t%s' % (func, span))
+            else:
+                print('> %r: %s' % (func, span))
         return result
     return timed
