@@ -4,15 +4,13 @@ from support.models import *
 def plaid_score(txn, feedback):
     
     mix, feedback = credit_mix(txn, feedback)
-    feedback = {k:[] for k in feedback}
 
     if mix == 0:
-        feedback['credit'].append("User owns NO credit cards")
         velocity, feedback = plaid_velocity(txn, feedback)
         stability, feedback = plaid_stability(txn, feedback)
         diversity, feedback = plaid_diversity(txn, feedback)
         
-        score = 300 + 600*(0.33*velocity + 0.42*stability + 0.20*diversity) # adds up to 0.95 for lack of credit card penalization
+        score = 300 + 600*(0.33*velocity + 0.42*stability + 0.20*diversity) # adds up to 0.95 for lack of credit card - it's a penalty
 
     else:   
         credit, feedback = plaid_credit(txn, feedback)

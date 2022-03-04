@@ -4,6 +4,7 @@ from support.metrics_coinbase import *
 # -------------------------------------------------------------------------- #
 #                                Plaid Model                                 #
 # -------------------------------------------------------------------------- #
+
 def plaid_credit(txn, feedback):
 
     limit, feedback = credit_limit(txn, feedback)
@@ -57,13 +58,10 @@ def plaid_diversity(txn, feedback):
 
     return score, feedback
 
-
-
-
-
 # -------------------------------------------------------------------------- #
 #                               Coinbase Model                               #
 # -------------------------------------------------------------------------- #
+
 def coinbase_kyc(acc, txn, feedback):
 
     score, feedback = kyc(acc, txn, feedback)
