@@ -68,13 +68,13 @@ def credit_score_coinbase():
     if coinbase_token:
         # get Coinmarketcap top coins
         feedback = create_feedback_coinbase()
-        top_coins = top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret, feedback)
+        top_coins = top_currencies(coinmarketcap_key, coinbase_token, coinbase_secret, feedback)
 
         # data fetching
-        acc = unfiltered_acc(coinbase_api_key, coinbase_api_secret, feedback)
-        tx = unfiltered_tx(coinbase_api_key, coinbase_api_secret, acc, feedback)
-        # acc = filter_acc(coinbase_api_key, coinbase_api_secret, top_coins)
-        # tx = filter_tx(coinbase_api_key, coinbase_api_secret, acc)
+        acc = unfiltered_acc(coinbase_token, coinbase_secret, feedback)
+        tx = unfiltered_tx(coinbase_token, coinbase_secret, acc, feedback)
+        # acc = filter_acc(coinbase_token, coinbase_secret, top_coins)
+        # tx = filter_tx(coinbase_token, coinbase_secret, acc)
         tx = refactor_send_tx(tx, feedback)
 
         # compute score
