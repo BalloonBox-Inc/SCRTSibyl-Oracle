@@ -6,6 +6,7 @@ from validator_api.coinbase import *
 from validator_api.plaid import *
 from support.score import *
 
+from runtime import *
 from app import *
 
 load_dotenv()
@@ -20,6 +21,7 @@ def create_feedback_coinbase():
 
 
 # @app.route('/credit_score', methods=['POST'])
+@timeit
 def credit_score_plaid():
 
     try:
@@ -43,15 +45,14 @@ def credit_score_plaid():
         
         # compute score
         feedback = create_feedback_plaid()
-        score = plaid_txn
-        # score, feedback = plaid_score(plaid_txn, feedback)
+        score, feedback = plaid_score(plaid_txn, feedback)
 
         return score, feedback
     
     except Exception as e:
         return 'Error', str(e)
 
-
+@timeit
 def credit_score_coinbase():
 
     try:
