@@ -12,11 +12,11 @@ load_dotenv()
 
 
 def create_feedback_plaid():
-    return {'data': [], 'credit': [], 'velocity': [], 'stability': [], 'diversity': []}
+    return {'data': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
 
 
 def create_feedback_coinbase():
-    return {'data': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+    return {'data': {}, 'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
 
 # @app.route('/credit_score', methods=['POST'])
@@ -41,14 +41,12 @@ def credit_score_plaid():
         plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts','transactions']}
         plaid_txn['transactions'] = [t for t in plaid_txn['transactions'] if not t['pending']]
         
-        for d in plaid_txn['transactions']:
-            d.update((k, v.strftime('%Y-%m-%d')) for k,v in d.items() if k=='date')
-
         # compute score
         feedback = create_feedback_plaid()
-        output, feedback = plaid_score(plaid_txn, feedback)
+        score = plaid_txn
+        # score, feedback = plaid_score(plaid_txn, feedback)
 
-        return output, feedback
+        return score, feedback
     
     except Exception as e:
         return 'Error', str(e)
@@ -56,21 +54,26 @@ def credit_score_plaid():
 
 def credit_score_coinbase():
 
-    # front-end inputs
-    # coinbase_token = request.json.get('coinbase_public_token', None)
-    # coinmarketcap_key = request.json.get('coinmarketcap_key', None)
-    # keplr_token = request.json.get('keplr_token', None)
-    coinbase_token = getenv('COINBASE_CLIENT_ID')
-    coinbase_secret = getenv('COINBASE_CLIENT_SECRET')
-    coinmarketcap_key = getenv('COINMARKETCAP_KEY')
-
-    # coinbase credit score
-    if coinbase_token:
-        # get Coinmarketcap top coins
-        feedback = create_feedback_coinbase()
+    try:
+        # coinbase_token = request.json.get('coinbase_public_token', None)
+        # coinmarketcap_key = request.json.get('coinmarketcap_key', None)
+        # keplr_token = request.json.get('keplr_token', None)
+        coinbase_token = getenv('COINBASE_CLIENT_ID')
+        coinbase_secret = getenv('COINBASE_CLIENT_SECRET')
+        coinmarketcap_key = getenv('COINMARKETCAP_KEY')
+    except Exception as e:
+        return str(e)
+    
+    try:
+        # coinmarketcap
         top_coins = top_currencies(coinmarketcap_key, coinbase_token, coinbase_secret, feedback)
 
-        # data fetching
+        # client connection
+        # get Coinmarketcap top coins
+        feedback = create_feedback_coinbase()
+        
+
+        # data fetching and formatting
         acc = unfiltered_acc(coinbase_token, coinbase_secret, feedback)
         tx = unfiltered_tx(coinbase_token, coinbase_secret, acc, feedback)
         # acc = filter_acc(coinbase_token, coinbase_secret, top_coins)
@@ -78,7 +81,10 @@ def credit_score_coinbase():
         tx = refactor_send_tx(tx, feedback)
 
         # compute score
-        feedback = create_feedback_coinbase()
+        # feedback = create_feedback_coinbase()
         score, feedback = coinbase_score(acc, tx, feedback)
 
         return score, feedback
+    
+    except Exception as e:
+        return 'Error', str(e)
