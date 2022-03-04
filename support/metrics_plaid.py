@@ -1,14 +1,11 @@
-from datetime import timedelta
-from datetime import datetime
-import pandas as pd
-import numpy as np
-import json
+
 import os
+import json
 
-from runtime import *
-
-now = datetime.now().date()
-warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
+import numpy as np
+import pandas as pd
+from datetime import datetime, date
+from datetime import timedelta
 
 # import matplotlib.pyplot as plt
 
@@ -20,7 +17,7 @@ warning = 'WARNING: Error occured during computation. Your score was rounded dow
 # -------------------------------------------------------------------------- #
 
 def build_2D_matrix_by_rule(size, scalar):
-    '''
+    """
     returns a matrix of given size, built through a generalized rule. The matrix must be 2D
 
             Parameters:
@@ -31,7 +28,7 @@ def build_2D_matrix_by_rule(size, scalar):
 
             Returns:
                 a matrix of size m x n whose cell are given by m_float+n_float
-    '''
+    """
     # Initialize a zero-matrix of size = (m x n)
     matrix = np.zeros(size)
     for m in range(matrix.shape[0]):
@@ -45,6 +42,9 @@ def build_2D_matrix_by_rule(size, scalar):
 # -------------------------------------------------------------------------- #
 #                               Score Matrices                               #
 # -------------------------------------------------------------------------- # 
+
+warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
+
 # Scoring grids
 # naming convention: shape+denominator, m7x7+Scalars+1.3+1.17 -> m7x7_03_17
 # naming convention: shape+denominator, m3x7+Scalars+1.2+1.4 -> m3x7_2_4
@@ -91,7 +91,7 @@ slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
 
 # Remove this function eventually. It's used only to fetch local data for testing purposes.
 def get_tx(path_dir, userid, feedback):
-    '''
+    """
     returns the Plaid 'Transaction' product for one user
 
             Parameters:
@@ -100,7 +100,7 @@ def get_tx(path_dir, userid, feedback):
         
             Returns: 
                 tx (dict of lists): with transactions of all user's bank accoutns (credit, checking, saving, loan, etc.) in chronological order (newest to oldest)
-    '''
+    """
     try:
         # Iterate through all files in a directory
         directory = os.fsencode(path_dir)
@@ -133,7 +133,7 @@ def get_tx(path_dir, userid, feedback):
 # -------------------------------------------------------------------------- #
 
 def dynamic_select(tx, acc_name, feedback):
-    '''
+    """
     dynamically pick the best credit account,
     i.e. the account that performs best in 2 out of these 3 categories:
     highest credit limit / largest txn count / longest txn history
@@ -144,7 +144,7 @@ def dynamic_select(tx, acc_name, feedback):
         
             Returns: 
                 best (str or dict): Plaid account_id of best credit account 
-    '''
+    """
     try:
         acc = tx['accounts']
         txn = tx['transactions']
@@ -185,7 +185,7 @@ def dynamic_select(tx, acc_name, feedback):
 
 
 def get_acc(tx, acc_type, feedback):
-    '''
+    """
     returns list of all accounts owned by the user
 
             Parameters:
@@ -194,7 +194,7 @@ def get_acc(tx, acc_type, feedback):
         
             Returns: 
                 info (list of lists): all account owned by the user
-    '''
+    """
     try: 
         acc = tx['accounts']
         txn = tx['transactions'] 
@@ -225,7 +225,7 @@ def get_acc(tx, acc_type, feedback):
 
 
 def flows(tx, how_many_months, feedback):
-    '''
+    """
     returns monthly net flow
 
             Parameters:
@@ -234,7 +234,7 @@ def flows(tx, how_many_months, feedback):
         
             Returns: 
                 flow (df): pandas dataframe with amounts for net monthly flow and datetime index
-    '''
+    """
     try: 
         acc = tx['accounts']
         txn = tx['transactions']
@@ -292,7 +292,7 @@ def flows(tx, how_many_months, feedback):
 
     
 def balance_now(tx, feedback):
-    '''
+    """
     returns total balance available now across ALL accounts owned by the user
     
             Parameters:
@@ -300,7 +300,7 @@ def balance_now(tx, feedback):
 
             Returns:
                 balance (float): cumulative current balance
-    '''
+    """
     try:
         acc = tx['accounts']
 
@@ -324,7 +324,7 @@ def balance_now(tx, feedback):
 
 
 def balance_now_checking_only(tx, feedback):
-    '''
+    """
     returns total balance available now in the user's checking accounts
     
             Parameters:
@@ -332,7 +332,7 @@ def balance_now_checking_only(tx, feedback):
 
             Returns:
                 balance (float): cumulative current balance in checking accounts
-    '''
+    """
     try:
         acc = tx['accounts']
 
@@ -352,53 +352,63 @@ def balance_now_checking_only(tx, feedback):
 
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
-# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #  
 
-def credit_mix(data, feedback):
-    '''
-    Description:
-        Returns a score based on user's credits accounts composition and status
-    
-    Parameters:
-        data (dict): Plaid 'Transactions' product
-        feedback (dict): score feedback
+def credit_mix(tx, feedback):
+    """
+    returns score based on composition and status of user's credits accounts
 
-    Returns: 
-        score (float): gained based on number of credit accounts owned and duration
-        feedback (dict): score feedback
-    '''
+            Parameters:
+                tx (dict): Plaid 'Transactions' product 
+        
+            Returns: 
+                score (float): gained based on number of credit accounts owned and duration
+    """
+    try: 
+        # How many credit products does the user own?
+        acc = tx['accounts']
+        credit_acc = list()
+        credit_ids = list()
+        
+        for a in acc:
+            if 'credit' in a['type']:
+                name = '{}_{}'.format(a['subtype'], a['official_name'])
+                credit_acc.append(name)
+                credit_ids.append(a['account_id'])
+                
+        how_many = len(credit_acc)
+        feedback['credit'].append('User owns {} credit account(s)'.format(str(how_many)))
+        feedback['credit'].append('{}'.format(credit_acc)) #print names of credit accoutns
+        
+        if credit_acc:
+            # How long has the user owned their credit accounts for?
+            txn = tx['transactions']
+            credit_txn = [t for t in txn if t['account_id'] in credit_ids]
 
-    try:
-        credit = [d for d in data['accounts'] if d['type']=='credit']
-
-        if credit:
-            credit_acc = ['{} - {}'.format(d['subtype'], d['official_name']) for d in credit]
-            credit_ids = [d['account_id'] for d in credit]
-            credit_txn = [t for t in data['transactions'] if t['account_id'] in credit_ids]
-            
-            first_txn = credit_txn[-1]['date']
-            date_diff = (now - first_txn).days
-
-            m = np.digitize(len(credit_acc), count0, right=True)
-            n = np.digitize(date_diff, duration, right=True)
+            oldest_credit_txn = datetime.strptime(credit_txn[-1]['date'], '%Y-%m-%d').date()
+            date_today = datetime.today().date() 
+            how_long = (date_today - oldest_credit_txn).days # credit length = date today - date of oldest credit transaction
+           
+            m = np.digitize(how_many, count0, right=True)
+            n = np.digitize(how_long, duration, right=True)
             score = m3x7_2_4[m][n]
-
             feedback['credit'].append(score)
-            feedback['credit'].append('User owns {} credit account(s)'.format(str(len(credit_acc))))
-            feedback['credit'].append('{}'.format(credit_acc))
+        
         else:
-            raise Exception('')
-    
+            score = 0
+
+        return score, feedback
+
     except Exception as e:
         score = 0
-        feedback['credit'].append('{} {} in {}(): {}'.format(warning, e.__class__, credit_mix.__name__, e))
-        
-    finally:
+        feedback['credit'].append("{} {} in {}(): {}".format(warning, e.__class__, credit_mix.__name__, e))
         return score, feedback
 
 
+
+
 def credit_limit(tx, feedback):
-    '''
+    """
     returns score for the cumulative credit limit of a user across ALL of his credit accounts
 
             Parameters:
@@ -406,7 +416,7 @@ def credit_limit(tx, feedback):
         
             Returns: 
                 score (float): gained based on the cumulative credit limit across all credit accounts
-    '''
+    """
     try: 
         # Fetch all 'credit' accounts
         cred_acc = get_acc(tx, 'credit', feedback)
@@ -441,7 +451,7 @@ def credit_limit(tx, feedback):
 
 
 def credit_util_ratio(tx, feedback):
-    '''
+    """
     returns a score reflective of the user's credit utilization ratio, that is credit_used/credit_limit
     
             Parameters:
@@ -449,7 +459,7 @@ def credit_util_ratio(tx, feedback):
 
             Returns:
                 score (float): score for avg percent of credit limit used
-    '''
+    """
     try:
         txn = tx['transactions']
 
@@ -508,7 +518,7 @@ def credit_util_ratio(tx, feedback):
 
 
 def credit_interest(tx, feedback):
-    '''
+    """
     returns score based on number of times user was charged credit card interest fees in past 24 months
     
             Parameters:
@@ -516,7 +526,7 @@ def credit_interest(tx, feedback):
         
             Returns: 
                 score (float): gained based on interest charged
-    '''
+    """
     try:
         id = dynamic_select(tx, 'credit', feedback)['id']
 
@@ -559,7 +569,7 @@ def credit_interest(tx, feedback):
 
 
 def credit_length(tx, feedback):
-    '''
+    """
     returns score based on length of user's best credit account
     
             Parameters:
@@ -567,7 +577,7 @@ def credit_length(tx, feedback):
         
             Returns: 
                 score (float): gained because of credit account duration
-    '''
+    """
     try:
         id = dynamic_select(tx, 'credit', feedback)['id']
         txn = tx['transactions']
@@ -594,7 +604,7 @@ def credit_length(tx, feedback):
 
 
 def credit_livelihood(tx, feedback):
-    '''
+    """
     returns score quantifying the avg monthly txn count for your best credit account
 
             Parameters:
@@ -602,7 +612,7 @@ def credit_livelihood(tx, feedback):
         
             Returns: 
                 score (float): based on avg monthly txn count
-    '''
+    """
     try:
         id = dynamic_select(tx, 'credit', feedback)['id']
         txn = tx['transactions']
@@ -649,7 +659,7 @@ def credit_livelihood(tx, feedback):
 # -------------------------------------------------------------------------- # 
 
 def velocity_withdrawals(tx, feedback):
-    '''
+    """
     returns score based on count and volumne of monthly automated withdrawals
 
             Parameters:
@@ -657,7 +667,7 @@ def velocity_withdrawals(tx, feedback):
         
             Returns: 
                 score (float): score associated with reccurring monthly withdrawals
-    '''
+    """
     try: 
         txn = tx['transactions']
         withdraw = [['Service', 'Subscription'], ['Service', 'Financial', 'Loans and Mortgages'], ['Service', 'Insurance'], ['Payment', 'Rent']]
@@ -697,7 +707,7 @@ def velocity_withdrawals(tx, feedback):
 
 
 def velocity_deposits(tx, feedback):
-    '''
+    """
     returns score based on count and volumne of monthly automated deposits
 
             Parameters:
@@ -705,7 +715,7 @@ def velocity_deposits(tx, feedback):
         
             Returns: 
                 score (float): score associated with direct deposits
-    '''
+    """
     try: 
         txn = tx['transactions']
         dates = list()
@@ -744,7 +754,7 @@ def velocity_deposits(tx, feedback):
 
 
 def velocity_month_net_flow(tx, feedback):
-    '''
+    """
     returns score for monthly net flow
 
             Parameters:
@@ -752,7 +762,7 @@ def velocity_month_net_flow(tx, feedback):
         
             Returns: 
                 score (float): score associated with monthly new flow
-    '''
+    """
     try: 
         flow = flows(tx, 12, feedback)
 
@@ -787,7 +797,7 @@ def velocity_month_net_flow(tx, feedback):
 
 
 def velocity_month_txn_count(tx, feedback):
-    '''
+    """
     returns score based on count of mounthly transactions
 
             Parameters:
@@ -795,7 +805,7 @@ def velocity_month_txn_count(tx, feedback):
         
             Returns: 
                 score (float): the larget the monthly count the larger the score
-    '''
+    """
     try: 
         acc = tx['accounts']
         txn = tx['transactions']
@@ -852,7 +862,7 @@ def velocity_month_txn_count(tx, feedback):
 
 
 def velocity_slope(tx, feedback):
-    '''
+    """
     returns score for the historical behavior of the net monthly flow for past 24 months
     
             Parameters:
@@ -860,7 +870,7 @@ def velocity_slope(tx, feedback):
 
             Returns:
                 score (float): score for flow net behavior over past 24 months
-    '''
+    """
     try:
         flow = flows(tx, 24, feedback)
 
@@ -910,7 +920,7 @@ def velocity_slope(tx, feedback):
 # -------------------------------------------------------------------------- #  
 
 def stability_tot_balance_now(tx, feedback):
-    '''
+    """
     returns score based on total balance now across ALL accounts owned by the user
     
             Parameters:
@@ -918,7 +928,7 @@ def stability_tot_balance_now(tx, feedback):
 
             Returns:
                 score (float): for cumulative current balance
-    '''
+    """
     try:
         balance = balance_now(tx, feedback)
 
@@ -941,7 +951,7 @@ def stability_tot_balance_now(tx, feedback):
 
 
 def stability_min_running_balance(tx, feedback):
-    '''
+    """
     returns score based on the average minimum balance maintained for 12 months
     
             Parameters:
@@ -949,7 +959,7 @@ def stability_min_running_balance(tx, feedback):
 
             Returns:
                 score (float): for volume of minimum balance and duration
-    '''
+    """
     try:
         # Calculate net flow each month for past 12 months i.e, |income-expenses|
         nets = flows(tx, 12, feedback)['amounts'].tolist()
@@ -992,7 +1002,7 @@ def stability_min_running_balance(tx, feedback):
 
 
 def diversity_acc_count(tx, feedback):
-    '''
+    """
     returns score based on count of accounts owned by the user and account duration
     
             Parameters:
@@ -1000,7 +1010,7 @@ def diversity_acc_count(tx, feedback):
 
             Returns:
                 score (float): score for accounts count
-    '''
+    """
     try:
         oldest_tx = datetime.strptime(tx['transactions'][-1]['date'], '%Y-%m-%d').date()
         how_long = (datetime.today().date() - oldest_tx).days
@@ -1021,7 +1031,7 @@ def diversity_acc_count(tx, feedback):
 
 
 def diversity_profile(tx, feedback):
-    '''
+    """
     returns score for number of saving and investment accounts owned
     
             Parameters:
@@ -1029,7 +1039,7 @@ def diversity_profile(tx, feedback):
 
             Returns:
                 score (float): points scored for accounts owned
-    '''
+    """
     try:
         myacc = list()
 
