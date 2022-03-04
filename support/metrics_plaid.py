@@ -3,7 +3,6 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import json
-import math
 import os
 
 from runtime import *
@@ -167,45 +166,6 @@ def dynamic_select(data, acc_name, feedback):
         pass
         # feedback['data'].append('{} in {}(): {}'.format(e.__class__, dynamic_select.__name__, e))
 
-
-# def get_acc(data, acc_type, feedback):
-#     '''
-#     returns list of all accounts owned by the user
-
-#             Parameters:
-#                 data (dict): Plaid 'Transactions' product 
-#                 acc_type (str): accepts 'credit', 'depository', 'all'
-        
-#             Returns: 
-#                 info (list of lists): all account owned by the user
-#     '''
-#     try: 
-#         acc = data['accounts']
-#         txn = data['transactions'] 
-
-#         info = list()
-#         for a in acc:
-#             id = a['account_id']
-#             type = '{1}{0}{2}'.format('_', str(a['type']), str(a['subtype'])).lower()
-#             mask = a['mask']
-#             limit = int(a['balances']['limit'] or 0)
-#             transat = [x for x in txn if x['account_id']==id]
-#             if len(transat)!=0:
-#                 length = (now - transat[-1]['date']).days
-#             else:
-#                 length=0
-
-#             if acc_type == 'all':
-#                 info.append({'id':id, 'type':type, 'mask':mask, 'limit':limit, 'alltxn_count':len(transat), 'duration(days)':length})
-#             else:
-#                 if acc_type in type:
-#                     info.append({'id':id, 'type':type, 'mask':mask, 'limit':limit, 'alltxn_count':len(transat), 'duration(days)':length})
-#         return info
-
-#     except Exception as e:
-#         feedback['data'].append('{} in {}(): {}'.format(e.__class__, get_acc.__name__, e))
-
-
 def flows(data, how_many_months, feedback):
     '''
     returns monthly net flow
@@ -271,35 +231,6 @@ def flows(data, how_many_months, feedback):
         pass
 
 
-# def balance_now(data, feedback):
-#     '''
-#     returns total balance available now across ALL accounts owned by the user
-    
-#             Parameters:
-#                 data (dict): Plaid 'Transactions' product 
-
-#             Returns:
-#                 balance (float): cumulative current balance
-#     '''
-#     try:
-#         acc = data['accounts']
-
-#         balance = 0
-#         for a in acc:
-#             type = '{1}{0}{2}{0}{3}'.format('_', str(a['type']), str(a['subtype']), str(a['official_name'])).lower()
-
-#             if type.split('_')[0]=='depository':
-#                 balance += int(a['balances']['current'] or 0)
-                
-#             else:
-#                 balance += int(a['balances']['available'] or 0)
-
-#         return balance
-
-#     except Exception as e:
-#         feedback['stability'].append('{} in {}(): {}'.format(e.__class__, balance_now.__name__, e))
-
-
 def balance_now_checking_only(data, feedback):
     '''
     returns total balance available now in the user's checking accounts
@@ -360,7 +291,6 @@ def credit_mix(data, feedback):
             n = np.digitize(date_diff, duration, right=True)
             score = m3x7_2_4[m][n]
             
-            feedback['credit']['score_1'] = score
             feedback['credit']['credit_cards'] = size
         else:
             raise Exception('no credit accounts')
@@ -398,16 +328,11 @@ def credit_limit(data, feedback):
 
             first_txn = credit_txn[-1]['date']
             date_diff = (now - first_txn).days
-            
-            # cred_sum = dict(functools.reduce(operator.add, map(collections.Counter, cred_acc)))
-            # limit = cred_sum['limit']
-            # length = max(d['duration(days)'] for d in cred_acc)
 
             m = np.digitize(date_diff, duration, right=True)
             n = np.digitize(credit_lim, volume_cred_limit, right=True)
             score = m7x7_03_17[m][n]
             
-            feedback['credit']['score_2'] = score
             feedback['credit']['credit_limit'] = credit_lim
         else:
             raise Exception('no credit limit')
@@ -476,9 +401,7 @@ def credit_util_ratio(data, feedback):
                 n = np.digitize(avg_util, percent_cred_util, right=True)
                 score = m7x7_85_55[m][n]
                 
-                feedback['credit']['score_3'] = score
-                feedback['credit']['utility_ratio'] = avg_util
-                # feedback['credit'].append('Credit util ratio (monthly avg) = {}'.format(round(avg_util, 2)))
+                feedback['credit']['utility_ratio'] = round(avg_util, 2)
 
             else:
                 raise Exception('no credit history')
@@ -528,9 +451,7 @@ def credit_interest(data, feedback):
                 frequency = len(interests)/length
                 score = fico_medians[np.digitize(frequency, frequency_interest, right=True)]
                 
-                feedback['credit']['score_4'] = score
-                feedback['credit']['charged_interest'] = frequency
-                # feedback['credit'].append('Count interest charged (last 2 yrs) = {}'.format(round(frequency, 0)))
+                feedback['credit']['count_charged_interest'] = round(frequency, 0)
             
             else:
                 raise Exception('no credit interest')
@@ -563,9 +484,7 @@ def credit_length(data, feedback):
             how_long = (now - oldest_txn).days # date today - date of oldest credit transaction
             score = fico_medians[np.digitize(how_long, duration, right=True)]
             
-            # feedback['credit'].append('Duration of best credit card = {} (days)'.format(how_long))
-            feedback['credit']['score_5'] = score
-            feedback['credit']['credit_length'] = how_long
+            feedback['credit']['credit_duration'] = how_long
 
         else:
             raise Exception('no credit length')
@@ -615,12 +534,10 @@ def credit_livelihood(data, feedback):
             mean = d['amounts'].mean()
             score = fico_medians[np.digitize(mean, count_lively, right=True)]
 
-            feedback['credit']['score_6'] = score
-            feedback['credit']['monthly_txn'] = mean
-            # feedback['credit'].append('Avg count monthly txn = {}'.format(round(mean, 0)))
+            feedback['credit']['avg_monthly_txn'] = round(mean, 0)
             
         else:
-            raise Exception('no credit length')
+            raise Exception('no credit transactions')
     
     except Exception as e:
         score = 0
@@ -667,9 +584,8 @@ def velocity_withdrawals(data, feedback):
                 n = np.digitize(volume, volume_withdraw, right=True)
                 score = m3x7_73_17[m][n]
 
-                feedback['velocity']['score_1'] = score
                 feedback['velocity']['withdrawals'] = how_many
-                feedback['velocity']['volume'] = volume
+                feedback['velocity']['withdrawals_volume'] = volume
         
         else:
             raise Exception('no withdrawals')
@@ -715,9 +631,8 @@ def velocity_deposits(data, feedback):
                 n = np.digitize(volume, volume_deposit, right=True)
                 score = m3x7_73_17[m][n]
                 
-                feedback['velocity']['score_2'] = score
                 feedback['velocity']['deposits'] = how_many
-                feedback['velocity']['volume'] = volume
+                feedback['velocity']['deposits_volume'] = volume
         
         else:
             raise Exception('no deposits')
@@ -761,9 +676,7 @@ def velocity_month_net_flow(data, feedback):
         n = np.digitize(magnitude, volume_flow, right=True)
         score = m7x7_03_17[m][n]
 
-        feedback['velocity']['score_3'] = score
-        feedback['velocity']['net_flow'] = magnitude
-        # feedback['velocity'].append('Avg monthly net flow for last year = ${}'.format(round(magnitude, 2)))
+        feedback['velocity']['avg_net_flow'] = round(magnitude, 2)
 
     except Exception as e:
         score = 0
@@ -823,12 +736,10 @@ def velocity_month_txn_count(data, feedback):
             mycounts.append(cnt)
 
         mycounts = [x for y in mycounts for x in y]
-        how_many = math.floor(np.mean(mycounts))
+        how_many = np.mean(mycounts)
         score = fico_medians[np.digitize(how_many, count_txn_month, right=True)]
         
-        feedback['velocity']['score_4'] = score
-        feedback['velocity']['monthly_txn'] = how_many
-        # feedback['velocity'].append('Avg count monthly txn = {}'.format(round(how_many, 0)))
+        feedback['velocity']['count_monthly_txn'] = round(how_many, 0)
 
     except Exception as e:
         score = 0
@@ -860,10 +771,7 @@ def velocity_slope(data, feedback):
             
             score = fico_medians[np.digitize(a, slope_linregression, right=True)]
             
-            feedback['velocity']['score_5'] = score
-            feedback['velocity']['slope'] = a
-
-            # feedback['velocity'].append('Slope of net monthly flow (last 2 yrs) = {}'.format(round(a, 2)))
+            feedback['velocity']['slope'] = round(a, 2)
 
         # If you have < 10 data points, then calculate the score accounting for two ratios
         else:
@@ -873,17 +781,16 @@ def velocity_slope(data, feedback):
             direction = len(pos) / len(neg) # output in range [0, 2+]
             magnitude = abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             if direction >= 1:
-                direct = '+'
+                pass
+                # direct = '+'
             else:
-                direct = '-'
+                magnitude = magnitude * -1
+                # direct = '-'
             m = np.digitize(direction, slope_product, right=True)
             n = np.digitize(magnitude, slope_product, right=True)
             score = m7x7_03_17.T[m][n]
 
-            feedback['velocity']['score_5'] = score
-            feedback['velocity']['direction'] = direct
-            feedback['velocity']['magnitude'] = magnitude
-            # .append('Magnitude of net monthly flow (< 2 yrs) = {}{}'.format(direct, round(magnitude, 4)))
+            feedback['velocity']['monthly_flow'] = round(magnitude, 2)
     
     except Exception as e:
         score = 0
@@ -909,8 +816,7 @@ def stability_tot_balance_now(data, feedback):
     Returns:
         score (float): cumulative current balance
         feedback (dict): score feedback
-    '''
-
+    '''          
     try:
         depository = [d for d in data['accounts'] if d['type'].lower()=='depository']
         non_depository = [d for d in data['accounts'] if d['type'].lower()!='depository']
@@ -920,7 +826,6 @@ def stability_tot_balance_now(data, feedback):
 
         if balance > 0:
             score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
-            feedback['stability']['score_1'] = score
             feedback['stability']['current_balance'] = balance
         
         else:
@@ -935,7 +840,7 @@ def stability_tot_balance_now(data, feedback):
 
 
 @timeit
-def stability_min_running_balance(data, feedback): ########################################################
+def stability_min_running_balance(data, feedback):
     '''
     Description:
         A score based on the average minimum balance maintained for 12 months
@@ -957,11 +862,7 @@ def stability_min_running_balance(data, feedback): #############################
         balance = balance_now_checking_only(data, feedback)
 
         # Subtract net flow from balancenow to calculate the running balance for the past 12 months
-        running_balances = list()
-
-        for n in reversed(nets):
-            balance = balance + n
-            running_balances.append(balance)
+        running_balances = [balance+n for n in reversed(nets)]
 
         # Calculate volume using a weighted average
         weights = np.linspace(0.01, 1, len(running_balances)).tolist() # define your weights
@@ -972,11 +873,10 @@ def stability_min_running_balance(data, feedback): #############################
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
         score = m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
-        feedback['stability']['score_2'] = score
-        feedback['stability']['min_balance'] = volume
-        feedback['stability']['timeframe'] = length
 
-        # feedback['stability'].append('Avg of min running balance for last {} days = ${}'.format(length, round(volume, 2)))
+        feedback['stability']['min_running_balance'] = round(volume, 2)
+        feedback['stability']['min_running_timeframe'] = length
+        
     except Exception as e:
         score = 0
         feedback['stability']['error'] = str(e)
@@ -1013,7 +913,6 @@ def diversity_acc_count(data, feedback):
         n = np.digitize(date_diff, duration, right=True)
         score =  m3x7_73_17[m][n]
 
-        feedback['diversity']['score_1'] = score
         feedback['diversity']['bank_accounts'] = size
     
     except Exception as e:
@@ -1024,7 +923,7 @@ def diversity_acc_count(data, feedback):
         return score, feedback
 
 @timeit
-def diversity_profile(data, feedback): ########################################################
+def diversity_profile(data, feedback):
     '''
     Description:
         A score for number of saving and investment accounts owned
@@ -1060,9 +959,8 @@ def diversity_profile(data, feedback): #########################################
 
         if balance != 0:
             score = fico_medians[np.digitize(balance, volume_invest, right=True)]
-            feedback['diversity']['score_2'] = score
-            feedback['diversity']['savings_accounts'] = len(myacc)
-            feedback['diversity']['savings_balance'] = balance
+            feedback['diversity']['total_accounts'] = len(myacc)
+            feedback['diversity']['total_balance'] = balance
         
         else:
             raise Exception('no investing nor savings accounts')
