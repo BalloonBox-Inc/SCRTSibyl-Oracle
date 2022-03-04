@@ -1,11 +1,8 @@
 import time
 from app_route import *
-from support_score import *
-from support_models import *
-from support_metrics_plaid import *
-
-
-
+from support.score import *
+from support.models import *
+from support.metrics_plaid import *
 
 
 # -------------------------------------------------------------------------- #
