@@ -9,7 +9,6 @@ import os
 from runtime import *
 
 now = datetime.now().date()
-warning = 'WARNING! An error has occured during computation. The score has been rounded to zero. Please retry later.'
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -368,7 +367,6 @@ def credit_mix(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
         feedback['credit']['error'] = str(e)
         
     finally:
@@ -416,7 +414,6 @@ def credit_limit(data, feedback):
         
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
         feedback['credit']['error'] = str(e)
         
     finally:
@@ -488,7 +485,6 @@ def credit_util_ratio(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
         feedback['credit']['error'] = str(e)
         
     finally:
@@ -541,7 +537,6 @@ def credit_interest(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
         feedback['credit']['error'] = str(e)
         
     finally:
@@ -577,7 +572,6 @@ def credit_length(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
         feedback['credit']['error'] = str(e)
         
     finally:
@@ -630,7 +624,6 @@ def credit_livelihood(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['credit']['message'] = warning
         feedback['credit']['error'] = str(e)
         
     finally:
@@ -683,7 +676,6 @@ def velocity_withdrawals(data, feedback):
         
     except Exception as e:
         score = 0
-        feedback['velocity']['message'] = warning
         feedback['velocity']['error'] = str(e)
         
     finally:
@@ -732,7 +724,6 @@ def velocity_deposits(data, feedback):
         
     except Exception as e:
         score = 0
-        feedback['velocity']['message'] = warning
         feedback['velocity']['error'] = str(e)
         
     finally:
@@ -776,7 +767,6 @@ def velocity_month_net_flow(data, feedback):
 
     except Exception as e:
         score = 0
-        feedback['velocity']['message'] = warning
         feedback['velocity']['error'] = str(e)
         
     finally:
@@ -842,7 +832,6 @@ def velocity_month_txn_count(data, feedback):
 
     except Exception as e:
         score = 0
-        feedback['velocity']['message'] = warning
         feedback['velocity']['error'] = str(e)
         
     finally:
@@ -898,7 +887,6 @@ def velocity_slope(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['velocity']['message'] = warning
         feedback['velocity']['error'] = str(e)
         
     finally:
@@ -940,7 +928,6 @@ def stability_tot_balance_now(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['stability']['message'] = warning
         feedback['stability']['error'] = str(e)
         
     finally:
@@ -992,8 +979,7 @@ def stability_min_running_balance(data, feedback): #############################
         # feedback['stability'].append('Avg of min running balance for last {} days = ${}'.format(length, round(volume, 2)))
     except Exception as e:
         score = 0
-        feedback['diversity']['message'] = warning
-        feedback['diversity']['error'] = str(e)
+        feedback['stability']['error'] = str(e)
         
     finally:
         return score, feedback
@@ -1032,7 +1018,6 @@ def diversity_acc_count(data, feedback):
     
     except Exception as e:
         score = 0
-        feedback['diversity']['message'] = warning
         feedback['diversity']['error'] = str(e)
         
     finally:
@@ -1084,7 +1069,6 @@ def diversity_profile(data, feedback): #########################################
     
     except Exception as e:
         score = 0
-        feedback['diversity']['message'] = warning
         feedback['diversity']['error'] = str(e)
         
     finally:
