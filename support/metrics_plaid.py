@@ -110,7 +110,7 @@ def get_tx(path_dir, userid, feedback):
         return data
 
     except Exception as e:
-        feedback['data'].append('{} in {}(): {}'.format(e.__class__, get_tx.__name__, e))
+        feedback['fetch'].append('{} in {}(): {}'.format(e.__class__, get_tx.__name__, e))
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -164,7 +164,7 @@ def dynamic_select(data, acc_name, feedback):
 
     except Exception as e:
         pass
-        # feedback['data'].append('{} in {}(): {}'.format(e.__class__, dynamic_select.__name__, e))
+        # feedback['fetch'].append('{} in {}(): {}'.format(e.__class__, dynamic_select.__name__, e))
 
 def flows(data, how_many_months, feedback):
     '''
@@ -227,7 +227,7 @@ def flows(data, how_many_months, feedback):
         return flow
 
     except Exception as e:
-        # feedback['data'].append('{} in {}(): {}'.format(e.__class__, flows.__name__, e))
+        # feedback['fetch'].append('{} in {}(): {}'.format(e.__class__, flows.__name__, e))
         pass
 
 

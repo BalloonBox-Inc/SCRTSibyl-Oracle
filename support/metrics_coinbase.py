@@ -46,7 +46,7 @@ def build_2D_matrix_by_rule(size, scalar):
 
 
 # Initialize our qualitative score feedback (dict).
-# feedback = {'data_fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+# feedback = {'fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
 warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
 
 
@@ -147,7 +147,7 @@ def top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret, fee
         return top_coins
 
     except (ConnectionError, Timeout, TooManyRedirects) as e:
-        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, top_currencies.__name__, e))
+        feedback['fetch'].append("{} in {}(): {}".format(e.__class__, top_currencies.__name__, e))
         
 
 
@@ -195,7 +195,7 @@ def filter_acc(coinbase_api_key, coinbase_api_secret, top_coins, feedback):
       return user_top_acc
 
    except Exception as e:
-      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, filter_acc.__name__, e))
+      feedback['fetch'].append("{} in {}(): {}".format(e.__class__, filter_acc.__name__, e))
 
 
 
@@ -246,7 +246,7 @@ def filter_tx(coinbase_api_key, coinbase_api_secret, user_top_acc, feedback):
       return filtered_tx
 
    except Exception as e:
-      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, filter_tx.__name__, e))
+      feedback['fetch'].append("{} in {}(): {}".format(e.__class__, filter_tx.__name__, e))
 
 
 
@@ -283,7 +283,7 @@ def refactor_send_tx(tx, feedback):
       return new_tx
       
    except Exception as e:
-      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, refactor_send_tx.__name__, e))
+      feedback['fetch'].append("{} in {}(): {}".format(e.__class__, refactor_send_tx.__name__, e))
 
 
 
@@ -409,7 +409,7 @@ def local_get_data(path_dir, userid, top_coins, feedback):
         return filtered_acc, filtered_tx
     
     except Exception as e:
-        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
+        feedback['fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
 
 
 
@@ -454,7 +454,7 @@ def unfiltered_acc(coinbase_api_key, coinbase_api_secret, feedback):
       return user_top_acc
 
    except Exception as e:
-      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_acc.__name__, e))
+      feedback['fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_acc.__name__, e))
 
 
 
@@ -505,7 +505,7 @@ def unfiltered_tx(coinbase_api_key, coinbase_api_secret, user_top_acc, feedback)
       return filtered_tx
 
    except Exception as e:
-      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_tx.__name__, e))
+      feedback['fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_tx.__name__, e))
 
 
 
