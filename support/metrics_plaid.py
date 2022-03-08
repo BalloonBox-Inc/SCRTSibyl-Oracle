@@ -110,7 +110,32 @@ def get_tx(path_dir, userid, feedback):
         return data
 
     except Exception as e:
-        feedback['fetch'].append('{} in {}(): {}'.format(e.__class__, get_tx.__name__, e))
+        feedback['fetch'][get_tx.__name__] = str(e)
+        
+
+
+def str_to_datetime(plaid_txn, feedback):
+    """
+    serialize a Python data structure converting string instances into datetime objects
+            Parameters:
+                plaid_txn (list): locally stored Plaid data used for testing purposes
+            Returns:
+                tx (dict): serialized dict containing user accounts and transactions. String dates are converted to datetime objects
+     """
+    try:
+        # Keep only completed transactions (filter out pending transactions)
+        all_txn = []
+        for t in plaid_txn['transactions']:
+            if t['pending'] == False:
+                t['date'] = datetime.strptime(t['date'], '%Y-%m-%d').date()
+                all_txn.append(t)
+
+        # Prettify and write to json
+        tx = {'accounts':plaid_txn['accounts'], 'transactions':all_txn}
+        return tx
+
+    except Exception as e:
+        feedback['fetch'][str_to_datetime.__name__] = str(e)
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -163,8 +188,9 @@ def dynamic_select(data, acc_name, feedback):
         return best
 
     except Exception as e:
-        pass
-        # feedback['fetch'].append('{} in {}(): {}'.format(e.__class__, dynamic_select.__name__, e))
+        feedback['fetch'][dynamic_select.__name__] = str(e)
+ 
+
 
 def flows(data, how_many_months, feedback):
     '''
@@ -227,8 +253,7 @@ def flows(data, how_many_months, feedback):
         return flow
 
     except Exception as e:
-        # feedback['fetch'].append('{} in {}(): {}'.format(e.__class__, flows.__name__, e))
-        pass
+        feedback['fetch'][flows.__name__] = str(e)
 
 
 def balance_now_checking_only(data, feedback):
@@ -253,10 +278,8 @@ def balance_now_checking_only(data, feedback):
         return balance
 
     except Exception as e:
-        pass
-        feedback['stability'].append('{} in {}(): {}'.format(e.__class__, balance_now_checking_only.__name__, e))
-
-
+        feedback['fetch'][balance_now_checking_only.__name__] = str(e)
+        
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #
