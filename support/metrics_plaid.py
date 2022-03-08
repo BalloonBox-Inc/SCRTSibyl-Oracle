@@ -424,7 +424,7 @@ def credit_util_ratio(data, feedback):
                 n = np.digitize(avg_util, percent_cred_util, right=True)
                 score = m7x7_85_55[m][n]
                 
-                feedback['credit']['utility_ratio'] = round(avg_util, 2)
+                feedback['credit']['utilization_ratio'] = round(avg_util, 2)
 
             else:
                 raise Exception('no credit history')
@@ -507,7 +507,7 @@ def credit_length(data, feedback):
             how_long = (now - oldest_txn).days # date today - date of oldest credit transaction
             score = fico_medians[np.digitize(how_long, duration, right=True)]
             
-            feedback['credit']['credit_duration'] = how_long
+            feedback['credit']['credit_duration_(days)'] = how_long
 
         else:
             raise Exception('no credit length')
@@ -557,7 +557,7 @@ def credit_livelihood(data, feedback):
             mean = d['amounts'].mean()
             score = fico_medians[np.digitize(mean, count_lively, right=True)]
 
-            feedback['credit']['avg_monthly_txn'] = round(mean, 0)
+            feedback['credit']['avg_count_monthly_txn'] = round(mean, 0)
             
         else:
             raise Exception('no credit transactions')
@@ -607,8 +607,8 @@ def velocity_withdrawals(data, feedback):
                 n = np.digitize(volume, volume_withdraw, right=True)
                 score = m3x7_73_17[m][n]
 
-                feedback['velocity']['withdrawals'] = how_many
-                feedback['velocity']['withdrawals_volume'] = volume
+                feedback['velocity']['withdrawals'] = round(how_many, 0)
+                feedback['velocity']['withdrawals_volume'] = round(volume, 0)
         
         else:
             raise Exception('no withdrawals')
@@ -654,8 +654,8 @@ def velocity_deposits(data, feedback):
                 n = np.digitize(volume, volume_deposit, right=True)
                 score = m3x7_73_17[m][n]
                 
-                feedback['velocity']['deposits'] = how_many
-                feedback['velocity']['deposits_volume'] = volume
+                feedback['velocity']['deposits'] = round(how_many, 0)
+                feedback['velocity']['deposits_volume'] = round(volume, 0)
         
         else:
             raise Exception('no deposits')
@@ -849,7 +849,7 @@ def stability_tot_balance_now(data, feedback):
 
         if balance > 0:
             score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
-            feedback['stability']['current_balance'] = balance
+            feedback['stability']['cumulative_current_balance'] = balance
         
         else:
             raise Exception('no balance')
@@ -982,8 +982,8 @@ def diversity_profile(data, feedback):
 
         if balance != 0:
             score = fico_medians[np.digitize(balance, volume_invest, right=True)]
-            feedback['diversity']['total_accounts'] = len(myacc)
-            feedback['diversity']['total_balance'] = balance
+            feedback['diversity']['investment_accounts'] = len(myacc)
+            feedback['diversity']['investment_total_balance'] = balance
         
         else:
             raise Exception('no investing nor savings accounts')
