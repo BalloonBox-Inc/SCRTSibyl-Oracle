@@ -1,15 +1,9 @@
-from coinbase.wallet.client import Client
 from coinbase.wallet.error import CoinbaseError
-
-import json
+from coinbase.wallet.client import Client
 
 
 def coinbase_client(api_key, secret):
     return Client(api_key, secret)
-
-
-def convert_to_json(api_obj):
-    return json.loads(json.dumps(api_obj['data'][0]))
 
 
 def format_error(e):
@@ -33,10 +27,32 @@ def coinbase_currencies(client):
     return response
 
 
+def coinbase_native_currency(client):
+
+    try:
+        response = client.get_current_user()['native_currency']
+
+    except CoinbaseError as e:
+        response = format_error(e)
+    
+    return response
+
+
+def coinbase_set_native_currency(client, symbol):
+
+    try:
+        client.update_current_user(native_currency=symbol)
+        return
+    
+    except CoinbaseError as e:
+        return format_error(e)
+
+
 def coinbase_accounts(client):
 
     try:
-        response = convert_to_json(client.get_accounts())
+        response = client.get_accounts()['data']
+        response = [n for n in response if float(n['native_balance']['amount'])!=0]
 
     except CoinbaseError as e:
         response = format_error(e)
@@ -47,51 +63,7 @@ def coinbase_accounts(client):
 def coinbase_transactions(client, account_id):
 
     try:
-        response = convert_to_json(client.get_transactions(account_id))
-
-    except CoinbaseError as e:
-        response = format_error(e)
-    
-    return response
-
-
-def coinbase_buys(client, account_id):
-
-    try:
-        response = convert_to_json(client.get_buys(account_id))
-
-    except CoinbaseError as e:
-        response = format_error(e)
-    
-    return response
-
-
-def coinbase_sells(client, account_id):
-
-    try:
-        response = convert_to_json(client.get_sells(account_id))
-
-    except CoinbaseError as e:
-        response = format_error(e)
-    
-    return response
-
-
-def coinbase_deposits(client, account_id):
-
-    try:
-        response = convert_to_json(client.get_deposits(account_id))
-
-    except CoinbaseError as e:
-        response = format_error(e)
-    
-    return response
-
-
-def coinbase_withdrawals(client, account_id):
-
-    try:
-        response = convert_to_json(client.get_withdrawals(account_id))
+        response = client.get_transactions(account_id)['data']
 
     except CoinbaseError as e:
         response = format_error(e)
