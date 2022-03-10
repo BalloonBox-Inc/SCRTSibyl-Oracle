@@ -1,7 +1,7 @@
 import requests
 
 
-def top_currencies(api_key, limit):
+def coinmarketcap_coins(api_key, limit):
     try:
         headers = {
             'Accepts': 'application/json',
