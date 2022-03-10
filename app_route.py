@@ -2,7 +2,6 @@ from flask import request, make_response
 from dotenv import load_dotenv
 from os import getenv
 
-from validator_api.coinmarketcap import *
 from validator_api.coinbase import *
 from validator_api.plaid import *
 from support.score import *
@@ -18,7 +17,7 @@ def create_feedback_plaid():
 
 
 def create_feedback_coinbase():
-    return {'data_fetch': {}, 'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
+    return {'data_fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
 
 
 # @app.route('/credit_score', methods=['POST'])
@@ -31,7 +30,6 @@ def credit_score_plaid():
         plaid_token = getenv('PLAID_ACCESS_TOKEN')
         plaid_client_id = getenv('PLAID_CLIENT_ID')
         plaid_client_secret = getenv('PLAID_CLIENT_SECRET')
-    
     except Exception as e:
         return str(e)
 
@@ -64,49 +62,30 @@ def credit_score_coinbase():
         coinbase_token = getenv('COINBASE_CLIENT_ID')
         coinbase_secret = getenv('COINBASE_CLIENT_SECRET')
         coinmarketcap_key = getenv('COINMARKETCAP_KEY')
-    
     except Exception as e:
         return str(e)
     
     try:
-        # client connection
-        client = coinbase_client(coinbase_token, coinbase_secret)
-
         # coinmarketcap
-        top_coins = top_currencies(coinmarketcap_key, 30)
-        currencies = coinbase_currencies(client)
-        odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
-        currencies = {k:1 for (k,v) in currencies.items() if v == 0.01 or k in odd_fiats}
-        top_coins.update(currencies)
-        coins = list(top_coins.keys())
+        top_coins = top_currencies(coinmarketcap_key, coinbase_token, coinbase_secret, feedback)
 
-        # coinbase native currency
-        native = coinbase_native_currency(client)
-        if native != 'USD':
-            coinbase_set_native_currency(client, 'USD')
+        # client connection
+        # get Coinmarketcap top coins
+        feedback = create_feedback_coinbase()
         
+
         # data fetching and formatting
-        coinbase_acc = coinbase_accounts(client)
-        coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
-        
-        coinbase_txn = [coinbase_transactions(client, n['id']) for n in coinbase_acc]
-        coinbase_txn = [x for n in coinbase_txn for x in n]
-        txn_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-        coinbase_txn = [n for n in coinbase_txn if n['status'] == 'completed' and n['type'] in txn_types]
-        for d in coinbase_txn:
-            if d['type']=='send' and np.sign(float(d['amount']['amount']))==1:
-                d['type'] = 'send_credit'
-            elif d['type']=='send' and np.sign(float(d['amount']['amount']))==-1:
-                d['type'] = 'send_debit'
-            
-        # reset native currency
-        coinbase_set_native_currency(client, native)
+        acc = unfiltered_acc(coinbase_token, coinbase_secret, feedback)
+        tx = unfiltered_tx(coinbase_token, coinbase_secret, acc, feedback)
+        # acc = filter_acc(coinbase_token, coinbase_secret, top_coins)
+        # tx = filter_tx(coinbase_token, coinbase_secret, acc)
+        tx = refactor_send_tx(tx, feedback)
 
         # compute score
-        feedback = create_feedback_coinbase()
-        score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
+        # feedback = create_feedback_coinbase()
+        score, feedback = coinbase_score(acc, tx, feedback)
 
         return score, feedback
-
+    
     except Exception as e:
         return 'Error', str(e)
