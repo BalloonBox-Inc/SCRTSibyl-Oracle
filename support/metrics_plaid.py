@@ -5,7 +5,7 @@ import numpy as np
 import json
 import os
 
-from runtime import *
+from optimization.performance import *
 
 now = datetime.now().date()
 
@@ -260,7 +260,7 @@ def balance_now_checking_only(data, feedback):
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #
-@timeit
+@measure_time_and_memory
 def credit_mix(data, feedback):
     '''
     Description:
@@ -302,7 +302,7 @@ def credit_mix(data, feedback):
     finally:
         return score, feedback
 
-@timeit
+@measure_time_and_memory
 def credit_limit(data, feedback):
     '''
     Description:
@@ -344,7 +344,7 @@ def credit_limit(data, feedback):
     finally:
         return score, feedback
 
-@timeit
+@measure_time_and_memory
 def credit_util_ratio(data, feedback):
     '''
     Description:
@@ -549,7 +549,7 @@ def credit_livelihood(data, feedback):
 # -------------------------------------------------------------------------- #
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- # 
-@timeit
+@measure_time_and_memory
 def velocity_withdrawals(data, feedback):
     '''
     returns score based on count and volumne of monthly automated withdrawals
@@ -597,7 +597,7 @@ def velocity_withdrawals(data, feedback):
     finally:
         return score, feedback
 
-@timeit
+@measure_time_and_memory
 def velocity_deposits(data, feedback):
     '''
     returns score based on count and volumne of monthly automated deposits
@@ -803,7 +803,7 @@ def velocity_slope(data, feedback):
 # -------------------------------------------------------------------------- #
 #                            Metric #3 Stability                             #
 # -------------------------------------------------------------------------- #  
-@timeit
+@measure_time_and_memory
 def stability_tot_balance_now(data, feedback):
     '''
     Description:
@@ -839,7 +839,7 @@ def stability_tot_balance_now(data, feedback):
         return score, feedback
 
 
-@timeit
+@measure_time_and_memory
 def stability_min_running_balance(data, feedback):
     '''
     Description:
@@ -888,7 +888,7 @@ def stability_min_running_balance(data, feedback):
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
 # -------------------------------------------------------------------------- #
-@timeit
+@measure_time_and_memory
 def diversity_acc_count(data, feedback):
     '''
     Description:
@@ -922,7 +922,7 @@ def diversity_acc_count(data, feedback):
     finally:
         return score, feedback
 
-@timeit
+@measure_time_and_memory
 def diversity_profile(data, feedback):
     '''
     Description:
