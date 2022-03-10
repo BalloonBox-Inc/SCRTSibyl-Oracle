@@ -5,6 +5,8 @@ from support.models import *
 from support.metrics_plaid import *
 from dotenv import dotenv_values
 
+
+
 # -------------------------------------------------------------------------- #
 #                                   PLAID                                    #
 # -------------------------------------------------------------------------- #  
@@ -30,11 +32,16 @@ for userid in [i for i in [0, 1, 2, 3]]:
     print()
     for k in feedback.keys():
         print()
+        print(k.upper())
         for sub_key in feedback[k].keys():
             print('{} : {}'.format(sub_key, feedback[k][sub_key]))
     print('_____________________________________________')
     print()
     list_of_feedback.append(feedback)
+
+    interpret = create_interpret_plaid()
+    print(interpret)
+
 
 print(list_of_feedback)
 with open('feedback_plaid.json', 'w') as json_file:
@@ -54,13 +61,13 @@ with open('feedback_plaid.json', 'w') as json_file:
 # print('Validator: Plaid')
 # print()
 # for k in feedback.keys():
-#     if k != 'data_fetch':
-#         print('{}'.format(k.upper()))
-#         for elem in feedback[k]:
-#             print(elem)
-#         print()
+#     print(k)
+#     print(k.upper())
+#     for sub_key in feedback[k].keys():
+#         print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+#     print()
 # print('_____________________________________________')
-# print()
+
 
 
 # -------------------------------------------------------------------------- #

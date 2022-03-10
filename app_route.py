@@ -14,10 +14,16 @@ load_dotenv()
 
 def create_feedback_plaid():
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
-
+def create_interpret_plaid():
+    return {'score': {}, 'advice': {}}
 
 def create_feedback_coinbase():
     return {'fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+
+
+
+
+
 
 
 # @app.route('/credit_score', methods=['POST'])
