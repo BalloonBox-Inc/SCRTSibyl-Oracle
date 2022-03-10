@@ -21,6 +21,18 @@ def format_error(e):
             }
 
 
+def coinbase_currencies(client):
+
+    try:
+        response = client.get_currencies()
+        response = dict([(n['id'], float(n['min_size'])) for n in response['data']])
+        
+    except CoinbaseError as e:
+        response = format_error(e)
+    
+    return response
+
+
 def coinbase_accounts(client):
 
     try:
