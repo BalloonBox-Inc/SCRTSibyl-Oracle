@@ -1,8 +1,4 @@
 from datetime import datetime
-from lib2to3.pgen2.pgen import DFAState
-from locale import nl_langinfo
-from socket import AddressFamily
-from tarfile import DEFAULT_FORMAT
 import pandas as pd
 import numpy as np
 
@@ -84,65 +80,52 @@ def nested_dict(d, keys, value):
     d[keys[-1]] = value
 
 
-def net_flow(txn, how_many_months, feedback):
-    """
-    returns monthly net flow (income-expenses)
+def net_flow(txn, timeframe, feedback):
+    '''
+    Description:
+        Returns monthly net flow (income - expenses)
+    
+    Parameters:
+        txn (list): transactions history of above-listed accounts
+        timeframe (str): length in months of transaction history
+        feedback (dict): score feedback
 
-            Parameters:
-                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
-                how_many_month (float): how many months of transaction history are you considering? 
+    Returns:
+        flow (dataframe): net monthly flow by datetime
+    '''
+
+    try:
+        accepted_types = {
+                'income': ['fiat_deposit', 'request', 'sell', 'send_credit'],
+                'expense': ['fiat_withdrawal', 'vault_withdrawal', 'buy', 'send_debit']
+                }
         
-            Returns: 
-                flow (df): pandas dataframe with amounts for net monthly flow and datetime index
-    """
-    try: 
-        dates = list()
-        amounts = list()
-        types = {'income': ['fiat_deposit', 'request', 'sell', 'send_credit'],
-                    'expense': ['fiat_withdrawal', 'vault_withdrawal', 'buy', 'send_debit']} 
-        # Store all transactions (income and expenses) in a pandas df
-        for t in txn:
+        income = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), abs(float(d['native_amount']['amount']))) for d in txn if d['type'] in accepted_types['income']]
+        expense = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), -abs(float(d['native_amount']['amount']))) for d in txn if d['type'] in accepted_types['expense']]
+        net_flow = income + expense
 
-            if t['type'] in types['income']:
-                amount = abs(float(t['native_amount']['amount']))
-                amounts.append(amount)
-                date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-                dates.append(date)
+        df = pd.DataFrame(net_flow, columns=['created_at','amount'])
+        df = df.set_index('created_at')
+        
+        if len(df.index) > 0:
+            df = df.groupby(pd.Grouper(freq='M')).sum()
 
-            elif t['type'] in types['expense']:
-                amount = -abs(float(t['native_amount']['amount']))
-                amounts.append(amount)
-                date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-                dates.append(date)
+            # exclude current month
+            if df.iloc[-1,].name.strftime('%Y-%m') == now.strftime('%Y-%m'):
+                df = df[:-1]
+            
+            # filter by timeframe (months)
+            df = df[-timeframe:]
 
-            else:
-                pass
-
-        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
-
-        if len(df.index) > 0 :
-            # Bin by month
-            flow = df.groupby(pd.Grouper(freq='M')).sum()
-
-            # Exclude current month
-            if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
-                flow = flow[:-1] 
-
-            # Keep only past X-many months. If longer, then crop
-            daytoday = datetime.today().date().day
-            lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-            yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
-            if yearago in flow.index:
-                flow = flow[flow.index.tolist().index(yearago):]
         else:
-            feedback['history'].append('No throughput data in fn {}()'.format(net_flow.__name__))
-            flow = pd.DataFrame({'amounts':[]})
-
-        return flow
-
+            raise Exception('No consistent net flow')
+    
     except Exception as e:
-        feedback['liquidity'].append("{} in {}(): {}".format(e.__class__, net_flow.__name__, e))
-
+        df = pd.DataFrame()
+        feedback['liquidity']['error'] = str(e)
+        
+    finally:
+        return df, feedback
 
 # -------------------------------------------------------------------------- #
 #                                 Metric #1 KYC                              #
@@ -253,46 +236,42 @@ def liquidity_tot_balance_now(acc, feedback):
 
 @measure_time_and_memory
 def liquidity_avg_running_balance(acc, txn, feedback):
-    """
-    returns score based on the average running balance maintained for the past 12 months
+    '''
+    Description:
+        A score based on the average running balance maintained for the past 12 months
+    
+    Parameters:
+        acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        txn (list): transactions history of above-listed accounts
 
-            Parameters:
-                acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
-                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+    Returns:
+        score (float): score gained for mimimum running balance
+        feedback (dict): score feedback
+    '''
 
-            Returns:
-                score (float): score gained for mimimum running balance
-    """
     try:
         if txn:
-            # Calculate net flow (i.e, |income-expenses|) each month for past 12 months 
-            nets = net_flow(txn, 12, feedback)['amounts'].tolist()
-
             balance = sum([d['native_balance']['amount'] for d in acc])
+            
+            net, feedback = net_flow(txn, 12, feedback)
+            net = net['amount'].tolist()[::-1]
+            net = [n+balance for n in net]
+            size = len(net)
 
-            # Iteratively subtract net flow from balancenow to calculate the running balance for the past 12 months
-            running_balances = list()
-            for n in reversed(nets):
-                balance = balance + n
-                running_balances.append(round(balance, 2)) 
-
-            # Calculate volume using a weighted average
-            weights = np.linspace(0.1, 1, len(running_balances)).tolist() # Define your weights
-            volume = sum([x*w for x,w in zip(running_balances, reversed(weights))]) / sum(weights) 
-            length = len(running_balances) * 30
-
-            # Compute the score
+            weights = np.linspace(0.1, 1, len(net)).tolist()[::-1]
+            volume = sum([x*w for x,w in zip(net, weights)]) / sum(weights)
+            length = size*30
+            
             if volume < 500:
                 score = 0.01
             else:
                 m = np.digitize(volume, volume_balance_now, right=True) 
                 n = np.digitize(length, duration, right=True)
-                # Get the score and add 0.025 score penalty for each 'overdraft'
-                score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), running_balances))) 
+                score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), net))) 
                 
-                feedback['liquidity']['avg_running_balance'] = len(running_balances)
-                feedback['liquidity']['balance_timeframe(months)'] = round(volume, 2)
-
+            feedback['liquidity']['avg_running_balance'] = round(volume, 2)
+            feedback['liquidity']['balance_timeframe(months)'] = size
+        
         else:
             raise Exception('no transaction history')
 
@@ -433,7 +412,7 @@ def activity_profit_since_inception(acc, txn, feedback):
             raise Exception('no net profit')
         else:
             score = fico_medians[np.digitize(profit, volume_profit, right=True)]
-            
+
             feedback['activity']['total_net_profit'] = round(profit, 2)
 
     except Exception as e:
