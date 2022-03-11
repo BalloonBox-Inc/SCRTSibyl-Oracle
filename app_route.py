@@ -77,7 +77,7 @@ def credit_score_coinbase():
         client = coinbase_client(coinbase_token, coinbase_secret)
 
         # coinmarketcap
-        top_coins = coinmarketcap_coins(coinmarketcap_key, 30)
+        top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
         currencies = coinbase_currencies(client)
         odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
         currencies = {k:1 for (k,v) in currencies.items() if v == 0.01 or k in odd_fiats}
