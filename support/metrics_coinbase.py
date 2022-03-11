@@ -146,6 +146,7 @@ def kyc(acc, txn, feedback):
     '''
 
     try:
+        # Assign max score as long as the user owns some credible non-zero balance accounts with some transaction history
         if acc and txn: 
             score = 1
             feedback['kyc']['verified'] = True
@@ -178,9 +179,11 @@ def history_acc_longevity(acc, feedback):
     '''
 
     try:
+        # Retrieve creation date of oldest user account
         if acc:
             oldest = min([d['created_at'] for d in acc])
-            age = (now - oldest).days
+            # age (in days) of longest standing Coinbase account
+            age = (now - oldest).days 
             score = fico_medians[np.digitize(age, duration, right=True)]
 
             feedback['history']['wallet_age(days)'] = age
@@ -212,8 +215,10 @@ def liquidity_tot_balance_now(acc, feedback):
     '''
     
     try:
+        # Calculate tot balance now
         if acc:
             balance = sum([d['native_balance']['amount'] for d in acc])
+            # Calculate score
             if balance == 0:
                 score = 0
 
@@ -253,26 +258,33 @@ def liquidity_avg_running_balance(acc, txn, feedback):
         if txn:
             balance = sum([d['native_balance']['amount'] for d in acc])
             
+            # Calculate net flow (i.e, |income-expenses|) each month for past 12 months
             net, feedback = net_flow(txn, 12, feedback)
+
+            # Iteratively subtract net flow from balancenow to calculate the running balance for the past 12 months
             net = net['amount'].tolist()[::-1]
             net = [n+balance for n in net]
             size = len(net)
 
+            # Calculate volume using a weighted average
             weights = np.linspace(0.1, 1, len(net)).tolist()[::-1]
             volume = sum([x*w for x,w in zip(net, weights)]) / sum(weights)
             length = size*30
             
+            # Compute the score
             if volume < 500:
                 score = 0.01
             else:
                 m = np.digitize(volume, volume_balance_now, right=True) 
                 n = np.digitize(length, duration, right=True)
+                # Get the score and add 0.025 score penalty for each 'overdraft'
                 score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), net))) 
                 
             feedback['liquidity']['avg_running_balance'] = round(volume, 2)
             feedback['liquidity']['balance_timeframe(months)'] = size
         
         else:
+            # If the account has no transaction history, get a score = 0, and raise exception
             raise Exception('no transaction history')
 
     except Exception as e:
@@ -301,6 +313,7 @@ def activity_tot_volume_tot_count(txn, type, feedback):
     '''
 
     try:
+        # Calculate total volume of credit OR debit and txn counts
         if txn:
             accepted_types = {
                 'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'],
@@ -343,11 +356,13 @@ def activity_consistency(txn, type, feedback):
 
     try:
         if txn:
+            # Declate accepted transaction types
             accepted_types = {
                 'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'],
                 'debit': ['fiat_withdrawal', 'vault_withdrawal', 'sell', 'send_debit']
                 }
 
+            # Filter by transaction type and keep txn amounts and dates
             typed_txn = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), float(d['native_amount']['amount'])) for d in txn if d['type'] in accepted_types[type]]
             df = pd.DataFrame(typed_txn, columns=['created_at','amount'])
             df = df.set_index('created_at')
@@ -368,6 +383,7 @@ def activity_consistency(txn, type, feedback):
                 nested_dict(feedback, ['activity', type, 'timeframe(days)'], length)
 
             else:
+                # If the account has no transaction history, get a score = 0, and raise exception
                 raise Exception('no transaction history')
         
         else:
@@ -402,6 +418,7 @@ def activity_profit_since_inception(acc, txn, feedback):
                 'debit': ['fiat_withdrawal', 'vault_withdrawal', 'send_debit']
                 }                                                        
 
+        # Calculate total credited volume and withdrawn volume
         balance = sum([d['native_balance']['amount'] for d in acc])
         credits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['credit']])
         debits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['debit']])
