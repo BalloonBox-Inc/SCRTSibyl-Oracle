@@ -45,7 +45,7 @@ def create_interpret_plaid():
 def interpret_score_plaid(score, feedback):
     '''
     Description:
-        returns a dict explainign the meaning of the numerical score
+        returns a dict explaining the meaning of the numerical score
     
     Parameters:
         score (float): user's SCRTSibyl numerical score
