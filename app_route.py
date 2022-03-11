@@ -2,6 +2,7 @@ from flask import request, make_response
 from dotenv import load_dotenv
 from os import getenv
 
+from feedback.qualitative_score import *
 from validator_api.coinbase import *
 from validator_api.plaid import *
 from support.score import *
@@ -14,12 +15,9 @@ load_dotenv()
 
 def create_feedback_plaid():
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
-def create_interpret_plaid():
-    return {'score': {}, 'advice': {}}
 
 def create_feedback_coinbase():
     return {'fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
-
 
 
 
@@ -51,8 +49,9 @@ def credit_score_plaid():
         # compute score
         feedback = create_feedback_plaid()
         score, feedback = plaid_score(plaid_txn, feedback)
+        msg = qualitative_feedback_plaid(score, feedback)
 
-        return score, feedback
+        return score, feedback, msg
     
     except Exception as e:
         return 'Error', str(e)
