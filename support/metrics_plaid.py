@@ -300,7 +300,7 @@ def credit_mix(data, feedback):
 
     try:
         credit = [d for d in data['accounts'] if d['type'].lower()=='credit']
-        card_names = ['{} - {}'.format(d['subtype'], d['official_name']) for d in credit]
+        card_names = [d['official_name'] for d in credit if isinstance(d['official_name'], str)==True]
 
         if credit:
             size = len(credit)
@@ -316,7 +316,7 @@ def credit_mix(data, feedback):
             score = m3x7_2_4[m][n]
             
             feedback['credit']['credit_cards'] = size
-            feedback['credit']['card_names'] = card_names
+            feedback['credit']['card_names'] = card_names # card_names could be an empty list of the card name was a NoneType
         else:
             raise Exception('no credit card')
     

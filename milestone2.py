@@ -3,6 +3,7 @@ from app_route import *
 from support.score import *
 from support.models import *
 from support.metrics_plaid import *
+from feedback.qualitative_score import *
 from dotenv import dotenv_values
 
 
@@ -17,35 +18,42 @@ config = dotenv_values()
 path_dir = config['PATH_REAL_USERS_DATA']
 # Calculate score for all users you have data for
 list_of_feedback = []
-for userid in [i for i in [0, 1, 2, 3]]:
+for userid in [i for i in [0, 2, 3, 7, 9, 11, 18]]:
     start_time = time.time()
     feedback = create_feedback_plaid()
     tx = get_tx(path_dir, userid, feedback)
     tx = str_to_datetime(tx, feedback)
     score, feedback = plaid_score(tx, feedback)
+    msg = qualitative_feedback_plaid(score, feedback)
+    interpret = interpret_score_plaid(score, feedback)
     runtime = round(time.time() - start_time, 3)
     print('_____________________________________________')
     print()
-    print('TEST USER #{} got a score of {}/900 points'.format(userid, round(score)))
-    print('Runtime: {} seconds'.format(runtime))
-    print('Validator: Plaid')
-    print()
-    for k in feedback.keys():
-        print()
-        print(k.upper())
-        for sub_key in feedback[k].keys():
-            print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+    # print('TEST USER #{} got a score of {}/900 points'.format(userid, round(score)))
+    # print('Runtime: {} seconds'.format(runtime))
+    # print('Validator: Plaid')
+    # print()
+    # for k in feedback.keys():
+    #     print()
+    #     print(k.upper())
+    #     for sub_key in feedback[k].keys():
+    #         print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+    # print()
+    # print(msg)
+    # print('_____________________________________________')
+    # print()
+    list_of_feedback.append(msg)
+
+
+for f in list_of_feedback:
     print('_____________________________________________')
     print()
-    list_of_feedback.append(feedback)
-
-    interpret = create_interpret_plaid()
-    print(interpret)
+    print(f)
+    print()
 
 
-print(list_of_feedback)
-with open('feedback_plaid.json', 'w') as json_file:
-    json.dump(list_of_feedback, json_file, indent = 4)
+# with open('feedback_plaid.json', 'w') as json_file:
+#     json.dump(list_of_feedback, json_file, indent = 4)
 
 
 
