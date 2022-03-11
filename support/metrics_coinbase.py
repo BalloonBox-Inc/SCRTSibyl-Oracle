@@ -44,11 +44,6 @@ def build_2D_matrix_by_rule(size, scalar):
 # 2. feedback (dict): a qualitative description of the score
 
 
-# Initialize our qualitative score feedback (dict).
-# feedback = {'data_fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
-warning = 'WARNING: Error occured during computation. Your score was rounded down for error handling. Retry later.'
-
-
 # Categorical bins
 duration = np.array([90, 120, 150, 180, 210, 270])                               #bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
 volume_balance_now = np.array([5000, 6500, 8500, 11000, 13000, 15000])
@@ -199,7 +194,7 @@ def local_get_data(path_dir, userid, top_coins, feedback):
         return filtered_acc, filtered_tx
     
     except Exception as e:
-        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
+        feedback['fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
 
 # -------------------------------------------------------------------------- #
 #                                 Metric #1 KYC                              #
@@ -228,7 +223,7 @@ def kyc(acc, tx, feedback):
         
     except Exception as e:
         score = 0
-        feedback['kyc'].append("{} {} in {}(): {}".format(warning, e.__class__, kyc.__name__, e))
+        feedback['kyc'].append("{} {} in {}(): {}".format(e.__class__, kyc.__name__, e))
         return score, feedback
 
 
@@ -274,7 +269,7 @@ def history_acc_longevity(acc, feedback):
 
     except Exception as e:
         score = 0
-        feedback['history'].append("{} {} in {}(): {}".format(warning, e.__class__, history_acc_longevity.__name__, e))
+        feedback['history'].append("{} {} in {}(): {}".format(e.__class__, history_acc_longevity.__name__, e))
         return score, feedback
 
 
@@ -315,7 +310,7 @@ def liquidity_tot_balance_now(acc, feedback):
         
     except Exception as e:
         score = 0
-        feedback['liquidity'].append("{} {} in {}(): {}".format(warning, e.__class__, liquidity_tot_balance_now.__name__, e))
+        feedback['liquidity'].append("{} {} in {}(): {}".format(e.__class__, liquidity_tot_balance_now.__name__, e))
         return score, feedback
 
 @measure_time_and_memory
@@ -369,7 +364,7 @@ def liquidity_avg_running_balance(acc, tx, feedback):
 
     except Exception as e:
         score = 0
-        feedback['liquidity'].append("{} {} in {}(): {}".format(warning, e.__class__, liquidity_avg_running_balance.__name__, e))
+        feedback['liquidity'].append("{} {} in {}(): {}".format(e.__class__, liquidity_avg_running_balance.__name__, e))
         return score, feedback
 
 
@@ -408,7 +403,7 @@ def activity_tot_volume_tot_count(tx, type, feedback):
         
     except Exception as e:
         score = 0
-        feedback['activity'].append("{} {} in {}(): {}".format(warning, e.__class__, activity_tot_volume_tot_count.__name__, e))
+        feedback['activity'].append("{} {} in {}(): {}".format(e.__class__, activity_tot_volume_tot_count.__name__, e))
         return score, feedback
 
 @measure_time_and_memory
@@ -467,7 +462,7 @@ def activity_consistency(tx, type, feedback):
 
     except Exception as e:
         score = 0
-        feedback['activity'].append("{} {} in {}(): {}".format(warning, e.__class__, activity_consistency.__name__, e))
+        feedback['activity'].append("{} {} in {}(): {}".format(e.__class__, activity_consistency.__name__, e))
         return score, feedback
 
 @measure_time_and_memory
@@ -515,5 +510,5 @@ def activity_profit_since_inception(acc, tx, feedback):
 
     except Exception as e:
         score = 0
-        feedback['activity'].append("{} {} in {}(): {}".format(warning, e.__class__, activity_profit_since_inception.__name__, e))
+        feedback['activity'].append("{} {} in {}(): {}".format(e.__class__, activity_profit_since_inception.__name__, e))
         return score, feedback
