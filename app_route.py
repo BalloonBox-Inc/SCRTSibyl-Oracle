@@ -19,7 +19,7 @@ def create_feedback_plaid():
 
 
 def create_feedback_coinbase():
-    return {'fetch': [], 'kyc': [], 'history': [], 'liquidity': [], 'activity': []}
+    return {'fetch': {}, 'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
 
 # @app.route('/credit_score/plaid', methods=['POST'])
@@ -105,11 +105,11 @@ def credit_score_coinbase():
             
         # reset native currency
         coinbase_set_native_currency(client, native)
-
+        
         # compute score
         feedback = create_feedback_coinbase()
         score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
-
+        
         return score, feedback
     
     except Exception as e:
