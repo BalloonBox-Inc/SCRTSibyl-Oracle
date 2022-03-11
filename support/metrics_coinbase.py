@@ -1,4 +1,8 @@
 from datetime import datetime
+from lib2to3.pgen2.pgen import DFAState
+from locale import nl_langinfo
+from socket import AddressFamily
+from tarfile import DEFAULT_FORMAT
 import pandas as pd
 import numpy as np
 
@@ -74,6 +78,12 @@ fico_medians.flags.writeable = False
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
 
+def nested_dict(d, keys, value):
+    for key in keys[:-1]:
+        d = d.setdefault(key, {})
+    d[keys[-1]] = value
+
+
 def net_flow(txn, how_many_months, feedback):
     """
     returns monthly net flow (income-expenses)
@@ -86,54 +96,47 @@ def net_flow(txn, how_many_months, feedback):
                 flow (df): pandas dataframe with amounts for net monthly flow and datetime index
     """
     try: 
-        # If the account has no transaction history, return an empty flow
-        # Otherwise, compute the net flow
-        if not txn:
-            flow = pd.DataFrame(data={'amounts':[]})
-            feedback['liquidity'].append('no txn history')
+        dates = list()
+        amounts = list()
+        types = {'income': ['fiat_deposit', 'request', 'sell', 'send_credit'],
+                    'expense': ['fiat_withdrawal', 'vault_withdrawal', 'buy', 'send_debit']} 
+        # Store all transactions (income and expenses) in a pandas df
+        for t in txn:
 
-        else:
-            dates = list()
-            amounts = list()
-            types = {'income': ['fiat_deposit', 'request', 'sell', 'send_credit'],
-                        'expense': ['fiat_withdrawal', 'vault_withdrawal', 'buy', 'send_debit']} 
-            # Store all transactions (income and expenses) in a pandas df
-            for t in txn:
+            if t['type'] in types['income']:
+                amount = abs(float(t['native_amount']['amount']))
+                amounts.append(amount)
+                date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
+                dates.append(date)
 
-                if t['type'] in types['income']:
-                    amount = abs(float(t['native_amount']['amount']))
-                    amounts.append(amount)
-                    date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-                    dates.append(date)
+            elif t['type'] in types['expense']:
+                amount = -abs(float(t['native_amount']['amount']))
+                amounts.append(amount)
+                date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
+                dates.append(date)
 
-                elif t['type'] in types['expense']:
-                    amount = -abs(float(t['native_amount']['amount']))
-                    amounts.append(amount)
-                    date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-                    dates.append(date)
-
-                else:
-                    pass
-
-            df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
-
-            if len(df.index) > 0 :
-                # Bin by month
-                flow = df.groupby(pd.Grouper(freq='M')).sum()
-
-                # Exclude current month
-                if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
-                    flow = flow[:-1] 
-
-                # Keep only past X-many months. If longer, then crop
-                daytoday = datetime.today().date().day
-                lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-                yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
-                if yearago in flow.index:
-                    flow = flow[flow.index.tolist().index(yearago):]
             else:
-                feedback['history'].append('No throughput data in fn {}()'.format(net_flow.__name__))
-                flow = pd.DataFrame({'amounts':[]})
+                pass
+
+        df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
+
+        if len(df.index) > 0 :
+            # Bin by month
+            flow = df.groupby(pd.Grouper(freq='M')).sum()
+
+            # Exclude current month
+            if flow.iloc[-1,].name.strftime('%Y-%m') == datetime.today().date().strftime('%Y-%m'):
+                flow = flow[:-1] 
+
+            # Keep only past X-many months. If longer, then crop
+            daytoday = datetime.today().date().day
+            lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
+            yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
+            if yearago in flow.index:
+                flow = flow[flow.index.tolist().index(yearago):]
+        else:
+            feedback['history'].append('No throughput data in fn {}()'.format(net_flow.__name__))
+            flow = pd.DataFrame({'amounts':[]})
 
         return flow
 
@@ -193,7 +196,7 @@ def history_acc_longevity(acc, feedback):
 
     try:
         if acc:
-            oldest = min([datetime.strptime(d['created_at'],'%Y-%m-%dT%H:%M:%SZ').date() for d in acc])
+            oldest = min([d['created_at'] for d in acc])
             age = (now - oldest).days
             score = fico_medians[np.digitize(age, duration, right=True)]
 
@@ -227,7 +230,7 @@ def liquidity_tot_balance_now(acc, feedback):
     
     try:
         if acc:
-            balance = sum([float(d['native_balance']['amount']) for d in acc])
+            balance = sum([d['native_balance']['amount'] for d in acc])
             if balance == 0:
                 score = 0
 
@@ -264,8 +267,8 @@ def liquidity_avg_running_balance(acc, txn, feedback):
         if txn:
             # Calculate net flow (i.e, |income-expenses|) each month for past 12 months 
             nets = net_flow(txn, 12, feedback)['amounts'].tolist()
-            
-            balance = sum([float(d['native_balance']['amount']) for d in acc])
+
+            balance = sum([d['native_balance']['amount'] for d in acc])
 
             # Iteratively subtract net flow from balancenow to calculate the running balance for the past 12 months
             running_balances = list()
@@ -286,7 +289,9 @@ def liquidity_avg_running_balance(acc, txn, feedback):
                 n = np.digitize(length, duration, right=True)
                 # Get the score and add 0.025 score penalty for each 'overdraft'
                 score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), running_balances))) 
-                feedback['liquidity'].append('avg running balance for last {} months = ${}'.format(len(running_balances), round(volume, 2)))
+                
+                feedback['liquidity']['avg_running_balance'] = len(running_balances)
+                feedback['liquidity']['balance_timeframe(months)'] = round(volume, 2)
 
         else:
             raise Exception('no transaction history')
@@ -303,142 +308,137 @@ def liquidity_avg_running_balance(acc, txn, feedback):
 # -------------------------------------------------------------------------- #  
 @measure_time_and_memory
 def activity_tot_volume_tot_count(txn, type, feedback):
-    """
-    returns score for count and volume of credit OR debit transactions across the user's best Coinbase accounts
+    '''
+    Description:
+        A score based on the count and volume of credit OR debit transactions across user's Coinbase accounts
+    
+    Parameters:
+        txn (list): transactions history of non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        type (str): accepts 'credit' or 'debit'
 
-            Parameters:
-                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
-                type (str): accepts 'credit' or 'debit'
+    Returns:
+        score (float): score gained for count and volume of credit transactions
+        feedback (dict): score feedback
+    '''
 
-            Returns:
-                score (float): score gained for count and volume of credit transactions 
-    """
     try:
-        accepted_types = {'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'], \
-            'debit': ['fiat_withdrawal', 'vault_withdrawal', 'sell', 'send_debit']}
+        if txn:
+            accepted_types = {
+                'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'],
+                'debit': ['fiat_withdrawal', 'vault_withdrawal', 'sell', 'send_debit']
+                }
+            
+            typed_txn = [float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types[type]]
+            balance = sum(typed_txn)
 
-        # Calculate total volume of credit OR debit and txn counts    
-        volume = 0
-        count = 0
-        for t in txn:
-            if t['type'] in accepted_types[type]:
-                volume += float(t['native_amount']['amount'])
-                count += 1
+            m = np.digitize(len(typed_txn), count_cred_deb_txn, right=True)
+            n = np.digitize(balance, volume_balance_now, right=True)
+            score = m7x7_03_17[m][n]
 
-        # Calculate score
-        m = np.digitize(count, count_cred_deb_txn, right=True)
-        n = np.digitize(volume, volume_balance_now, right=True)
-        score = m7x7_03_17[m][n]
-        return score, feedback
+            nested_dict(feedback, ['activity', type, 'balance'], balance)
         
+        else:
+            raise Exception('no transaction history')
+    
     except Exception as e:
         score = 0
-        feedback['activity'].append("{} {} in {}(): {}".format(e.__class__, activity_tot_volume_tot_count.__name__, e))
+        feedback['activity']['error'] = str(e)
+        
+    finally:
         return score, feedback
 
 @measure_time_and_memory
 def activity_consistency(txn, type, feedback):
-    """
-    returns score for the weigthed monthly average credit OR debit volume over time
+    '''
+    Description:
+        A score based on the the weigthed monthly average credit OR debit volume over time
+    
+    Parameters:
+        txn (list): transactions history of non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        type (str): accepts 'credit' or 'debit'
 
-            Parameters:
-                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
-                type (str): accepts 'credit' or 'debit'
+    Returns:
+        score (float): score for consistency of credit OR debit weighted avg monthly volume
+        feedback (dict): score feedback
+    '''
 
-            Returns:
-                score (float): score for consistency of credit OR debit weighted avg monthly volume
-    """
     try:
-        # If the account has no transaction history, get a score = 0
-        if not txn:
-            score = 0
-        else:
-            # Declate accepted transaction types (account for 'send' transactions separately)
-            accepted_types = {'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'], \
-                'debit': ['fiat_withdrawal', 'vault_withdrawal', 'sell', 'send_debit']}
+        if txn:
+            accepted_types = {
+                'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'],
+                'debit': ['fiat_withdrawal', 'vault_withdrawal', 'sell', 'send_debit']
+                }
 
-            # Filter by transaction type and keep txn amounts and dates
-            dates = list()
-            amounts = list()
-            for t in txn:
-                if t['type'] in accepted_types[type]:
-                    amount = float(t['native_amount']['amount'])
-                    amounts.append(amount)
-                    date = datetime.strptime(t['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-                    dates.append(date)
-            df = pd.DataFrame(data={'amount':amounts}, index=pd.DatetimeIndex(dates))
+            typed_txn = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), float(d['native_amount']['amount'])) for d in txn if d['type'] in accepted_types[type]]
+            df = pd.DataFrame(typed_txn, columns=['created_at','amount'])
+            df = df.set_index('created_at')
+            df = df.groupby(pd.Grouper(freq='M')).sum()
+            df = df[-12:]
+            df = df[df['amount']!=0]
+            
+            if len(df.index) > 0:
+                weights = np.linspace(0.1, 1, len(df))
+                w_avg = sum(np.multiply(df['amount'], weights)) / sum(weights)
+                length = len(df.index)*30
 
-            if len(df.index) > 0 :
-                # Bin transactions by month and aggregate by sum()
-                df1 = df.groupby(pd.Grouper(freq='M')).sum()
-                df1 = df1[df1['amount']!=0]
-                if len(df1) > 12:  # Keep last 12 months
-                    df1 = df1[-12:]
-
-                # Generate an array of given length containing monotonically increasing weights in range [0.1, 1]
-                weights = np.linspace(0.1, 1, len(df1))
-                # Calculate the weighted average of credit OR debit volume
-                w_avg = sum(np.multiply(df1['amount'], weights)) / sum(weights)
-                length = len(df1) * 30 # number of months * 30 days/month
-
-                # Calculate the score
                 m = np.digitize(w_avg, volume_profit*1.5, right=True)
                 n = np.digitize(length, duration, right=True)
                 score = m7x7_85_55[m][n]
-            else:
-                score = 0
 
-        return score, feedback
+                nested_dict(feedback, ['activity', type, 'weighted_avg_volume'], w_avg)
+                nested_dict(feedback, ['activity', type, 'timeframe(days)'], length)
+
+            else:
+                raise Exception('no transaction history')
+        
+        else:
+            raise Exception('no transaction history')
 
     except Exception as e:
         score = 0
-        feedback['activity'].append("{} {} in {}(): {}".format(e.__class__, activity_consistency.__name__, e))
+        feedback['activity']['error'] = str(e)
+        
+    finally:
         return score, feedback
 
 @measure_time_and_memory
 def activity_profit_since_inception(acc, txn, feedback):
-    """
-    returns score for total user profit since account inception. We define net profit as:
-    net profit = (tot withdrawals) + (tot Coinbase balance now) - (tot injections into your wallet)
+    '''
+    Description:
+        A score based on total user profit since account inception. We define net profit as:
+            net profit = (tot withdrawals) + (tot Coinbase balance now) - (tot injections into your wallet)
+    
+    Parameters:
+        acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        txn (list): transactions history of above-listed accounts
 
-            Parameters:
-                acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
-                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+    Returns:
+        score (int): for user total net profit thus far
+        feedback (dict): score feedback
+    '''
 
-            Returns:
-                score (float): score for user total net profit thus far
-    """
     try:
-        types = {'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'], 
-                'withdrawals': ['fiat_withdrawal', 'vault_withdrawal', 'send_debit']} 
-                                                                         
+        accepted_types = {
+                'credit': ['fiat_deposit', 'request', 'buy', 'send_credit'],
+                'debit': ['fiat_withdrawal', 'vault_withdrawal', 'send_debit']
+                }                                                        
 
-        # Calculate total credited volume and withdrawn volume   
-        credits = 0
-        withdrawals = 0
-        for t in txn:
-            if t['type'] in types['credit']:
-                credits += float(t['native_amount']['amount'])
-            if t['type'] in types['withdrawals']:
-                withdrawals += float(t['native_amount']['amount'])
-
-        # Calculate total available balance now
-        balance = 0
-        for a in acc:
-            balance += float(a['native_balance']['amount'])
-
-        # Calculate net profit since account issuance
-        profit = withdrawals + balance - credits
-
-        # Compute the score
+        balance = sum([d['native_balance']['amount'] for d in acc])
+        credits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['credit']])
+        debits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['debit']])
+        
+        profit = (balance - credits) + debits
+        
         if profit == 0:
-            score = 0
+            raise Exception('no net profit')
         else:
             score = fico_medians[np.digitize(profit, volume_profit, right=True)]
-            feedback['activity'].append('net profit since inception = ${}'.format(round(profit, 2)))
-        return score, feedback
+            
+            feedback['activity']['total_net_profit'] = round(profit, 2)
 
     except Exception as e:
         score = 0
-        feedback['activity'].append("{} {} in {}(): {}".format(e.__class__, activity_profit_since_inception.__name__, e))
+        feedback['activity']['error'] = str(e)
+        
+    finally:
         return score, feedback
