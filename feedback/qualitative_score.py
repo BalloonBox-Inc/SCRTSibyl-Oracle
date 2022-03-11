@@ -76,8 +76,8 @@ def interpret_score_plaid(score, feedback):
 
 
         # Advice
-            if 'no credit card' in list(feedback['credit'].values()):
-                interpret['advice']['credit_exist'] = False
+            if 'no credit card' not in list(feedback['credit'].values()):
+                interpret['advice']['credit_exist'] = True
             if 'error' in list(feedback['credit'].keys()):
                 interpret['advice']['credit_error'] = True
             if 'error' in list(feedback['velocity'].keys()):

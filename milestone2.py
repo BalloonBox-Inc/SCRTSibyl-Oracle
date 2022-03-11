@@ -18,7 +18,7 @@ config = dotenv_values()
 path_dir = config['PATH_REAL_USERS_DATA']
 # Calculate score for all users you have data for
 list_of_feedback = []
-for userid in [i for i in [0, 2, 3, 7, 9, 11, 18]]:
+for userid in [i for i in [0, 1, 2, 3]]:
     start_time = time.time()
     feedback = create_feedback_plaid()
     tx = get_tx(path_dir, userid, feedback)
@@ -40,20 +40,13 @@ for userid in [i for i in [0, 2, 3, 7, 9, 11, 18]]:
     #         print('{} : {}'.format(sub_key, feedback[k][sub_key]))
     # print()
     # print(msg)
+    print(interpret)
     # print('_____________________________________________')
     # print()
-    list_of_feedback.append(msg)
+    list_of_feedback.append(interpret)
 
-
-for f in list_of_feedback:
-    print('_____________________________________________')
-    print()
-    print(f)
-    print()
-
-
-# with open('feedback_plaid.json', 'w') as json_file:
-#     json.dump(list_of_feedback, json_file, indent = 4)
+with open('interpret_plaid.json', 'w') as json_file:
+    json.dump(list_of_feedback, json_file, indent = 4)
 
 
 
