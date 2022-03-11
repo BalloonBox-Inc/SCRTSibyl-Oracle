@@ -1,8 +1,6 @@
 from datetime import datetime
 import pandas as pd
 import numpy as np
-import json
-import os
 
 from optimization.performance import *
 
@@ -76,12 +74,12 @@ fico_medians.flags.writeable = False
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
 
-def net_flow(tx, how_many_months, feedback):
+def net_flow(txn, how_many_months, feedback):
     """
     returns monthly net flow (income-expenses)
 
             Parameters:
-                tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
                 how_many_month (float): how many months of transaction history are you considering? 
         
             Returns: 
@@ -90,7 +88,7 @@ def net_flow(tx, how_many_months, feedback):
     try: 
         # If the account has no transaction history, return an empty flow
         # Otherwise, compute the net flow
-        if not tx:
+        if not txn:
             flow = pd.DataFrame(data={'amounts':[]})
             feedback['liquidity'].append('no txn history')
 
@@ -100,7 +98,7 @@ def net_flow(tx, how_many_months, feedback):
             types = {'income': ['fiat_deposit', 'request', 'sell', 'send_credit'],
                         'expense': ['fiat_withdrawal', 'vault_withdrawal', 'buy', 'send_debit']} 
             # Store all transactions (income and expenses) in a pandas df
-            for t in tx:
+            for t in txn:
 
                 if t['type'] in types['income']:
                     amount = abs(float(t['native_amount']['amount']))
@@ -144,200 +142,130 @@ def net_flow(tx, how_many_months, feedback):
 
 
 # -------------------------------------------------------------------------- #
-#                               Helper Functions                             #
-#                                 -local data-                               #
-# -------------------------------------------------------------------------- #
-# Eventually remove this next function, which is merely used to import local json data to test the Coinbase model during development phase. 
-def local_get_data(path_dir, userid, top_coins, feedback):
-    """
-    returns the Coinbase json data for the accounts and the transactions of one user
-
-            Parameters:
-                path_dir (str): path to the local directory where the Coinbase files are stored
-                userid (str): number of the user you want to retrieve account and transaction data for
-                top_coins (dict): dictionary of ticker-nominalvalue pairs of the top cryptos and fiat currencies featured on Coinmarketcap and Coinbase
-        
-            Returns: 
-                acc (dict): all accounts owned by the user
-                tx (dict): with transactions of all user's accoutns in chronological order (newest to oldest)
-    """
-    try:
-        # Iterate through all files in a directory
-        directory = os.fsencode(path_dir)
-        coinbase_files = list()
-        for f in os.listdir(directory):
-            filename = os.fsdecode(f)
-            coinbase_files.append(filename) #append file names to list
-        coinbase_files =  sorted(coinbase_files) 
-
-        # Select one user and retrieve the lits of their accounts and their transaction history
-        for f in coinbase_files:
-            if f.startswith("{}_acc".format(userid)): #choose your user
-                acc = json.load(open(path_dir+f))['data'] #open json
-            if f.startswith("{}_tx".format(userid)): #choose your user
-                tx = json.load(open(path_dir+f))['data'] #open json
-                
-        # Filter accounts        
-        filtered_acc = list()
-        for a in acc:
-            # Keep only accounts with non-zero balance AND accounts whose currency is in the list of top_coins
-            if float(a['balance']['amount'])!=0 and a['currency'] in list(top_coins.keys()):
-                filtered_acc.append(a)
-
-        # Filter transactions
-        filtered_tx = list()
-        accepted_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-        for t in tx:
-            if (t['amount']['currency'] in list(top_coins.keys())) & (t['status']=='completed') & (t['type'] in accepted_types):
-                filtered_tx.append(t)
-
-        return filtered_acc, filtered_tx
-    
-    except Exception as e:
-        feedback['fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
-
-# -------------------------------------------------------------------------- #
 #                                 Metric #1 KYC                              #
 # -------------------------------------------------------------------------- #  
 @measure_time_and_memory
-def kyc(acc, tx, feedback):
-    """
-    checks whether user got correctly kyc'ed on Coinbase and assign binary score appropriately
+def kyc(acc, txn, feedback):
+    '''
+    Description:
+        A score based on Coinbase KYC verification process
+    
+    Parameters:
+        acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        txn (list): transactions history of above-listed accounts
 
-            Parameters:
-                acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
-                tx (list): historical of user transactions for his above-listed best accounts
+    Returns:
+        score (int): binary kyc verification
+        feedback (dict): score feedback
+    '''
 
-            Returns:
-                score (float): binary value 0-1 based on whether user is kyc'ed or not
-    """
     try:
-        # Assign max score as long as the user owns some credible non-zero balance accounts with some transaction history
-        if acc and tx: 
+        if acc and txn: 
             score = 1
-            feedback['kyc'].append('yes kyc!')
-        else: 
+            feedback['kyc']['verified'] = True
+        else:
             score = 0
-            feedback['kyc'].append('no kyc')
-        return score, feedback
+            feedback['kyc']['verified'] = False
         
     except Exception as e:
         score = 0
-        feedback['kyc'].append("{} {} in {}(): {}".format(e.__class__, kyc.__name__, e))
+        feedback['kyc']['error'] = str(e)
+        
+    finally:
         return score, feedback
-
 
 # -------------------------------------------------------------------------- #
 #                               Metric #2 History                            #
 # -------------------------------------------------------------------------- #  
 @measure_time_and_memory
 def history_acc_longevity(acc, feedback):
-    """
-    returns a score dependent on the longevity of user's best Coinbase accounts
+    '''
+    Description:
+        A score based on the longevity of user's best Coinbase accounts
+    
+    Parameters:
+        acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
 
-            Parameters:
-                acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
+    Returns:
+        score (float): score gained based on account longevity
+        feedback (dict): score feedback
+    '''
 
-            Returns:
-                score (float): score gained based on account longevity
-    """
-    try:    
-        # Retrieve creation date of oldest user account
-        issuance_dates = []
+    try:
         if acc:
-            for a in acc:
-                if a['created_at']:
-                    d = datetime.strptime(a['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
-                    issuance_dates.append(d)
-                else:
-                    pass
+            oldest = min([datetime.strptime(d['created_at'],'%Y-%m-%dT%H:%M:%SZ').date() for d in acc])
+            age = (now - oldest).days
+            score = fico_medians[np.digitize(age, duration, right=True)]
 
-            now = datetime.now().date()
-            if len(issuance_dates) == 1:
-                oldest = issuance_dates[0]
-            else:
-                oldest = min(issuance_dates)
-            length = (now-oldest).days #duration (in days) of longest standing Coinbase account
-            score = fico_medians[np.digitize(length, duration, right=True)]
-            feedback['history'].append('duration of longest standing wallet = {} days'.format(length))
-
+            feedback['history']['wallet_age(days)'] = age
         else:
-            score = 0
-            feedback['history'].append('unknown account longevity')
-
-        return score, feedback
-
+            raise Exception('unknown account longevity')
+    
     except Exception as e:
         score = 0
-        feedback['history'].append("{} {} in {}(): {}".format(e.__class__, history_acc_longevity.__name__, e))
+        feedback['history']['error'] = str(e)
+        
+    finally:
         return score, feedback
-
 
 # -------------------------------------------------------------------------- #
 #                             Metric #3 Liquidity                            #
 # -------------------------------------------------------------------------- #  
 @measure_time_and_memory
 def liquidity_tot_balance_now(acc, feedback):
-    """
-    returns the cumulative current balance of a user across ALL his accounts
+    '''
+    Description:
+        A score based on cumulative balance of user's accounts
+    
+    Parameters:
+        acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
 
-            Parameters:
-                acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
-
-            Returns:
-                score (float): score gained based on the cumulative balance now
-    """
+    Returns:
+        score (float): score gained based on cumulative balance across accounts
+        feedback (dict): score feedback
+    '''
+    
     try:
-        # Calculate tot balance now
-        balance = 0
-        for a in acc:
-            balance += float(a['native_balance']['amount'])
+        if acc:
+            balance = sum([float(d['native_balance']['amount']) for d in acc])
+            if balance == 0:
+                score = 0
 
-        # Calculate score
-        if balance == 0:
-            score = 0
+            elif balance < 500 and balance !=0:
+                score = 0.01
 
-        elif balance < 500 and balance !=0:
-            score = 0.01
-
+            else:
+                score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
+                
+            feedback['liquidity']['current_balance'] = round(balance, 2)
         else:
-            score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
-            
-        feedback['liquidity'].append('tot balance now = ${}'.format(round(balance, 2)))
-
-
-        return score, feedback
+            raise Exception('no balance')
         
     except Exception as e:
         score = 0
-        feedback['liquidity'].append("{} {} in {}(): {}".format(e.__class__, liquidity_tot_balance_now.__name__, e))
+        feedback['liquidity']['error'] = str(e)
+        
+    finally:
         return score, feedback
 
 @measure_time_and_memory
-def liquidity_avg_running_balance(acc, tx, feedback):
+def liquidity_avg_running_balance(acc, txn, feedback):
     """
     returns score based on the average running balance maintained for the past 12 months
 
             Parameters:
                 acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
-                tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
 
             Returns:
                 score (float): score gained for mimimum running balance
     """
     try:
-        # If the account has no transaction history, get a score = 0
-        if not tx:
-            score = 0
-            feedback['liquidity'].append('no transaction history , hence cannot calculate avg_running_balance')
-        else:
+        if txn:
             # Calculate net flow (i.e, |income-expenses|) each month for past 12 months 
-            nets = net_flow(tx, 12, feedback)['amounts'].tolist()
-
-            # Calculate tot current balance now
-            balance = 0
-            for a in acc:
-                balance += float(a['native_balance']['amount'])
+            nets = net_flow(txn, 12, feedback)['amounts'].tolist()
+            
+            balance = sum([float(d['native_balance']['amount']) for d in acc])
 
             # Iteratively subtract net flow from balancenow to calculate the running balance for the past 12 months
             running_balances = list()
@@ -360,24 +288,26 @@ def liquidity_avg_running_balance(acc, tx, feedback):
                 score = m7x7_85_55[m][n] -0.025 * len(list(filter(lambda x: (x < 0), running_balances))) 
                 feedback['liquidity'].append('avg running balance for last {} months = ${}'.format(len(running_balances), round(volume, 2)))
 
-        return score, feedback
+        else:
+            raise Exception('no transaction history')
 
     except Exception as e:
         score = 0
-        feedback['liquidity'].append("{} {} in {}(): {}".format(e.__class__, liquidity_avg_running_balance.__name__, e))
+        feedback['liquidity']['error'] = str(e)
+        
+    finally:
         return score, feedback
-
 
 # -------------------------------------------------------------------------- #
 #                             Metric #4 Activity                             #
 # -------------------------------------------------------------------------- #  
 @measure_time_and_memory
-def activity_tot_volume_tot_count(tx, type, feedback):
+def activity_tot_volume_tot_count(txn, type, feedback):
     """
     returns score for count and volume of credit OR debit transactions across the user's best Coinbase accounts
 
             Parameters:
-                tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
                 type (str): accepts 'credit' or 'debit'
 
             Returns:
@@ -390,7 +320,7 @@ def activity_tot_volume_tot_count(tx, type, feedback):
         # Calculate total volume of credit OR debit and txn counts    
         volume = 0
         count = 0
-        for t in tx:
+        for t in txn:
             if t['type'] in accepted_types[type]:
                 volume += float(t['native_amount']['amount'])
                 count += 1
@@ -407,12 +337,12 @@ def activity_tot_volume_tot_count(tx, type, feedback):
         return score, feedback
 
 @measure_time_and_memory
-def activity_consistency(tx, type, feedback):
+def activity_consistency(txn, type, feedback):
     """
     returns score for the weigthed monthly average credit OR debit volume over time
 
             Parameters:
-                tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
                 type (str): accepts 'credit' or 'debit'
 
             Returns:
@@ -420,7 +350,7 @@ def activity_consistency(tx, type, feedback):
     """
     try:
         # If the account has no transaction history, get a score = 0
-        if not tx:
+        if not txn:
             score = 0
         else:
             # Declate accepted transaction types (account for 'send' transactions separately)
@@ -430,7 +360,7 @@ def activity_consistency(tx, type, feedback):
             # Filter by transaction type and keep txn amounts and dates
             dates = list()
             amounts = list()
-            for t in tx:
+            for t in txn:
                 if t['type'] in accepted_types[type]:
                     amount = float(t['native_amount']['amount'])
                     amounts.append(amount)
@@ -466,14 +396,14 @@ def activity_consistency(tx, type, feedback):
         return score, feedback
 
 @measure_time_and_memory
-def activity_profit_since_inception(acc, tx, feedback):
+def activity_profit_since_inception(acc, txn, feedback):
     """
     returns score for total user profit since account inception. We define net profit as:
     net profit = (tot withdrawals) + (tot Coinbase balance now) - (tot injections into your wallet)
 
             Parameters:
                 acc (list): list of non-zero balance accounts owned by the user in currencies of trusted reputation (Coinmarketcap top 15)
-                tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+                txn (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
 
             Returns:
                 score (float): score for user total net profit thus far
@@ -486,7 +416,7 @@ def activity_profit_since_inception(acc, tx, feedback):
         # Calculate total credited volume and withdrawn volume   
         credits = 0
         withdrawals = 0
-        for t in tx:
+        for t in txn:
             if t['type'] in types['credit']:
                 credits += float(t['native_amount']['amount'])
             if t['type'] in types['withdrawals']:
