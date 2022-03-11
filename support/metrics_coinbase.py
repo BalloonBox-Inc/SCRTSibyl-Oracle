@@ -1,12 +1,12 @@
-from datetime import datetime
-import pandas as pd
-import numpy as np
-import json
+# Import libraries
 import os
-
-from optimization.performance import *
-
-now = datetime.now().date()
+import json
+import numpy as np
+import pandas as pd
+from datetime import datetime
+from coinbase.wallet.client import Client
+from requests import Session
+from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -33,6 +33,7 @@ def build_2D_matrix_by_rule(size, scalar):
             matrix[m][n] = round(scalar[0]*np.log10(m+1) + scalar[1]*np.log10(n+1), 2)
             
     return matrix
+
 
 
 # -------------------------------------------------------------------------- #
@@ -77,9 +78,216 @@ m7x7_85_55.flags.writeable = False
 fico_medians.flags.writeable = False
 
 
+
+
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
+def top_currencies(coinmarketcap_key, coinbase_api_key, coinbase_api_secret, feedback):
+    """
+    returns a list of all fiat currencies and top 15 cryptos. The functions uses 2 APIs:
+    - a Coinmarketcap API to get top 15 cryptos by market capitalization
+    - a Coinbase API to get all fiat currencies supported for trading on Coinbase
+    This function merges the fetched results in a unified dictionary
+    
+            Parameters:
+                coinmarketcap_key (str): bearer token to authenticate into c|oinmarketcap API
+                coinbase_api_key (str): user's Coinbase APIKey
+                coinbase_api_secret (str): user's Coinbase APISecretKey
+               
+            Returns:
+                 top_coins (dict): ticker-value pairs for top 15 cryptos and ALL Coinbase fiat currencies         
+    """
+    try:
+        # COINMARKETCAP
+        # Define agrs for coinmarketcap API
+        url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+        
+        parameters = {
+        'start':'1',
+        'limit':'15',
+        'convert':'USD'
+        }
+        headers = {
+        'Accepts': 'application/json',
+        'X-CMC_PRO_API_KEY': coinmarketcap_key, # You'll need to create our own user API + Secret
+        }
+        
+        session = Session()
+        session.headers.update(headers)
+
+        # Run GET task to fetch best cryptos from coinmarketcap API
+        response = session.get(url, params=parameters)
+        data = json.loads(response.text)
+
+        # Keep top 15 cryptos (ticker and USD-value)
+        top_coins = {}
+        for t in data['data']:
+            top_coins[t['symbol']]=t['quote']['USD']['price']
+
+
+
+        # COINBASE
+        # Get all coinbase fiat currencies
+        client = Client(coinbase_api_key, coinbase_api_secret)
+        currencies = client.get_currencies() 
+        # List tickers of fiat currencies whose minimum size is ≠ than 1 cent
+        odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', \
+            'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
+        
+        # Keep only fiat currencies
+        fiat_only = {}
+        for c in currencies['data']:
+            #hack for getting fiat-only types, including some fiat currencies whose smallest unit is ≠ than 1 cent
+            if c['min_size']=='0.01000000' or c['id'] in odd_fiats: 
+                fiat_only[c['id']]=1
+
+        # Append all fiat currencies to dictionary of top cryptocurrencies
+        top_coins.update(fiat_only)
+        return top_coins
+
+    except (ConnectionError, Timeout, TooManyRedirects) as e:
+        feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, top_currencies.__name__, e))
+        
+
+
+
+
+def filter_acc(coinbase_api_key, coinbase_api_secret, top_coins, feedback):
+   """
+   returns list of accounts with balance > $0 and with currency type in the top 15.
+   Current balances are reported both in native currency and in USD for each account.
+
+         Parameters:
+            coinbase_api_key (str): user's Coinbase APIKey
+            coinbase_api_secret (str): user's Coinbase APISecretKey
+            top_coins (dict): lits of top 15 Coinmarketcap crypto plus ALL fiat currencies supported by Coinbase
+
+         Returns:
+            user_top_acc (list of dict): list of all accounts with positive balance in USD and holding a well-established currency
+   """
+   try:
+      # Check what currency is currently set as default 'native currency' in the user's Coinbase account
+      client = Client(coinbase_api_key, coinbase_api_secret)
+      native_currency = client.get_current_user()['native_currency']
+      
+      # If the 'native curreny' is set to something other than USD, 
+      # then change that setting temporarily
+      # Get your filtered accounts
+      if native_currency != 'USD':
+         client.update_current_user(native_currency='USD')
+         accounts = client.get_accounts()
+         # Reset native_currency to its original setting
+         client.update_current_user(native_currency=native_currency) 
+
+      # If the 'native curreny' is already set to USD, 
+      # then simply fetch the account data
+      else:
+         accounts = client.get_accounts()
+
+      # Keep only accounts with non-zero balance AND accounts 
+      # whose currency is in the list of top_coins
+      user_top_acc = list()
+      for a in accounts['data']:
+         if (float(a['native_balance']['amount'])!=0) & (a['currency'] in list(top_coins.keys())):
+         #if a['currency'] in list(top_coins.keys()):  #REMOVE this line eventually
+            user_top_acc.append(a)
+      return user_top_acc
+
+   except Exception as e:
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, filter_acc.__name__, e))
+
+
+
+
+
+def filter_tx(coinbase_api_key, coinbase_api_secret, user_top_acc, feedback):
+   """
+   returns list of transactions occurred in the user's best Coinbase accounts
+
+         Parameters:
+            coinbase_api_key (str): user's Coinbase APIKey
+            coinbase_api_secret (str): user's Coinbase APISecretKey
+            user_top_accounts (list): lits of user's top accounts holding reputable currencies 
+
+         Returns:
+            txs (list of dict): list of chronologically ordered transactions in user accounts (from most recent to oldest)
+   """
+   try:
+      client = Client(coinbase_api_key, coinbase_api_secret)
+      native_currency = client.get_current_user()['native_currency']
+
+      txs = list()
+      # Loop through all Coinbase accounts owned by the user
+      # Get your filtered transactions for each of those accounts
+      
+      if native_currency != 'USD':
+         client.update_current_user(native_currency='USD')
+         for id in [x['id'] for x in user_top_acc]: 
+            tx = client.get_transactions(id) 
+            txs.append(tx['data'])
+         # Reset native_currency to its original setting 
+         client.update_current_user(native_currency=native_currency)  
+
+      else:
+         for id in [x['id'] for x in user_top_acc]:
+            tx = client.get_transactions(id)        
+            txs.append(tx['data'])
+      transactions = [t for acc in txs for t in acc]
+
+
+      # Filter for completed transactions and accepted transaction types
+      filtered_tx = list()
+      accepted_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+      for t in transactions:
+         if (t['status']=='completed') & (t['type'] in accepted_types):
+            filtered_tx.append(t)
+
+      return filtered_tx
+
+   except Exception as e:
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, filter_tx.__name__, e))
+
+
+
+
+
+def refactor_send_tx(tx, feedback):
+   """
+   returns list of transactions after re-labeling all 'send' type transactions either into 'send_credit' or into 'send_debit'
+
+         Parameters:
+            tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
+
+         Returns:
+            tx (list of dict): list of chronologically ordered transactions in user accounts (from most recent to oldest)
+   """
+   try:
+      new_tx = list()
+      for t in tx:
+
+         # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
+         if (t['type'] == 'send') & (np.sign(float(t['amount']['amount'])) == 1):
+            t['type'] = 'send_credit'
+
+         # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit'   
+         elif (t['type'] == 'send') & (np.sign(float(t['amount']['amount'])) == -1):
+            t['type'] = 'send_debit'
+            
+         # If it's not a 'send' transaction, then move on
+         else:
+            pass
+
+         new_tx.append(t)
+
+      return new_tx
+      
+   except Exception as e:
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, refactor_send_tx.__name__, e))
+
+
+
+
 
 def net_flow(tx, how_many_months, feedback):
     """
@@ -148,6 +356,8 @@ def net_flow(tx, how_many_months, feedback):
         feedback['liquidity'].append("{} in {}(): {}".format(e.__class__, net_flow.__name__, e))
 
 
+
+
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 #                                 -local data-                               #
@@ -201,10 +411,108 @@ def local_get_data(path_dir, userid, top_coins, feedback):
     except Exception as e:
         feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, local_get_data.__name__, e))
 
+
+
+
+    
+def unfiltered_acc(coinbase_api_key, coinbase_api_secret, feedback):
+   """
+   returns list of accounts with balance > $0 and ANY currency type.
+   Current balances are reported both in native currency and in USD for each account.
+
+         Parameters:
+            coinbase_api_key (str): user's Coinbase APIKey
+            coinbase_api_secret (str): user's Coinbase APISecretKey
+
+         Returns:
+            user_top_acc (list of dict): list of all accounts with positive balance in USD and holding a well-established currency
+   """
+   try:
+      # Check what currency is currently set as default 'native currency' in the user's Coinbase account
+      client = Client(coinbase_api_key, coinbase_api_secret)
+      native_currency = client.get_current_user()['native_currency']
+      
+      # If the 'native curreny' is set to something other than USD, 
+      # then change that setting temporarily
+      # Get your filtered accounts
+      if native_currency != 'USD':
+         client.update_current_user(native_currency='USD')
+         accounts = client.get_accounts()
+         # Reset native_currency to its original setting
+         client.update_current_user(native_currency=native_currency) 
+
+      # If the 'native curreny' is already set to USD, 
+      # then simply fetch the account data
+      else:
+         accounts = client.get_accounts()
+
+      # Keep only accounts with non-zero balance
+      user_top_acc = list()
+      for a in accounts['data']:
+         if (float(a['native_balance']['amount'])!=0):
+            user_top_acc.append(a)
+      return user_top_acc
+
+   except Exception as e:
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_acc.__name__, e))
+
+
+
+
+
+def unfiltered_tx(coinbase_api_key, coinbase_api_secret, user_top_acc, feedback):
+   """
+   returns list of transactions occurred in ALL of user's accounts
+
+         Parameters:
+            coinbase_api_key (str): user's Coinbase APIKey
+            coinbase_api_secret (str): user's Coinbase APISecretKey
+            user_top_accounts (list): lits of ALL user's accounts
+
+         Returns:
+            tsx (list of dict): list of chronologically ordered transactions in user accounts (from most recent to oldest)
+   """
+   try:
+      client = Client(coinbase_api_key, coinbase_api_secret)
+      native_currency = client.get_current_user()['native_currency']
+
+      txs = list()
+      # Loop through all Coinbase accounts owned by the user
+      # Get your filtered transactions for each of those accounts
+      
+      if native_currency != 'USD':
+         client.update_current_user(native_currency='USD')
+         for id in [x['id'] for x in user_top_acc]: 
+            tx = client.get_transactions(id) 
+            txs.append(tx['data'])
+         # Reset native_currency to its original setting 
+         client.update_current_user(native_currency=native_currency)  
+
+      else:
+         for id in [x['id'] for x in user_top_acc]:
+            tx = client.get_transactions(id)        
+            txs.append(tx['data'])
+      transactions = [t for acc in txs for t in acc]
+
+
+      # Filter for completed transactions and accepted transaction types
+      filtered_tx = list()
+      accepted_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+      for t in transactions:
+         if (t['status']=='completed') & (t['type'] in accepted_types):
+            filtered_tx.append(t)
+
+      return filtered_tx
+
+   except Exception as e:
+      feedback['data_fetch'].append("{} in {}(): {}".format(e.__class__, unfiltered_tx.__name__, e))
+
+
+
 # -------------------------------------------------------------------------- #
 #                                 Metric #1 KYC                              #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+
 def kyc(acc, tx, feedback):
     """
     checks whether user got correctly kyc'ed on Coinbase and assign binary score appropriately
@@ -235,7 +543,7 @@ def kyc(acc, tx, feedback):
 # -------------------------------------------------------------------------- #
 #                               Metric #2 History                            #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+
 def history_acc_longevity(acc, feedback):
     """
     returns a score dependent on the longevity of user's best Coinbase accounts
@@ -278,10 +586,11 @@ def history_acc_longevity(acc, feedback):
         return score, feedback
 
 
+
 # -------------------------------------------------------------------------- #
 #                             Metric #3 Liquidity                            #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+
 def liquidity_tot_balance_now(acc, feedback):
     """
     returns the cumulative current balance of a user across ALL his accounts
@@ -318,7 +627,8 @@ def liquidity_tot_balance_now(acc, feedback):
         feedback['liquidity'].append("{} {} in {}(): {}".format(warning, e.__class__, liquidity_tot_balance_now.__name__, e))
         return score, feedback
 
-@measure_time_and_memory
+
+        
 def liquidity_avg_running_balance(acc, tx, feedback):
     """
     returns score based on the average running balance maintained for the past 12 months
@@ -376,7 +686,7 @@ def liquidity_avg_running_balance(acc, tx, feedback):
 # -------------------------------------------------------------------------- #
 #                             Metric #4 Activity                             #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+
 def activity_tot_volume_tot_count(tx, type, feedback):
     """
     returns score for count and volume of credit OR debit transactions across the user's best Coinbase accounts
@@ -411,7 +721,9 @@ def activity_tot_volume_tot_count(tx, type, feedback):
         feedback['activity'].append("{} {} in {}(): {}".format(warning, e.__class__, activity_tot_volume_tot_count.__name__, e))
         return score, feedback
 
-@measure_time_and_memory
+
+
+
 def activity_consistency(tx, type, feedback):
     """
     returns score for the weigthed monthly average credit OR debit volume over time
@@ -470,7 +782,9 @@ def activity_consistency(tx, type, feedback):
         feedback['activity'].append("{} {} in {}(): {}".format(warning, e.__class__, activity_consistency.__name__, e))
         return score, feedback
 
-@measure_time_and_memory
+
+
+
 def activity_profit_since_inception(acc, tx, feedback):
     """
     returns score for total user profit since account inception. We define net profit as:
