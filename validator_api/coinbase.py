@@ -57,8 +57,7 @@ def coinbase_set_native_currency(client, symbol):
 
 
 def coinbase_accounts(client):
-'''Returns list of accounts with balance > $0.
-   Current balances are reported both in native currency and in USD for each account.'''
+    '''Returns list of accounts with balance > $0. Current balances are reported both in native currency and in USD for each account.'''
     try:
         response = convert_to_json(client.get_accounts()['data'])
         response = [n for n in response if float(n['native_balance']['amount'])!=0]
@@ -78,7 +77,7 @@ def coinbase_accounts(client):
 
 
 def coinbase_transactions(client, account_id):
-'''Returns Coinbase data for all user's accounts'''
+    '''Returns Coinbase data for all user's accounts'''
     try:
         response = convert_to_json(client.get_transactions(account_id)['data'])
 
