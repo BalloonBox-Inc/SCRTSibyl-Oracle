@@ -64,8 +64,16 @@ Body
 Response: **200**
 ```
     {
-        
+        'endpoint': '/credit_score/coinbase',
+        'title': 'Credit Score',
+        'status_code': 200,
+        'status': 'Good',
+        'timestamp': timestamp object,
+        'score': float object,
+        'feedback': json object,
+        'message': string object
     }
+                
 ```
 
 + <span style="color:blue">**PLAID**</span> : credit score model based on Plaid account.
@@ -92,7 +100,14 @@ Body
 Response: **200**
 ```
     {
-        
+        'endpoint': '/credit_score/plaid',
+        'title': 'Credit Score',
+        'status_code': 200,
+        'status': 'Good',
+        'timestamp': timestamp object,
+        'score': float object,
+        'feedback': json object,
+        'message': string object
     }
 ```
 
