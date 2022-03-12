@@ -100,6 +100,7 @@ def net_flow(txn, timeframe, feedback):
                 'expense': ['fiat_withdrawal', 'vault_withdrawal', 'buy', 'send_debit']
                 }
         
+        # Store all transactions (income and expenses) in a pandas df
         income = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), abs(float(d['native_amount']['amount']))) for d in txn if d['type'] in accepted_types['income']]
         expense = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), -abs(float(d['native_amount']['amount']))) for d in txn if d['type'] in accepted_types['expense']]
         net_flow = income + expense
@@ -108,13 +109,14 @@ def net_flow(txn, timeframe, feedback):
         df = df.set_index('created_at')
         
         if len(df.index) > 0:
+            # bin by month
             df = df.groupby(pd.Grouper(freq='M')).sum()
 
             # exclude current month
             if df.iloc[-1,].name.strftime('%Y-%m') == now.strftime('%Y-%m'):
                 df = df[:-1]
             
-            # filter by timeframe (months)
+            # keep only past X-many months. If longer, then crop
             df = df[-timeframe:]
 
         else:

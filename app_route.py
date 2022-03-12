@@ -77,6 +77,7 @@ def credit_score_coinbase():
         client = coinbase_client(coinbase_token, coinbase_secret)
 
         # coinmarketcap
+        # fetch top X cryptos from coinmarketcap API
         top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
         currencies = coinbase_currencies(client)
         odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
@@ -84,24 +85,29 @@ def credit_score_coinbase():
         top_coins.update(currencies)
         coins = list(top_coins.keys())
 
-        # coinbase native currency
+        # change coinbase native currency to USD
         native = coinbase_native_currency(client)
         if native != 'USD':
             coinbase_set_native_currency(client, 'USD')
         
-        # data fetching and formatting
+
+        # fetch and format data from user Coinbase account
         coinbase_acc = coinbase_accounts(client)
         coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
         
         coinbase_txn = [coinbase_transactions(client, n['id']) for n in coinbase_acc]
         coinbase_txn = [x for n in coinbase_txn for x in n]
+        # keep only certain transaction types
         txn_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
         coinbase_txn = [n for n in coinbase_txn if n['status'] == 'completed' and n['type'] in txn_types]
         for d in coinbase_txn:
+            # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
             if d['type']=='send' and np.sign(float(d['amount']['amount']))==1:
                 d['type'] = 'send_credit'
+            # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit' 
             elif d['type']=='send' and np.sign(float(d['amount']['amount']))==-1:
                 d['type'] = 'send_debit'
+            
             
         # reset native currency
         coinbase_set_native_currency(client, native)

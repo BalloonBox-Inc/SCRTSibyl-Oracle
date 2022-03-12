@@ -10,7 +10,8 @@ def plaid_score(txn, feedback):
         stability, feedback = plaid_stability(txn, feedback)
         diversity, feedback = plaid_diversity(txn, feedback)
         
-        score = 300 + 600*(0.33*velocity + 0.42*stability + 0.20*diversity) # adds up to 0.95 for lack of credit card - it's a penalty
+        # adds up to 0.95 for lack of credit card - it's a penalty
+        score = 300 + 600*(0.33*velocity + 0.42*stability + 0.20*diversity) 
 
     else:   
         credit, feedback = plaid_credit(txn, feedback)
