@@ -7,7 +7,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app, resources={
             r'/*': {
-                'methods': ['POST'],
+                'methods': ['POST','GET','OPTIONS'],
                 'allow_headers': ['*'],
                 'supports_credentials': True
             }

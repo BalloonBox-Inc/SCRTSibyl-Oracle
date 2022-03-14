@@ -50,6 +50,7 @@ def credit_score_plaid():
             feedback = create_feedback_plaid()
             score, feedback = plaid_score(plaid_txn, feedback)
             message = qualitative_feedback_plaid(score, feedback)
+            feedback = interpret_score_plaid(score, feedback)
 
             status_code = 200
             status = 'Good'
