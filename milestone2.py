@@ -1,3 +1,4 @@
+from email import message
 import time
 from app_route import *
 from support.score import *
@@ -75,11 +76,11 @@ from dotenv import dotenv_values
 #                                  COINBASE                                  #
 # -------------------------------------------------------------------------- # 
 
-# config = dotenv_values()
-# APIKey = config['COINBASE_CLIENT_ID']
-# APISecret = config['COINBASE_CLIENT_SECRET']
-# coinmarketcap_key = config['COINMARKETCAP_KEY']
-# path_dir_coinbase = config['PATH_DIR_COINBASE_DATA']
+config = dotenv_values()
+APIKey = config['COINBASE_CLIENT_ID']
+APISecret = config['COINBASE_CLIENT_SECRET']
+coinmarketcap_key = config['COINMARKETCAP_KEY']
+path_dir_coinbase = config['PATH_DIR_COINBASE_DATA']
 
 
 # # Local
@@ -112,21 +113,21 @@ from dotenv import dotenv_values
 
 
 # # Compute score for a remote user via Coinbase API 
-score, feedback = credit_score_coinbase()
-print('_____________________________________________')
-print()
-print('TEST USER #0 got a score of {}/900 points'.format(round(score)))
-print()
-for k in feedback.keys():
-    print()
-    print(k.upper())
-    for sub_key in feedback[k].keys():
-        print('{} : {}'.format(sub_key, feedback[k][sub_key]))
-print()
-print(feedback)
-print('_____________________________________________')
-print()
+score, feedback, message = credit_score_coinbase()
+# print('_____________________________________________')
+# print()
+# print('TEST USER #0 got a score of {}/900 points'.format(round(score)))
+# print()
+# for k in feedback.keys():
+#     print()
+#     print(k.upper())
+#     for sub_key in feedback[k].keys():
+#         print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+# print()
+# print(feedback)
+# print('_____________________________________________')
+# print()
 
 # print(list_of_feedback)
 # with open('feedback_coinbase.json', 'w') as json_file:
-#     json.dump(list_of_feedback, json_file, indent = 4)
+    # json.dump(list_of_feedback, json_file, indent = 4)
