@@ -79,7 +79,7 @@ Response: **200**
 + <span style="color:blue">**PLAID**</span> : credit score model based on Plaid account.
 
 ```
-    POST /credit_score/plaid
+    POST {base_url}/credit_score/plaid
 ```
 
 Headers
@@ -90,24 +90,43 @@ Headers
 Body
 ```
     {
-        "plaid_token": PLAID_ACCESS_TOKEN,
-        "plaid_client_id": PLAID_CLIENT_ID,
-        "plaid_client_secret": PLAID_CLIENT_SECRET,
-        "keplr_token": KEPLER_TOKEN
+        "keplr_token": "49v5hja7-11ed-44cc-8q9q-0b3g567hhild",
+        "plaid_token": "access-sandbox-49v5hja7-11ed-44cc-8q9q-0b3g567hhild",
+        "plaid_client_id": "55e873tf849309090mm12345",
+        "plaid_client_secret": "1234a12345b12345c1234de1f1g1g1"
     }
 ```
 
 Response: **200**
 ```
     {
-        'endpoint': '/credit_score/plaid',
-        'title': 'Credit Score',
-        'status_code': 200,
-        'status': 'Good',
-        'timestamp': timestamp object,
-        'score': float object,
-        'feedback': json object,
-        'message': string object
+        "endpoint": "/credit_score/plaid",
+        "feedback": {
+            "advice": {
+                "credit_error": false,
+                "credit_exist": true,
+                "diversity_error": false,
+                "stability_error": false,
+                "velocity_error": true
+            },
+            "score": {
+                "bank_accounts": 10,
+                "card_names": [
+                    "Plaid diamond 12.5% apr interest credit card"
+                ],
+                "cum_balance": 50000,
+                "loan_amount": 5000,
+                "points": 628,
+                "quality": "fair",
+                "score_exist": true
+            }
+        },
+        "message": "Your SCRTSibyl score is FAIR, with a total of 628 points, which qualifies you for a loan of up to $5000 USD. SCRTSibyl computed your score accounting for your Plaid diamond 12.5% apr interest credit card credit card your total current balance of $50000 and your 9 different bank accounts. An error occurred during computation of the metrics: velocity, and your score was rounded down. Try again later or log in using a different account.",
+        "score": 628.2132,
+        "status": "Good",
+        "status_code": 200,
+        "timestamp": "03-14-2022 19:04:12 GMT",
+        "title": "Credit Score"
     }
 ```
 
