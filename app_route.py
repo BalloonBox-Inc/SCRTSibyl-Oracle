@@ -40,7 +40,6 @@ def credit_score_plaid():
         try:
             # client connection
             client = plaid_client('sandbox', plaid_client_id, plaid_client_secret)
-            # client = plaid_client('production', plaid_client_id, plaid_client_secret)
             
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
