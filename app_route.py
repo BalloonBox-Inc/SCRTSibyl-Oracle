@@ -63,7 +63,7 @@ def credit_score_plaid():
             message = str(e)
         
         finally:
-            timestamp = datetime.now(timezone.utc).timestamp()
+            timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
             output = {
                 'endpoint': '/credit_score/plaid',
                 'title': 'Credit Score',
@@ -148,7 +148,7 @@ def credit_score_coinbase():
         message = str(e)
     
     finally:
-        timestamp = datetime.now(timezone.utc).timestamp()
+        timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
         output = {
             'endpoint': '/credit_score/coinbase',
             'title': 'Credit Score',
