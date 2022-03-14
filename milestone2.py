@@ -83,21 +83,19 @@ from dotenv import dotenv_values
 # path_dir_coinbase = config['PATH_DIR_COINBASE_DATA']
 
 
-# Local
-# Compute score for a local user 
-list_of_feedback = []
-for userid in ['0', '1', '2']:
-    start_time = time.time()
-    feedback = create_feedback_coinbase()
-    top_coins = top_currencies(coinmarketcap_key, APIKey, APISecret, feedback)
-    acc, tx = local_get_data(path_dir_coinbase, userid, top_coins, feedback)
-    tx = refactor_send_tx(tx, feedback)
-    score, feedback = coinbase_score(acc, tx, feedback)
-    runtime = round(time.time() - start_time, 3)
-    print('_____________________________________________')
-    print()
-    print(score)
-    print(feedback)
+# # Local
+# # Compute score for a local user 
+# list_of_feedback = []
+# for userid in ['0', '1', '2']:
+#     feedback = create_feedback_coinbase()
+#     top_coins = top_currencies(coinmarketcap_key, APIKey, APISecret, feedback)
+#     acc, tx = local_get_data(path_dir_coinbase, userid, top_coins, feedback)
+#     tx = refactor_send_tx(tx, feedback)
+#     score, feedback = coinbase_score(acc, tx, feedback)
+#     print('_____________________________________________')
+#     print()
+#     print(score)
+#     print(feedback)
 
 
 
@@ -117,21 +115,34 @@ for userid in ['0', '1', '2']:
 
 
 
-# # # Compute score for a remote user via Coinbase API 
-# score, feedback, message = credit_score_coinbase()
-# print('_____________________________________________')
-# print()
-# print('TEST USER #0 got a score of {}/900 points'.format(round(score)))
-# print()
-# for k in feedback.keys():
-#     print()
-#     print(k.upper())
-#     for sub_key in feedback[k].keys():
-#         print('{} : {}'.format(sub_key, feedback[k][sub_key]))
-# print()
-# print(feedback)
-# print('_____________________________________________')
-# print()
+# # Compute score for a remote user via Coinbase API 
+score, feedback, message = credit_score_coinbase()
+interpret = interpret_score_coinbase(score, feedback)
+msg = qualitative_feedback_coinbase(score, feedback)
+
+print('_____________________________________________')
+print()
+print('TEST USER #0 got a score of {}/900 points'.format(round(score)))
+print()
+for k in feedback.keys():
+    print()
+    print(k.upper())
+    for sub_key in feedback[k].keys():
+        print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+print()
+print(feedback)
+print()
+for k in interpret.keys():
+    print()
+    print(k.upper())
+    for sub_key in interpret[k].keys():
+        print('{} : {}'.format(sub_key, interpret[k][sub_key]))
+print()
+print(interpret)
+print()
+print(msg)
+print('_____________________________________________')
+print()
 
 # print(list_of_feedback)
 # with open('feedback_coinbase.json', 'w') as json_file:
