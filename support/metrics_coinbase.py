@@ -132,7 +132,7 @@ def net_flow(txn, timeframe, feedback):
 # -------------------------------------------------------------------------- #
 #                                 Metric #1 KYC                              #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+# @measure_time_and_memory
 def kyc(acc, txn, feedback):
     '''
     Description:
@@ -166,7 +166,7 @@ def kyc(acc, txn, feedback):
 # -------------------------------------------------------------------------- #
 #                               Metric #2 History                            #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+# @measure_time_and_memory
 def history_acc_longevity(acc, feedback):
     '''
     Description:
@@ -183,7 +183,7 @@ def history_acc_longevity(acc, feedback):
     try:
         # Retrieve creation date of oldest user account
         if acc:
-            oldest = min([d['created_at'] for d in acc])
+            oldest = min([d['created_at'] for d in acc if d['created_at']])
             # age (in days) of longest standing Coinbase account
             age = (now - oldest).days 
             score = fico_medians[np.digitize(age, duration, right=True)]
@@ -202,7 +202,7 @@ def history_acc_longevity(acc, feedback):
 # -------------------------------------------------------------------------- #
 #                             Metric #3 Liquidity                            #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+# @measure_time_and_memory
 def liquidity_tot_balance_now(acc, feedback):
     '''
     Description:
@@ -219,7 +219,7 @@ def liquidity_tot_balance_now(acc, feedback):
     try:
         # Calculate tot balance now
         if acc:
-            balance = sum([d['native_balance']['amount'] for d in acc])
+            balance = sum([float(d['native_balance']['amount']) for d in acc])
             # Calculate score
             if balance == 0:
                 score = 0
@@ -241,7 +241,7 @@ def liquidity_tot_balance_now(acc, feedback):
     finally:
         return score, feedback
 
-@measure_time_and_memory
+# @measure_time_and_memory
 def liquidity_avg_running_balance(acc, txn, feedback):
     '''
     Description:
@@ -258,7 +258,7 @@ def liquidity_avg_running_balance(acc, txn, feedback):
 
     try:
         if txn:
-            balance = sum([d['native_balance']['amount'] for d in acc])
+            balance = sum([float(d['native_balance']['amount']) for d in acc])
             
             # Calculate net flow (i.e, |income-expenses|) each month for past 12 months
             net, feedback = net_flow(txn, 12, feedback)
@@ -299,7 +299,7 @@ def liquidity_avg_running_balance(acc, txn, feedback):
 # -------------------------------------------------------------------------- #
 #                             Metric #4 Activity                             #
 # -------------------------------------------------------------------------- #  
-@measure_time_and_memory
+# @measure_time_and_memory
 def activity_tot_volume_tot_count(txn, type, feedback):
     '''
     Description:
@@ -341,7 +341,7 @@ def activity_tot_volume_tot_count(txn, type, feedback):
     finally:
         return score, feedback
 
-@measure_time_and_memory
+# @measure_time_and_memory
 def activity_consistency(txn, type, feedback):
     '''
     Description:
@@ -398,7 +398,7 @@ def activity_consistency(txn, type, feedback):
     finally:
         return score, feedback
 
-@measure_time_and_memory
+# @measure_time_and_memory
 def activity_profit_since_inception(acc, txn, feedback):
     '''
     Description:
@@ -421,7 +421,7 @@ def activity_profit_since_inception(acc, txn, feedback):
                 }                                                        
 
         # Calculate total credited volume and withdrawn volume
-        balance = sum([d['native_balance']['amount'] for d in acc])
+        balance = sum([float(d['native_balance']['amount']) for d in acc])
         credits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['credit']])
         debits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['debit']])
         

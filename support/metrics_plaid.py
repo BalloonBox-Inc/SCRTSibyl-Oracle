@@ -72,70 +72,7 @@ ratio_flows = np.array([0.7, 1, 1.4, 2, 3, 4])
 slope_product = np.array([0.5, 0.8, 1, 1.3, 1.6, 2])
 slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
 
-# -------------------------------------------------------------------------- #
-#                         Helper Functions - local                           #
-# -------------------------------------------------------------------------- #
 
-# Remove this function eventually. It's used only to fetch local data for testing purposes.
-def get_tx(path_dir, userid, feedback):
-    '''
-    returns the Plaid 'Transaction' product for one user
-
-            Parameters:
-                path_dir (str): path to the directory where the transaction files are stored
-                userid (str): number of the user you want to retrieve transaction data for
-        
-            Returns: 
-                data (dict of lists): with transactions of all user's bank accoutns (credit, checking, saving, loan, etc.) in chronological order (newest to oldest)
-    '''
-    try:
-        # Iterate through all files in a directory
-        directory = os.fsencode(path_dir)
-        mobi_plaid = list()
-        for f in os.listdir(directory):
-            filename = os.fsdecode(f)
-            if filename.endswith('.json'): #filter by .json files
-                mobi_plaid.append(filename) #append file names to list
-        mobi_plaid =  sorted(mobi_plaid) 
-
-        # Select one user and retrieve their transaction history
-        lol = list()
-        for f in mobi_plaid:
-            if f.startswith('{}-tx_'.format(userid)): #choose your user
-                tx_one_page = json.load(open(path_dir+f)) #open json
-                acc = tx_one_page['accounts']
-                lol.append(tx_one_page['transactions']) #append txn data only
-        txn = list(np.concatenate(lol).flat) #flatten list 
-        data = {'accounts':acc, 'transactions':txn}
-        return data
-
-    except Exception as e:
-        feedback['fetch'][get_tx.__name__] = str(e)
-        
-
-
-def str_to_datetime(plaid_txn, feedback):
-    """
-    serialize a Python data structure converting string instances into datetime objects
-            Parameters:
-                plaid_txn (list): locally stored Plaid data used for testing purposes
-            Returns:
-                tx (dict): serialized dict containing user accounts and transactions. String dates are converted to datetime objects
-     """
-    try:
-        # Keep only completed transactions (filter out pending transactions)
-        all_txn = []
-        for t in plaid_txn['transactions']:
-            if t['pending'] == False:
-                t['date'] = datetime.strptime(t['date'], '%Y-%m-%d').date()
-                all_txn.append(t)
-
-        # Prettify and write to json
-        tx = {'accounts':plaid_txn['accounts'], 'transactions':all_txn}
-        return tx
-
-    except Exception as e:
-        feedback['fetch'][str_to_datetime.__name__] = str(e)
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
