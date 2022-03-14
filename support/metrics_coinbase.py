@@ -329,7 +329,7 @@ def activity_tot_volume_tot_count(txn, type, feedback):
             n = np.digitize(balance, volume_balance_now, right=True)
             score = m7x7_03_17[m][n]
 
-            nested_dict(feedback, ['activity', type, 'balance'], balance)
+            nested_dict(feedback, ['activity', type, 'tot_volume'], round(balance, 2))
         
         else:
             raise Exception('no transaction history')
@@ -381,7 +381,7 @@ def activity_consistency(txn, type, feedback):
                 n = np.digitize(length, duration, right=True)
                 score = m7x7_85_55[m][n]
 
-                nested_dict(feedback, ['activity', type, 'weighted_avg_volume'], w_avg)
+                nested_dict(feedback, ['activity', type, 'weighted_avg_volume'], round(w_avg, 2))
                 nested_dict(feedback, ['activity', type, 'timeframe(days)'], length)
 
             else:

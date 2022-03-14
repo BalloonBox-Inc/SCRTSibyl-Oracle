@@ -18,7 +18,7 @@ def create_interpret_plaid():
     '''
    Description:
         Initializes a dict with a concise summary to communicate and interpret the SCRTSibyl score. 
-        It includes the most important metrics used by the credit scoring algorithm.
+        It includes the most important metrics used by the credit scoring algorithm (for Plaid).
     '''
     return {'score': 
     {
@@ -196,3 +196,4 @@ def qualitative_feedback_plaid(score, feedback):
 # -------------------------------------------------------------------------- #
 #                                  Coinbase                                  #
 # -------------------------------------------------------------------------- #
+
