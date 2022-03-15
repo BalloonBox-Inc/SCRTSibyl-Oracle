@@ -135,7 +135,7 @@ def credit_score_coinbase():
         # compute score
         feedback = create_feedback_coinbase()
         score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
-        message = ''
+        message = qualitative_feedback_coinbase(score, feedback)
 
         status_code = 200
         status = 'Good'
