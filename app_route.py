@@ -35,7 +35,7 @@ def credit_score_plaid():
             plaid_client_id = request.json.get('plaid_client_id', None)
             plaid_client_secret = request.json.get('plaid_client_secret', None)
         except Exception as e:
-            return str(e)
+            return make_response({'Error': str(e)}, 400)
         
         try:
             # client connection
@@ -77,87 +77,83 @@ def credit_score_plaid():
             return make_response(output, output['status_code'])
 
 
-# @app.route('/credit_score/coinbase', methods=['POST'])
 @measure_time_and_memory
+@app.route('/credit_score/coinbase', methods=['POST'])
 def credit_score_coinbase():
 
-    # if request.method == 'POST':
-    try:
-        # coinbase_token = request.json.get('coinbase_public_token', None)
-        # coinmarketcap_key = request.json.get('coinmarketcap_key', None)
-        # keplr_token = request.json.get('keplr_token', None)
-        coinbase_token = getenv('COINBASE_CLIENT_ID')
-        coinbase_secret = getenv('COINBASE_CLIENT_SECRET')
-        coinmarketcap_key = getenv('COINMARKETCAP_KEY')
-    
-    except Exception as e:
-        return str(e)
-    
-    try:
-        # client connection
-        client = coinbase_client(coinbase_token, coinbase_secret)
-
-        # coinmarketcap
-        # fetch top X cryptos from coinmarketcap API
-        top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
-        currencies = coinbase_currencies(client)
-        odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
-        currencies = {k:1 for (k,v) in currencies.items() if v == 0.01 or k in odd_fiats}
-        top_coins.update(currencies)
-        coins = list(top_coins.keys())
-
-        # change coinbase native currency to USD
-        native = coinbase_native_currency(client)
-        if native != 'USD':
-            coinbase_set_native_currency(client, 'USD')
+    if request.method == 'POST':
+        try:
+            keplr_token = request.json.get('keplr_token', None)
+            coinbase_client_id = request.json.get('coinbase_client_id', None)
+            coinbase_client_secret = request.json.get('coinbase_client_secret', None)
+            coinmarketcap_key = request.json.get('coinmarketcap_key', None)
+        except Exception as e:
+            return make_response({'Error': str(e)}, 400)
         
+        try:
+            # client connection
+            client = coinbase_client(coinbase_client_id, coinbase_client_secret)
 
-        # fetch and format data from user's Coinbase account
-        coinbase_acc = coinbase_accounts(client)
-        coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
-        
-        coinbase_txn = [coinbase_transactions(client, n['id']) for n in coinbase_acc]
-        coinbase_txn = [x for n in coinbase_txn for x in n]
-        # keep only certain transaction types
-        txn_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-        coinbase_txn = [n for n in coinbase_txn if n['status'] == 'completed' and n['type'] in txn_types]
-        for d in coinbase_txn:
-            # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
-            if d['type']=='send' and np.sign(float(d['amount']['amount']))==1:
-                d['type'] = 'send_credit'
-            # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit' 
-            elif d['type']=='send' and np.sign(float(d['amount']['amount']))==-1:
-                d['type'] = 'send_debit'
-        
-        # reset native currency
-        coinbase_set_native_currency(client, native)
-        
-        # compute score
-        feedback = create_feedback_coinbase()
-        score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
-        message = qualitative_feedback_coinbase(score, feedback)
+            # coinmarketcap
+            # fetch top X cryptos from coinmarketcap API
+            top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
+            currencies = coinbase_currencies(client)
+            odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
+            currencies = {k:1 for (k,v) in currencies.items() if v == 0.01 or k in odd_fiats}
+            top_coins.update(currencies)
+            coins = list(top_coins.keys())
 
-        status_code = 200
-        status = 'Good'
-    
-    except Exception as e:
-        status_code = 400
-        status = 'Error'
-        score = 0
-        feedback = {}
-        message = str(e)
-    
-    finally:
-        timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
-        output = {
-            'endpoint': '/credit_score/coinbase',
-            'title': 'Credit Score',
-            'status_code': status_code,
-            'status': status,
-            'timestamp': timestamp,
-            'score': score,
-            'feedback': feedback,
-            'message': message
-            }
-        return score, feedback, message
-        # return make_response(output, output['status_code'])
+            # change coinbase native currency to USD
+            native = coinbase_native_currency(client)
+            if native != 'USD':
+                coinbase_set_native_currency(client, 'USD')
+
+            # fetch and format data from user's Coinbase account
+            coinbase_acc = coinbase_accounts(client)
+            coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
+            
+            coinbase_txn = [coinbase_transactions(client, n['id']) for n in coinbase_acc]
+            coinbase_txn = [x for n in coinbase_txn for x in n]
+            
+            # keep only certain transaction types
+            txn_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+            coinbase_txn = [n for n in coinbase_txn if n['status'] == 'completed' and n['type'] in txn_types]
+            for d in coinbase_txn:
+                # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
+                if d['type']=='send' and np.sign(float(d['amount']['amount']))==1:
+                    d['type'] = 'send_credit'
+                # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit' 
+                elif d['type']=='send' and np.sign(float(d['amount']['amount']))==-1:
+                    d['type'] = 'send_debit'
+            
+            # reset native currency
+            coinbase_set_native_currency(client, native)
+            
+            # compute score
+            feedback = create_feedback_coinbase()
+            score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
+            message = qualitative_feedback_coinbase(score, feedback)
+
+            status_code = 200
+            status = 'Good'
+        
+        except Exception as e:
+            status_code = 400
+            status = 'Error'
+            score = 0
+            feedback = {}
+            message = str(e)
+        
+        finally:
+            timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
+            output = {
+                'endpoint': '/credit_score/coinbase',
+                'title': 'Credit Score',
+                'status_code': status_code,
+                'status': status,
+                'timestamp': timestamp,
+                'score': score,
+                'feedback': feedback,
+                'message': message
+                }
+            return make_response(output, output['status_code'])
