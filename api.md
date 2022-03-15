@@ -43,7 +43,7 @@ User oauth tokens to be sent via Authorization Bearer header:
 + <span style="color:blue">**COINBASE**</span> : credit score model based on Coinbase account.
 
 ```
-    POST /credit_score/coinbase
+    POST {base_url}/credit_score/coinbase
 ```
 
 Headers
@@ -54,24 +54,50 @@ Headers
 Body
 ```
     {
-        "coinbase_client_id" = COINBASE_CLIENT_ID',
-        "coinbase_client_secret" = COINBASE_CLIENT_SECRET,
-        "coinmarketcap_key" = COINMARKETCAP_KEY
-        "keplr_token": KEPLER_TOKEN
+        "keplr_token": "de9vf890-34r5-1e1r-9g9g-lmn2v3g12345",
+        "coinbase_client_id": "zzzDtMMMcLpP000z",
+        "coinbase_client_secret": "zZZZzZzzZZz0zz00zz0ZzzZzzzzZzzZZ",
+        "coinmarketcap_key": "zz9zz000-11z1-1z1z-1z1z-zzz1z1z12345"
     }
 ```
 
 Response: **200**
 ```
     {
-        'endpoint': '/credit_score/coinbase',
-        'title': 'Credit Score',
-        'status_code': 200,
-        'status': 'Good',
-        'timestamp': timestamp object,
-        'score': float object,
-        'feedback': json object,
-        'message': string object
+        "endpoint": "/credit_score/coinbase",
+        "feedback": {
+            "activity": {
+                "credit": {
+                    "timeframe(days)": 60,
+                    "tot_volume": 12.21,
+                    "weighted_avg_volume": 2.9
+                },
+                "debit": {
+                    "timeframe(days)": 30,
+                    "tot_volume": 3.0,
+                    "weighted_avg_volume": 3.0
+                },
+                "total_net_profit": -5.18
+            },
+            "fetch": {},
+            "history": {
+                "wallet_age(days)": 53
+            },
+            "kyc": {
+                "verified": true
+            },
+            "liquidity": {
+                "avg_running_balance": 4.2,
+                "balance_timeframe(months)": 2,
+                "current_balance": 4.03
+            }
+        },
+        "message": "Your SCRTSibyl score is VERY POOR, with a total of 381 points, which qualifies you for a loan of up to $500 USD. You obtained your score because your Coinbase account has been active for 53 days and your total balance across all wallets is $4.03 USD. You can always improve your score by trading top trusted cryptocurrencies and having a lively trading history.",
+        "score": 380.76,
+        "status": "Good",
+        "status_code": 200,
+        "timestamp": "03-15-2022 16:28:19 GMT",
+        "title": "Credit Score"
     }
                 
 ```
