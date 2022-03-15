@@ -36,7 +36,7 @@ yarn install
 
 ### Credentials Required :old_key: :lock:
 
-You'll need to create a Developer Coinmarket Cap API Key, following the CoinMarketCap Developers guide [here.](https://coinmarketcap.com/api/documentation/v1/#section/Introduction)
+You'll need to create a Developer CoinMarketCap API Key, following the CoinMarketCap Developers guide [here.](https://coinmarketcap.com/api/documentation/v1/#section/Introduction)
 
 Next, create a ```.env``` local file in your root folder: 
 
