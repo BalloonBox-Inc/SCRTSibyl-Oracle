@@ -15,6 +15,10 @@ from app import *
 
 load_dotenv()
 
+# @measure_time_and_memory
+@app.route('/', methods=['POST'])
+def test():
+    return 'good'
 
 def create_feedback_plaid():
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
