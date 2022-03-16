@@ -1,8 +1,6 @@
 from flask import request, make_response
-from dotenv import load_dotenv
 from datetime import datetime
 from datetime import timezone
-from os import getenv
 
 from feedback.qualitative_score import *
 from validator_api.coinmarketcap import *
@@ -12,8 +10,6 @@ from support.score import *
 
 from optimization.performance import *
 from app import *
-
-load_dotenv()
 
 
 def create_feedback_plaid():
@@ -40,10 +36,9 @@ def credit_score_plaid():
         try:
             # client connection
             client = plaid_client('sandbox', plaid_client_id, plaid_client_secret)
-            print(client)
+            
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
-            print(plaid_txn)
             plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts','transactions']}
             plaid_txn['transactions'] = [t for t in plaid_txn['transactions'] if not t['pending']]
             
@@ -54,7 +49,7 @@ def credit_score_plaid():
             feedback = interpret_score_plaid(score, feedback)
 
             status_code = 200
-            status = 'Good'
+            status = 'Success'
         
         except Exception as e:
             status_code = 400
@@ -78,7 +73,7 @@ def credit_score_plaid():
             return make_response(output, output['status_code'])
 
 
-@measure_time_and_memory
+# @measure_time_and_memory
 @app.route('/credit_score/coinbase', methods=['POST'])
 def credit_score_coinbase():
 
@@ -136,7 +131,7 @@ def credit_score_coinbase():
             message = qualitative_feedback_coinbase(score, feedback)
 
             status_code = 200
-            status = 'Good'
+            status = 'Success'
         
         except Exception as e:
             status_code = 400
