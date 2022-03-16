@@ -48,7 +48,7 @@ User oauth tokens to be sent via Authorization Bearer header:
 
 Headers
 ```
-    Content-Type: application/json
+    "Content-Type": "application/json"
 ```
 
 Body
@@ -110,7 +110,7 @@ Response: **200**
 
 Headers
 ```
-    Content-Type: application/json
+    "Content-Type": "application/json"
 ```
 
 Body
