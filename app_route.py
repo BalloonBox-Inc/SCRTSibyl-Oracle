@@ -1,15 +1,18 @@
 from flask import request, make_response
+from dotenv import load_dotenv
 from datetime import datetime
 from datetime import timezone
+from os import getenv
 
+from optimization.performance import *
 from feedback.qualitative_score import *
 from validator_api.coinmarketcap import *
 from validator_api.coinbase import *
 from validator_api.plaid import *
 from support.score import *
-
-from optimization.performance import *
 from app import *
+
+load_dotenv()
 
 
 def create_feedback_plaid():
@@ -35,7 +38,7 @@ def credit_score_plaid():
         
         try:
             # client connection
-            client = plaid_client('sandbox', plaid_client_id, plaid_client_secret)
+            client = plaid_client(getenv('ENV'), plaid_client_id, plaid_client_secret)
             
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
