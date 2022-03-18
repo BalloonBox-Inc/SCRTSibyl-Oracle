@@ -3,7 +3,7 @@
 ![scrt sibyl image](./images/logo_horizontal.png)
 
 ## At a Glance
-SCRTSibyl is an oracle for credit scoring developed for the Secret Network. The oracle returns a numerical, private, and encrypted credit score affirming users' credibility and trustworthiness within the Secret Network ecosystem. The DApp was designed with one specific use case in mind: P2P micro-lending, which is facilitating lending and borrowing of microloans ranging between $1-25K USD. Running a credit score check on a user you are considering lending money to or borrowing money from, will inform you whether and how much a user can pay back upon loan issuance. 
+SCRTSibyl is an oracle for credit scoring developed for the Secret Network. The oracle returns a numerical, private, and encrypted credit score affirming users' credibility and trustworthiness within the Secret Network ecosystem. The DApp was designed with one specific use case in mind: unsecured P2P micro-lending, which is facilitating lending and borrowing of microloans ranging between $1-25K USD. The Sibyl does not require any type of collaterals -hence unsecured-, but rather the lender approves the loans based on a borrower's creditworthiness affirmed by the SCRTsibyl oracle. Running a credit score check on a user you are considering lending money to or borrowing money from, will inform you whether and how much a user can pay back upon loan issuance. 
 
 The DApp works as follow: 
  - it acquires user's financial data by integrating with two validators ([Plaid](https://dashboard.plaid.com/overview) & [Coinbase](https://developers.coinbase.com/))
