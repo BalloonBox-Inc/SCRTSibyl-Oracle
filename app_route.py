@@ -84,15 +84,15 @@ def credit_score_coinbase():
     if request.method == 'POST':
         try:
             keplr_token = request.json.get('keplr_token', None)
-            coinbase_client_id = request.json.get('coinbase_client_id', None)
-            coinbase_client_secret = request.json.get('coinbase_client_secret', None)
+            coinbase_access_token = request.json.get('coinbase_access_token', None)
+            coinbase_refresh_token = request.json.get('coinbase_refresh_token', None)
             coinmarketcap_key = request.json.get('coinmarketcap_key', None)
         except Exception as e:
             return make_response({'Error': str(e)}, 400)
         
         try:
             # client connection
-            client = coinbase_client(coinbase_client_id, coinbase_client_secret)
+            client = coinbase_client(coinbase_access_token, coinbase_refresh_token)
 
             # coinmarketcap
             # fetch top X cryptos from coinmarketcap API

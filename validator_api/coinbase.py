@@ -1,12 +1,12 @@
 from coinbase.wallet.error import CoinbaseError
-from coinbase.wallet.client import Client
+from coinbase.wallet.client import OAuthClient
 from datetime import datetime
 
 import json
 
-def coinbase_client(api_key, secret):
-    '''Connect to a client's Coinbase account using their api and secret Coinbase keys'''
-    return Client(api_key, secret)
+def coinbase_client(access_token, refresh_token):
+    '''Connect to a client's Coinbase account using their tokens'''
+    return OAuthClient(access_token, refresh_token)
 
 
 def format_error(e):
