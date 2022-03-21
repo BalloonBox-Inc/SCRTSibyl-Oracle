@@ -26,6 +26,7 @@ def create_interpret_plaid():
         'points':None, \
         'quality':None, \
         'loan_amount':None, \
+        'loan_duedate':None, \
         'card_names':None, \
         'cum_balance':None, \
         'bank_accounts':None
@@ -69,6 +70,8 @@ def interpret_score_plaid(score, feedback):
             interpret['score']['points'] = int(round(score, 3))
             interpret['score']['quality'] = score_quality[np.digitize(score, score_bins, right=False)]
             interpret['score']['loan_amount'] = int(loan_bins[np.digitize(score, score_bins, right=False)])
+            if ('loan_duedate' in list(feedback['stability'].keys())):
+                interpret['score']['loan_duedate'] = int(feedback['stability']['loan_duedate'])
             if ('card_names' in list(feedback['credit'].keys())) and (feedback['credit']['card_names']):
                 interpret['score']['card_names'] = [c.capitalize() for c in feedback['credit']['card_names']]
             if 'cumulative_current_balance' in list(feedback['stability'].keys()):
@@ -128,8 +131,12 @@ def qualitative_feedback_plaid(score, feedback):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD.'\
+        msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD'\
                 .format(quality.upper(), points, loan_amount)
+        if ('loan_duedate' in list(feedback['stability'].keys())):
+            msg0 = msg0 + ' with a payback period of {0} months.'.format(feedback['stability']['loan_duedate'])
+        else:
+            msg0 = msg0 + '.'
 
         # Interpret the score        
         if ('card_names' in all_keys) or ('cumulative_current_balance' in all_keys) or ('bank_accounts' in all_keys):

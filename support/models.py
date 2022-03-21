@@ -42,6 +42,7 @@ def plaid_velocity(txn, feedback):
 def plaid_stability(txn, feedback):
 
     balance, feedback = stability_tot_balance_now(txn, feedback)
+    feedback = stability_loan_duedate(txn, feedback)
     run_balance, feedback = stability_min_running_balance(txn, feedback)
 
     score = 0.70*balance + 0.30*run_balance
@@ -100,4 +101,4 @@ def coinbase_activity(acc, txn, feedback):
         + 0.2*debit_consistency \
         + 0.2*inception 
     
-    return score, feedback
+    return score, feedback 

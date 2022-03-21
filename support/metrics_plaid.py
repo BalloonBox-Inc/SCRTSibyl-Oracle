@@ -50,6 +50,7 @@ fico_medians.append(1)
 fico_medians = np.array(fico_medians)
 
 # Categorical bins
+duedate = np.array([3, 4, 5])
 duration = np.array([90, 120, 150, 180, 210, 270])          #bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
 count0 = np.array([1, 2])                                   #bins: 0-1 | 2 | >=3
 count_lively = np.array([round(x, 0) for x in fico*25])[1:]
@@ -797,6 +798,40 @@ def stability_tot_balance_now(data, feedback):
         
     finally:
         return score, feedback
+
+
+
+#@measure_time_and_memory
+def stability_loan_duedate(data, feedback):
+    '''
+    Description:
+        returns how many months it'll take the user to pay back their loan
+
+    Parameters:
+        data (dict): Plaid 'Transactions' product
+        feedback (dict): score feedback
+
+    Returns:
+        feedback (dict): score feedback with a new key-value pair 'loan_duedate':float (# of months in range [3,6])
+    '''
+
+    try:
+        # Read in the date of the oldest txn
+        first_txn = data['transactions'][-1]['date']
+        txn_length = int((now - first_txn).days/30)  # months
+
+        # Loan duedate is equal to the month of txn history there are 
+        due = np.digitize(txn_length, duedate, right=True)
+        how_many_months = np.append(duedate, 6)
+
+        feedback['stability']['loan_duedate'] = how_many_months[due]
+
+    except Exception as e:
+        feedback['stability']['error'] = str(e)
+        
+    finally:
+        return feedback
+
 
 
 #@measure_time_and_memory

@@ -20,7 +20,7 @@ config = dotenv_values()
 path_dir = config['PATH_REAL_USERS_DATA']
 # Calculate score for all users you have data for
 list_of_feedback = []
-for userid in [i for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]]:
+for userid in [i for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]]:
     start_time = time.time()
     feedback = create_feedback_plaid()
     tx = get_tx(path_dir, userid, feedback)
