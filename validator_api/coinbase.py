@@ -31,6 +31,7 @@ def coinbase_currencies(client):
         
     except CoinbaseError as e:
         response = format_error(e)
+        print(response)
     
     return response
 
@@ -42,6 +43,7 @@ def coinbase_native_currency(client):
 
     except CoinbaseError as e:
         response = format_error(e)
+        print(response)
     
     return response
 
@@ -50,10 +52,12 @@ def coinbase_set_native_currency(client, symbol):
     '''Reset the currency of the user's Coinbase account to its initial default native currency'''
     try:
         client.update_current_user(native_currency=symbol)
-        return
     
     except CoinbaseError as e:
-        return format_error(e)
+        print(format_error(e))
+    
+    finally:
+        return
 
 
 def coinbase_accounts(client):
@@ -72,6 +76,7 @@ def coinbase_accounts(client):
     
     except CoinbaseError as e:
         response = format_error(e)
+        print(response)
     
     return response
 
@@ -83,5 +88,6 @@ def coinbase_transactions(client, account_id):
 
     except CoinbaseError as e:
         response = format_error(e)
+        print(response)
     
     return response
