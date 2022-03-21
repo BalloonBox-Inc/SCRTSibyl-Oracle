@@ -60,6 +60,7 @@ def credit_score_plaid():
             score = 0
             feedback = {}
             message = str(e)
+            print(message)
         
         finally:
             timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
