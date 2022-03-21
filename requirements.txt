@@ -5,6 +5,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.12
 click==8.0.4
 coinbase==2.1.0
+colorama==0.4.4
 debugpy==1.5.1
 decorator==5.1.1
 entrypoints==0.4
@@ -12,6 +13,7 @@ executing==0.8.3
 Flask==2.0.3
 Flask-Cors==3.0.10
 gunicorn==20.1.0
+icecream==2.1.2
 idna==3.3
 ipykernel==6.9.2
 ipython==8.1.1
