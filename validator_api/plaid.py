@@ -2,11 +2,19 @@ from plaid.model.transactions_get_request_options import TransactionsGetRequestO
 from plaid.model.transactions_get_request import TransactionsGetRequest
 
 from plaid.api import plaid_api
+from dotenv import load_dotenv
 from datetime import timedelta
 from datetime import datetime
+from icecream import ic
+from os import getenv
 
 import plaid
 import json
+
+load_dotenv()
+
+if getenv('ENV') == 'production':
+    ic.disable()
 
 
 def plaid_environment(plaid_env):
@@ -35,13 +43,15 @@ def plaid_client(plaid_env, client_id, secret):
 
 def format_error(e):
     response = json.loads(e.body)
-    return {'error': {
+    error = {'error': {
                 'status_code': e.status,
                 'display_message': response['error_message'],
                 'error_code': response['error_code'],
                 'error_type': response['error_type']
                 }
             }
+    ic(error) 
+    return error
 
 
 def plaid_transactions(access_token, client, timeframe):
@@ -61,6 +71,5 @@ def plaid_transactions(access_token, client, timeframe):
     
     except plaid.ApiException as e:
         response = format_error(e)
-        print(response)
     
     return response

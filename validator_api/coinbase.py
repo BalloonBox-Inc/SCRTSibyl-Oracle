@@ -1,8 +1,17 @@
 from coinbase.wallet.error import CoinbaseError
 from coinbase.wallet.client import OAuthClient
+from dotenv import load_dotenv
 from datetime import datetime
+from icecream import ic
+from os import getenv
 
 import json
+
+load_dotenv()
+
+if getenv('ENV') == 'production':
+    ic.disable()
+
 
 def coinbase_client(access_token, refresh_token):
     '''Connect to a client's Coinbase account using their tokens'''
@@ -10,12 +19,14 @@ def coinbase_client(access_token, refresh_token):
 
 
 def format_error(e):
-    return {'error': {
+    error = {'error': {
                 'status_code': e.status_code,
                 'display_message': e.message,
                 'error_type': e.id
                 }
             }
+    ic(error)
+    return error
 
 
 def convert_to_json(obj):
@@ -31,7 +42,6 @@ def coinbase_currencies(client):
         
     except CoinbaseError as e:
         response = format_error(e)
-        print(response)
     
     return response
 
@@ -39,14 +49,10 @@ def coinbase_currencies(client):
 def coinbase_native_currency(client):
     '''Check what currency is currently set as default 'native currency' in the user's Coinbase account'''
     try:
-        response = client.get_current_user()
-        print(response)
-        response = response['native_currency']
-        print(response)
+        response = client.get_current_user()['native_currency']
 
     except CoinbaseError as e:
         response = format_error(e)
-        print(response)
     
     return response
 
@@ -57,7 +63,7 @@ def coinbase_set_native_currency(client, symbol):
         client.update_current_user(native_currency=symbol)
     
     except CoinbaseError as e:
-        print(format_error(e))
+        error = format_error(e)
     
     finally:
         return
@@ -79,7 +85,6 @@ def coinbase_accounts(client):
     
     except CoinbaseError as e:
         response = format_error(e)
-        print(response)
     
     return response
 
@@ -91,6 +96,5 @@ def coinbase_transactions(client, account_id):
 
     except CoinbaseError as e:
         response = format_error(e)
-        print(response)
     
     return response

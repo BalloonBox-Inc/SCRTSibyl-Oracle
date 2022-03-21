@@ -2,6 +2,7 @@ from flask import request, make_response
 from dotenv import load_dotenv
 from datetime import datetime
 from datetime import timezone
+from icecream import ic
 from os import getenv
 
 from optimization.performance import *
@@ -13,6 +14,9 @@ from support.score import *
 from app import *
 
 load_dotenv()
+
+if getenv('ENV') == 'production':
+    ic.disable()
 
 
 def create_feedback_plaid():
@@ -39,7 +43,7 @@ def credit_score_plaid():
         try:
             # client connection
             client = plaid_client(getenv('ENV'), plaid_client_id, plaid_client_secret)
-            print(client)
+            ic(client)
 
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
@@ -61,7 +65,6 @@ def credit_score_plaid():
             score = 0
             feedback = {}
             message = str(e)
-            print(message)
         
         finally:
             timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
@@ -75,6 +78,7 @@ def credit_score_plaid():
                 'feedback': feedback,
                 'message': message
                 }
+            ic(output)
             return make_response(output, output['status_code'])
 
 
@@ -94,7 +98,7 @@ def credit_score_coinbase():
         try:
             # client connection
             client = coinbase_client(coinbase_access_token, coinbase_refresh_token)
-            print(client)
+            ic(client)
 
             # coinmarketcap
             # fetch top X cryptos from coinmarketcap API
@@ -107,7 +111,6 @@ def credit_score_coinbase():
 
             # change coinbase native currency to USD
             native = coinbase_native_currency(client)
-            print(native)
             if native != 'USD':
                 coinbase_set_native_currency(client, 'USD')
 
@@ -146,7 +149,6 @@ def credit_score_coinbase():
             score = 0
             feedback = {}
             message = str(e)
-            print(message)
         
         finally:
             timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
@@ -160,4 +162,5 @@ def credit_score_coinbase():
                 'feedback': feedback,
                 'message': message
                 }
+            ic(output)
             return make_response(output, output['status_code'])
