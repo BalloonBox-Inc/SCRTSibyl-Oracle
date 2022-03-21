@@ -216,6 +216,7 @@ def create_interpret_coinbase():
         'points':None, \
         'quality':None, \
         'loan_amount':None, \
+        'loan_duedate':None, \
         'wallet_age(days)':None, \
         'current_balance':None
         }, 
@@ -257,6 +258,7 @@ def interpret_score_coinbase(score, feedback):
             interpret['score']['points'] = int(round(score, 3))
             interpret['score']['quality'] = score_quality[np.digitize(score, score_bins, right=False)]
             interpret['score']['loan_amount'] = int(loan_bins[np.digitize(score, score_bins, right=False)])
+            interpret['score']['loan_duedate'] = int(feedback['liquidity']['loan_duedate'])
             if ('wallet_age(days)' in list(feedback['history'].keys())) and (feedback['history']['wallet_age(days)']):
                 interpret['score']['wallet_age(days)'] = feedback['history']['wallet_age(days)']
             if 'current_balance' in list(feedback['liquidity'].keys()):
@@ -312,8 +314,12 @@ def qualitative_feedback_coinbase(score, feedback):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD.'\
+        msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD'\
                 .format(quality.upper(), points, loan_amount)
+        if ('loan_duedate' in list(feedback['liquidity'].keys())):
+            msg0 = msg0 + ' with a payback period of {0} months.'.format(feedback['liquidity']['loan_duedate'])
+        else:
+            msg0 = msg0 + '.'
 
         # Interpret the score        
         if ('wallet_age(days)' in all_keys) or ('current_balance' in all_keys):

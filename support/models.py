@@ -80,6 +80,7 @@ def coinbase_history(acc, feedback):
 def coinbase_liquidity(acc, txn, feedback):
 
     balance, feedback = liquidity_tot_balance_now(acc, feedback)
+    feedback = liquidity_loan_duedate(txn, feedback)
     run_balance, feedback = liquidity_avg_running_balance(acc, txn, feedback)
 
     score = 0.60*balance + 0.40*run_balance

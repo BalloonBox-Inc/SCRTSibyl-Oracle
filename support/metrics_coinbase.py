@@ -43,6 +43,7 @@ def build_2D_matrix_by_rule(size, scalar):
 
 
 # Categorical bins
+duedate = np.array([3, 4, 5])
 duration = np.array([90, 120, 150, 180, 210, 270])                               #bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
 volume_balance_now = np.array([5000, 6500, 8500, 11000, 13000, 15000])
 volume_profit = np.array([500, 1000, 2000, 2500, 3000, 4000])
@@ -240,6 +241,41 @@ def liquidity_tot_balance_now(acc, feedback):
         
     finally:
         return score, feedback
+
+
+
+#@measure_time_and_memory
+def liquidity_loan_duedate(txn, feedback):
+    '''
+    Description:
+        returns how many months it'll take the user to pay back their loan
+
+    Parameters:
+        txn (list): transactions history of above-listed accounts
+        feedback (dict): score feedback
+
+    Returns:
+        feedback (dict): score feedback with a new key-value pair 'loan_duedate':float (# of months in range [3,6])
+    '''
+
+    try:
+        # Read in the date of the oldest txn
+        first_txn = datetime.strptime(txn[-1]['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
+        txn_length = int((now - first_txn).days/30)  # months
+
+        # Loan duedate is equal to the month of txn history there are 
+        due = np.digitize(txn_length, duedate, right=True)
+        how_many_months = np.append(duedate, 6)
+
+        feedback['liquidity']['loan_duedate'] = how_many_months[due]
+
+    except Exception as e:
+        feedback['liquidity']['error'] = str(e)
+        
+    finally:
+        return feedback
+
+
 
 # @measure_time_and_memory
 def liquidity_avg_running_balance(acc, txn, feedback):
