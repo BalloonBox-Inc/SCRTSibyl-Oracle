@@ -39,7 +39,10 @@ def coinbase_currencies(client):
 def coinbase_native_currency(client):
     '''Check what currency is currently set as default 'native currency' in the user's Coinbase account'''
     try:
-        response = client.get_current_user()['native_currency']
+        response = client.get_current_user()
+        print(response)
+        response = response['native_currency']
+        print(response)
 
     except CoinbaseError as e:
         response = format_error(e)
