@@ -95,7 +95,7 @@ def credit_score_coinbase():
             # client connection
             client = coinbase_client(coinbase_access_token, coinbase_refresh_token)
             print(client)
-            
+
             # coinmarketcap
             # fetch top X cryptos from coinmarketcap API
             top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
@@ -107,6 +107,7 @@ def credit_score_coinbase():
 
             # change coinbase native currency to USD
             native = coinbase_native_currency(client)
+            print(native)
             if native != 'USD':
                 coinbase_set_native_currency(client, 'USD')
 
