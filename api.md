@@ -55,8 +55,8 @@ Body
 ```
     {
         "keplr_token": "de9vf890-34r5-1e1r-9g9g-lmn2v3g12345",
-        "coinbase_client_id": "zzzDtMMMcLpP000z",
-        "coinbase_client_secret": "zZZZzZzzZZz0zz00zz0ZzzZzzzzZzzZZ",
+        "coinbase_access_token": "zzzDtMMMcLpP000z",
+        "coinbase_refresh_token": "zZZZzZzzZZz0zz00zz0ZzzZzzzzZzzZZ",
         "coinmarketcap_key": "zz9zz000-11z1-1z1z-1z1z-zzz1z1z12345"
     }
 ```
