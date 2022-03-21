@@ -39,7 +39,7 @@ def credit_score_plaid():
         try:
             # client connection
             client = plaid_client(getenv('ENV'), plaid_client_id, plaid_client_secret)
-            
+            print(client)
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
             plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts','transactions']}
