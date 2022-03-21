@@ -61,5 +61,6 @@ def plaid_transactions(access_token, client, timeframe):
     
     except plaid.ApiException as e:
         response = format_error(e)
+        print(response)
     
     return response
