@@ -130,6 +130,7 @@ def credit_score_coinbase():
             # fetch top X cryptos from coinmarketcap API
             top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
             currencies = coinbase_currencies(client)
+            ic(currencies)
             if 'error' in currencies:
                 raise Exception(currencies['error']['message'])
 
@@ -140,10 +141,12 @@ def credit_score_coinbase():
 
             # change coinbase native currency to USD
             native = coinbase_native_currency(client)
+            ic(native)
             if 'error' in native:
                 raise Exception(native['error']['message'])
             if native != 'USD':
-                coinbase_set_native_currency(client, 'USD')
+                set_native = coinbase_set_native_currency(client, 'USD')
+                ic(set_native)
 
             # fetch and format data from user's Coinbase account
             coinbase_acc = coinbase_accounts(client)
@@ -166,7 +169,8 @@ def credit_score_coinbase():
                     d['type'] = 'send_debit'
             
             # reset native currency
-            coinbase_set_native_currency(client, native)
+            set_native = coinbase_set_native_currency(client, native)
+            ic(set_native)
             
             # compute score
             feedback = create_feedback_coinbase()

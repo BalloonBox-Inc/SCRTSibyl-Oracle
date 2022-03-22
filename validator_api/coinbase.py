@@ -63,13 +63,13 @@ def coinbase_native_currency(client):
 def coinbase_set_native_currency(client, symbol):
     '''Reset the currency of the user's Coinbase account to its initial default native currency'''
     try:
-        client.update_current_user(native_currency=symbol)
+        r = client.update_current_user(native_currency=symbol)
     
     except CoinbaseError as e:
-        error = format_error(e)
+        r = format_error(e)
     
     finally:
-        return
+        return r
 
 
 def coinbase_accounts(client):
