@@ -251,7 +251,7 @@ def interpret_score_coinbase(score, feedback):
 
 
         # Score
-        if feedback['fetch']:
+        if ('kyc' in feedback.keys()) & (feedback['kyc']['verified']==False):
             pass
         else:
             interpret['score']['score_exist'] = True
@@ -303,8 +303,8 @@ def qualitative_feedback_coinbase(score, feedback):
 
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
-    if feedback['fetch']:
-        msg = 'SCRTSibyl was unable to retrieve your data and therefore could not calculate your credit score. Try to log into Coinbase later or try with a different account.'
+    if ('kyc' in feedback.keys()) & (feedback['kyc']['verified']==False):
+        msg = 'SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history in your Coinbase account. Try to log into Coinbase with a different account.'
     
     # Case #2: a score exists. Return descriptive score feedback
     else:
