@@ -63,7 +63,6 @@ def coinbase_set_native_currency(client, symbol):
     '''Reset the currency of the user's Coinbase account to its initial default native currency'''
     try:
         r = client.update_current_user(native_currency=symbol)
-        ic(r)
     
     except CoinbaseError as e:
         r = format_error(e)
