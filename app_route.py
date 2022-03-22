@@ -38,7 +38,7 @@ def credit_score_plaid():
             plaid_client_id = request.json.get('plaid_client_id', None)
             plaid_client_secret = request.json.get('plaid_client_secret', None)
         except Exception as e:
-            return make_response({'Error': str(e)}, 400)
+            return make_response({'error': str(e)}, 400)
         
         try:
             # client connection
@@ -57,11 +57,11 @@ def credit_score_plaid():
             feedback = interpret_score_plaid(score, feedback)
 
             status_code = 200
-            status = 'Success'
+            status = 'success'
         
         except Exception as e:
             status_code = 400
-            status = 'Error'
+            status = 'error'
             score = 0
             feedback = {}
             message = str(e)
@@ -93,7 +93,7 @@ def credit_score_coinbase():
             coinbase_refresh_token = request.json.get('coinbase_refresh_token', None)
             coinmarketcap_key = request.json.get('coinmarketcap_key', None)
         except Exception as e:
-            return make_response({'Error': str(e)}, 400)
+            return make_response({'error': str(e)}, 400)
         
         try:
             # client connection
@@ -141,11 +141,11 @@ def credit_score_coinbase():
             message = qualitative_feedback_coinbase(score, feedback)
 
             status_code = 200
-            status = 'Success'
+            status = 'success'
         
         except Exception as e:
             status_code = 400
-            status = 'Error'
+            status = 'error'
             score = 0
             feedback = {}
             message = str(e)
