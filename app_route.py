@@ -43,13 +43,11 @@ def credit_score_plaid():
         try:
             # client connection
             client = plaid_client(getenv('ENV'), plaid_client_id, plaid_client_secret)
-            print(client)
             if 'error' in client:
                 raise Exception(client['error']['message'])
 
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
-            print(plaid_txn)
             if 'error' in plaid_txn:
                 raise Exception(plaid_txn['error']['message'])
             
