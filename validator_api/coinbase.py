@@ -21,7 +21,7 @@ def coinbase_client(access_token, refresh_token):
 def format_error(e):
     error = {'error': {
                 'status_code': e.status_code,
-                'display_message': e.message,
+                'message': e.message,
                 'error_type': e.id
                 }
             }
@@ -37,24 +37,27 @@ def convert_to_json(obj):
 def coinbase_currencies(client):
     '''Get all Coinbase fiat currencies'''
     try:
-        response = client.get_currencies()
-        response = dict([(n['id'], float(n['min_size'])) for n in response['data']])
+        r = client.get_currencies()
+        r = dict([(n['id'], float(n['min_size'])) for n in r['data']])
         
     except CoinbaseError as e:
-        response = format_error(e)
+        r = format_error(e)
     
-    return response
+    finally:
+        return r
 
 
 def coinbase_native_currency(client):
     '''Check what currency is currently set as default 'native currency' in the user's Coinbase account'''
     try:
-        response = client.get_current_user()['native_currency']
+        r = client.get_current_user()
+        r = r['native_currency']
 
     except CoinbaseError as e:
-        response = format_error(e)
+        r = format_error(e)
     
-    return response
+    finally:
+        return r
 
 
 def coinbase_set_native_currency(client, symbol):
@@ -72,10 +75,11 @@ def coinbase_set_native_currency(client, symbol):
 def coinbase_accounts(client):
     '''Returns list of accounts with balance > $0. Current balances are reported both in native currency and in USD for each account.'''
     try:
-        response = convert_to_json(client.get_accounts()['data'])
-        response = [n for n in response if float(n['native_balance']['amount'])!=0]
+        r = client.get_accounts()
+        r = convert_to_json(r['data'])
+        r = [n for n in r if float(n['native_balance']['amount'])!=0]
         
-        for d in response:
+        for d in r:
             create_at = datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
             native_balance = float(d['native_balance']['amount'])
             balance = float(d['balance']['amount'])
@@ -84,17 +88,20 @@ def coinbase_accounts(client):
             d['balance']['amount'] = balance
     
     except CoinbaseError as e:
-        response = format_error(e)
+        r = format_error(e)
     
-    return response
+    finally:
+        return r
 
 
 def coinbase_transactions(client, account_id):
     '''Returns Coinbase data for all user's accounts'''
     try:
-        response = convert_to_json(client.get_transactions(account_id)['data'])
+        r = client.get_transactions(account_id)
+        r = convert_to_json(r['data'])
 
     except CoinbaseError as e:
-        response = format_error(e)
+        r = format_error(e)
     
-    return response
+    finally:
+        return r

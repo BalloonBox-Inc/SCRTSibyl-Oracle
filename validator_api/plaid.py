@@ -31,23 +31,30 @@ def plaid_environment(plaid_env):
 
 
 def plaid_client(plaid_env, client_id, secret):
-    config = plaid.Configuration(
-        host=plaid_environment(plaid_env),
-        api_key={
-            'clientId': client_id,
-            'secret': secret
-            }
-        )
-    return plaid_api.PlaidApi(plaid.ApiClient(config))
+    try:
+        config = plaid.Configuration(
+            host=plaid_environment(plaid_env),
+            api_key={
+                'clientId': client_id,
+                'secret': secret
+                }
+            )
+        r = plaid_api.PlaidApi(plaid.ApiClient(config))
+    
+    except:
+        r = 'Unable to find Plaid client! Please verify your credentials.'
+    
+    finally:
+        return r
 
 
 def format_error(e):
-    response = json.loads(e.body)
+    r = json.loads(e.body)
     error = {'error': {
                 'status_code': e.status,
-                'display_message': response['error_message'],
-                'error_code': response['error_code'],
-                'error_type': response['error_type']
+                'message': r['error_message'],
+                'error_code': r['error_code'],
+                'error_type': r['error_type']
                 }
             }
     ic(error) 
@@ -67,9 +74,10 @@ def plaid_transactions(access_token, client, timeframe):
             options=TransactionsGetRequestOptions()
             )
         
-        response = client.transactions_get(request).to_dict()
+        r = client.transactions_get(request).to_dict()
     
     except plaid.ApiException as e:
-        response = format_error(e)
+        r = format_error(e)
     
-    return response
+    finally:
+        return r
