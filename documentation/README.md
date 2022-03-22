@@ -96,13 +96,13 @@ export interface IScoreResponseCoinbase {
   score: number;
   status_code: 200 | 400;
   status: 'success' | 'error';
-  timestamp: string;
+  timestamp: string[];
   title: 'Credit Score';
 }
 ```
 
 
-A Sample Response for Coinbase test account
+A Sample Response from a Coinbase test account
 ```
 {
     "endpoint": "/credit_score/coinbase",
