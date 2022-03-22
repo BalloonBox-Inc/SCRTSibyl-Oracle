@@ -43,13 +43,16 @@ Next, create a ```.env``` local file in your root folder:
 ```
 PLAID_CLIENT_ID=your_client_id
 PLAID_CLIENT_SECRET=your_sandbox_key
-PLAID_ACCESS_TOKEN=your_unique_access_token
+PLAID_TOKEN=your_unique_access_token
 PLAID_URL_SANDBOX="sandbox.plaid.com"
 
-COINBASE_CLIENT_ID=your_client_Id
-COINBASE_CLIENT_SECRET=your_client_secret
+# Your Coinbase Bearer Token (made of access + refresh token)
+COINBASE_ACCESS_TOKEN=your_access_token
+COINBASE_REFRESH_TOKEN=your_refresh_secret
 
 COINMARKETCAP_KEY=your_coinmarketcap_key
+
+KEPLR_TOKEN=your_keplr_wallet_token
 ```
 
 
@@ -82,7 +85,7 @@ There are two distinct models, one for each of our chosen validators, namely Pla
   
 ## Interpret Your Score :mag:
 
-SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor/poor/fair/good/very good/excellent/exceptional), which describe the score qualitatively (see fuel gauge in the diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTSibyl oracle calculation. Lastly, the SCRTSibyl also returns the estimated payback period, namely the expected time it will take for the user to pay back the loan. The loan terms (loan amount, qualitative descriptor, and payback period) are algorithmic recommendations, and, therefore, they are not prescriptive. Although we strongly advise lenders and borrowers to consider the SCRTSibyl Oracle's parameters, we also encourage them to stipulate loan terms to best suit their needs. 
+SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor | poor | fair | good | very good | excellent | exceptional), which describe the score qualitatively (see fuel gauge in the diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTSibyl oracle calculation. Lastly, the SCRTSibyl also returns the estimated payback period, namely the expected time it will take for the user to pay back the loan. The loan terms (loan amount, qualitative descriptor, and payback period) are algorithmic recommendations, and, therefore, they are not prescriptive. Although we strongly advise lenders and borrowers to consider the SCRTSibyl Oracle's parameters, we also encourage them to stipulate loan terms to best suit their needs. 
 ![](./images/ranges.png) 
 
 
