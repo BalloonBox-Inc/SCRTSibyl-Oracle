@@ -59,6 +59,9 @@ def credit_score_plaid():
 
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
+            if 'error' in plaid_txn:
+                raise Exception(plaid_txn['error']['message'])
+            
             plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts','transactions']}
             plaid_txn['transactions'] = [t for t in plaid_txn['transactions'] if not t['pending']]
             
