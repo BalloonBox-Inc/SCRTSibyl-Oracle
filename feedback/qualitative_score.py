@@ -134,7 +134,7 @@ def qualitative_feedback_plaid(score, feedback):
         msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD'\
                 .format(quality.upper(), points, loan_amount)
         if ('loan_duedate' in list(feedback['stability'].keys())):
-            msg0 = msg0 + ' with a payback period of {0} months.'.format(feedback['stability']['loan_duedate'])
+            msg0 = msg0 + ' with a recommended payback period of {0} months.'.format(feedback['stability']['loan_duedate'])
         else:
             msg0 = msg0 + '.'
 
@@ -317,7 +317,7 @@ def qualitative_feedback_coinbase(score, feedback):
         msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD'\
                 .format(quality.upper(), points, loan_amount)
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
-            msg0 = msg0 + ' with a payback period of {0} months.'.format(feedback['liquidity']['loan_duedate'])
+            msg0 = msg0 + ' with a recommended payback period of {0} months.'.format(feedback['liquidity']['loan_duedate'])
         else:
             msg0 = msg0 + '.'
 
