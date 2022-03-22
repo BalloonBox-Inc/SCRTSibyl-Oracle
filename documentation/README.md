@@ -63,43 +63,73 @@ Body
 
 Response: **200**
 ```
-    {
-        "endpoint": "/credit_score/coinbase",
-        "feedback": {
-            "activity": {
-                "credit": {
-                    "timeframe(days)": 60,
-                    "tot_volume": 12.21,
-                    "weighted_avg_volume": 2.9
-                },
-                "debit": {
-                    "timeframe(days)": 30,
-                    "tot_volume": 3.0,
-                    "weighted_avg_volume": 3.0
-                },
-                "total_net_profit": -5.18
-            },
-            "history": {
-                "wallet_age(days)": 53
-            },
-            "kyc": {
-                "verified": true
-            },
-            "liquidity": {
-                "avg_running_balance": 4.2,
-                "balance_timeframe(months)": 2,
-                "current_balance": 4.03,
-                "loan_duedate" : 6
-            }
+enum ScoreQuality {
+  'very poor',
+  'poor',
+  'fair',
+  'good',
+  'very good',
+  'excellent',
+  'exceptional',
+}
+
+export interface IScoreResponseCoinbase {
+  endpoint: '/credit_score/coinbase';
+  feedback: {
+    advice: {
+      activity_error: boolean;
+      history_error: boolean;
+      kyc_error: boolean;
+      liquidity_error: boolean;
+    };
+    score: {
+      current_balance: number;
+      loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
+      loan_duedate: 3 | 4 | 5 | 6;
+      points: number;
+      quality: ScoreQuality;
+      score_exist: boolean;
+      wallet_age(days): number;
+    };
+  };
+  message: string[];
+  score: number;
+  status_code: 200 | 400;
+  status: 'success' | 'error';
+  timestamp: string;
+  title: 'Credit Score';
+}
+```
+
+
+A Sample Response for Coinbase test account
+```
+{
+    "endpoint": "/credit_score/coinbase",
+    "feedback": {
+        "advice": {
+            "activity_error": false,
+            "history_error": false,
+            "kyc_error": false,
+            "liquidity_error": false
         },
-        "message": "Your SCRTSibyl score is VERY POOR, with a total of 381 points, which qualifies you for a loan of up to $500 USD. You obtained your score because your Coinbase account has been active for 53 days and your total balance across all wallets is $4.03 USD. You can always improve your score by trading top trusted cryptocurrencies and having a lively trading history.",
-        "score": 380.76,
-        "status": "Good",
-        "status_code": 200,
-        "timestamp": "03-15-2022 16:28:19 GMT",
-        "title": "Credit Score"
-    }
-                
+        "score": {
+            "current_balance": null,
+            "loan_amount": null,
+            "loan_duedate": null,
+            "points": null,
+            "quality": null,
+            "score_exist": false,
+            "wallet_age(days)": null
+        }
+    },
+    "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history in your Coinbase account. Try to log into Coinbase with a different account.",
+    "score": 300.0,
+    "status": "success",
+    "status_code": 200,
+    "timestamp": "03-22-2022 18:44:19 GMT",
+    "title": "Credit Score"
+}            
 ```
 
 + <span style="color:blue">**PLAID**</span> : credit score model based on Plaid account.
@@ -149,6 +179,7 @@ export interface IScoreResponsePlaid {
       card_names: string[];
       cum_balance: number;
       loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
+      loan_duedate: 3 | 4 | 5 | 6;
       points: number;
       quality: ScoreQuality;
       score_exist: boolean;
