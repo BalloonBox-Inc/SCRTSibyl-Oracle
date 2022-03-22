@@ -15,7 +15,14 @@ if getenv('ENV') == 'production':
 
 def coinbase_client(access_token, refresh_token):
     '''Connect to a client's Coinbase account using their tokens'''
-    return OAuthClient(access_token, refresh_token)
+    try:
+        r = OAuthClient(access_token, refresh_token)
+
+    except:
+        r = 'Unable to find Coinbase client! Please verify your credentials.'
+    
+    finally:
+        return r
 
 
 def format_error(e):
