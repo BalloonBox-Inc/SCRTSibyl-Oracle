@@ -50,8 +50,7 @@ def coinbase_currencies(client):
 def coinbase_native_currency(client):
     '''Check what currency is currently set as default 'native currency' in the user's Coinbase account'''
     try:
-        r = client.get_current_user()
-        r = r['native_currency']
+        r = client.get_current_user()['native_currency']
 
     except CoinbaseError as e:
         r = format_error(e)
@@ -75,8 +74,7 @@ def coinbase_set_native_currency(client, symbol):
 def coinbase_accounts(client):
     '''Returns list of accounts with balance > $0. Current balances are reported both in native currency and in USD for each account.'''
     try:
-        r = client.get_accounts()
-        r = convert_to_json(r['data'])
+        r = convert_to_json(client.get_accounts()['data'])
         r = [n for n in r if float(n['native_balance']['amount'])!=0]
         
         for d in r:
@@ -97,8 +95,7 @@ def coinbase_accounts(client):
 def coinbase_transactions(client, account_id):
     '''Returns Coinbase data for all user's accounts'''
     try:
-        r = client.get_transactions(account_id)
-        r = convert_to_json(r['data'])
+        r = convert_to_json(client.get_transactions(account_id)['data'])
 
     except CoinbaseError as e:
         r = format_error(e)
