@@ -41,8 +41,8 @@ def plaid_client(plaid_env, client_id, secret):
             )
         r = plaid_api.PlaidApi(plaid.ApiClient(config))
     
-    except:
-        r = 'Unable to authenticate Plaid client! Please verify your credentials.'
+    except plaid.ApiException as e:
+        r = format_error(e)
     
     finally:
         return r

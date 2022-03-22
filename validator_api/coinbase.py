@@ -18,8 +18,8 @@ def coinbase_client(access_token, refresh_token):
     try:
         r = OAuthClient(access_token, refresh_token)
 
-    except:
-        r = 'Unable to authenticate Coinbase client! Please verify your credentials.'
+    except CoinbaseError as e:
+        r = format_error(e)
     
     finally:
         return r
