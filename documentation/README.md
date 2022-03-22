@@ -185,10 +185,11 @@ export interface IScoreResponsePlaid {
       score_exist: boolean;
     };
   };
-  message: string;
+  message: string[];
   score: number;
   status_code: 200 | 400;
   status: 'success' | 'error';
+  timestamp: string[];
   title: 'Credit Score';
 }
 ```
