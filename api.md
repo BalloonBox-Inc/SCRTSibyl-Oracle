@@ -79,7 +79,6 @@ Response: **200**
                 },
                 "total_net_profit": -5.18
             },
-            "fetch": {},
             "history": {
                 "wallet_age(days)": 53
             },
@@ -89,7 +88,8 @@ Response: **200**
             "liquidity": {
                 "avg_running_balance": 4.2,
                 "balance_timeframe(months)": 2,
-                "current_balance": 4.03
+                "current_balance": 4.03,
+                "loan_duedate" : 6
             }
         },
         "message": "Your SCRTSibyl score is VERY POOR, with a total of 381 points, which qualifies you for a loan of up to $500 USD. You obtained your score because your Coinbase account has been active for 53 days and your total balance across all wallets is $4.03 USD. You can always improve your score by trading top trusted cryptocurrencies and having a lively trading history.",
@@ -122,8 +122,49 @@ Body
         "plaid_client_secret": "1234a12345b12345c1234de1f1g1g1"
     }
 ```
+Response: **200** (typescript)
+```
+enum ScoreQuality {
+  'very poor',
+  'poor',
+  'fair',
+  'good',
+  'very good',
+  'excellent',
+  'exceptional',
+}
 
-Response: **200**
+export interface IScoreResponsePlaid {
+  endpoint: '/credit_score/plaid';
+  feedback: {
+    advice: {
+      credit_error: boolean;
+      credit_exist: boolean;
+      diversity_error: boolean;
+      stability_error: boolean;
+      velocity_error: boolean;
+    };
+    score: {
+      bank_accounts: number;
+      card_names: string[];
+      cum_balance: number;
+      loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
+      points: number;
+      quality: ScoreQuality;
+      score_exist: boolean;
+    };
+  };
+  message: string;
+  score: number;
+  status_code: 200 | 400;
+  status: 'success' | 'error';
+  title: 'Credit Score';
+}
+```
+
+
+
+A Sample Response for Plaid Sandbox data
 ```
     {
         "endpoint": "/credit_score/plaid",
@@ -149,7 +190,7 @@ Response: **200**
         },
         "message": "Your SCRTSibyl score is FAIR, with a total of 628 points, which qualifies you for a loan of up to $5000 USD. SCRTSibyl computed your score accounting for your Plaid diamond 12.5% apr interest credit card credit card your total current balance of $50000 and your 9 different bank accounts. An error occurred during computation of the metrics: velocity, and your score was rounded down. Try again later or log in using a different account.",
         "score": 628.2132,
-        "status": "Good",
+        "status": "good",
         "status_code": 200,
         "timestamp": "03-14-2022 19:04:12 GMT",
         "title": "Credit Score"
