@@ -38,7 +38,19 @@ def credit_score_plaid():
             plaid_client_id = request.json.get('plaid_client_id', None)
             plaid_client_secret = request.json.get('plaid_client_secret', None)
         except Exception as e:
-            return make_response({'error': str(e)}, 400)
+            timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
+            output = {
+                'endpoint': '/credit_score/plaid',
+                'title': 'Credit Score',
+                'status_code': 400,
+                'status': 'error',
+                'timestamp': timestamp,
+                'score': 0,
+                'feedback': {},
+                'message': str(e)
+                }
+            ic(output)
+            return make_response(output, output['status_code'])
         
         try:
             # client connection
@@ -93,7 +105,19 @@ def credit_score_coinbase():
             coinbase_refresh_token = request.json.get('coinbase_refresh_token', None)
             coinmarketcap_key = request.json.get('coinmarketcap_key', None)
         except Exception as e:
-            return make_response({'error': str(e)}, 400)
+            timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
+            output = {
+                'endpoint': '/credit_score/coinbase',
+                'title': 'Credit Score',
+                'status_code': 400,
+                'status': 'error',
+                'timestamp': timestamp,
+                'score': 0,
+                'feedback': {},
+                'message': str(e)
+                }
+            ic(output)
+            return make_response(output, output['status_code'])
         
         try:
             # client connection
