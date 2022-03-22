@@ -43,13 +43,14 @@ def credit_score_plaid():
         try:
             # client connection
             client = plaid_client(getenv('ENV'), plaid_client_id, plaid_client_secret)
-            if 'error' in client:
-                raise Exception(client['error']['message'])
+            if isinstance(client, str):
+                ic(client)
+                raise Exception(client)
 
             # data fetching and formatting
             plaid_txn = plaid_transactions(plaid_token, client, 360)
-            if 'error' in plaid_txn:
-                raise Exception(plaid_txn['error']['message'])
+            if 'error_type' in plaid_txn:
+                raise Exception(plaid_txn['message'])
             
             plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts','transactions']}
             plaid_txn['transactions'] = [t for t in plaid_txn['transactions'] if not t['pending']]
@@ -102,15 +103,16 @@ def credit_score_coinbase():
         try:
             # client connection
             client = coinbase_client(coinbase_access_token, coinbase_refresh_token)
-            if 'error' in client:
-                raise Exception(client['error']['message'])
+            if isinstance(client, str):
+                ic(client)
+                raise Exception(client)
 
             # coinmarketcap
             # fetch top X cryptos from coinmarketcap API
             top_coins = coinmarketcap_coins(coinmarketcap_key, 50)
             currencies = coinbase_currencies(client)
-            if 'error' in currencies:
-                raise Exception(currencies['error']['message'])
+            if 'error_type' in currencies:
+                raise Exception(currencies['message'])
 
             odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
             currencies = {k:1 for (k,v) in currencies.items() if v == 0.01 or k in odd_fiats}
@@ -124,8 +126,8 @@ def credit_score_coinbase():
 
             # fetch and format data from user's Coinbase account
             coinbase_acc = coinbase_accounts(client)
-            if 'error' in coinbase_acc:
-                raise Exception(coinbase_acc['error']['message'])
+            if 'error_type' in coinbase_acc:
+                raise Exception(coinbase_acc['message'])
             coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
             
             coinbase_txn = [coinbase_transactions(client, n['id']) for n in coinbase_acc]
