@@ -21,7 +21,7 @@ def coinbase_client(access_token, refresh_token):
 def format_error(e):
     error = {'error': {
                 'status_code': e.status_code,
-                'display_message': e.message,
+                'message': e.message,
                 'error_type': e.id
                 }
             }
