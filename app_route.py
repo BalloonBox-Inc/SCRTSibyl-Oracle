@@ -45,8 +45,6 @@ def credit_score_plaid():
                 'status_code': 400,
                 'status': 'error',
                 'timestamp': timestamp,
-                'score': 0,
-                'feedback': {},
                 'message': str(e)
                 }
             ic(output)
@@ -93,6 +91,9 @@ def credit_score_plaid():
                 'feedback': feedback,
                 'message': message
                 }
+            if score == 0:
+                output.pop('score', None)
+                output.pop('feedback', None)
             ic(output)
             return make_response(output, output['status_code'])
 
@@ -115,8 +116,6 @@ def credit_score_coinbase():
                 'status_code': 400,
                 'status': 'error',
                 'timestamp': timestamp,
-                'score': 0,
-                'feedback': {},
                 'message': str(e)
                 }
             ic(output)
@@ -196,5 +195,8 @@ def credit_score_coinbase():
                 'feedback': feedback,
                 'message': message
                 }
+            if score == 0:
+                output.pop('score', None)
+                output.pop('feedback', None)
             ic(output)
             return make_response(output, output['status_code'])
