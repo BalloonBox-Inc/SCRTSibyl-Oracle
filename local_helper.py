@@ -44,7 +44,7 @@ def get_tx(path_dir, userid, feedback):
         return data
 
     except Exception as e:
-        feedback['fetch'][get_tx.__name__] = str(e)
+        feedback['kyc'][get_tx.__name__] = str(e)
         
 
 
@@ -69,7 +69,7 @@ def str_to_datetime(plaid_txn, feedback):
         return tx
 
     except Exception as e:
-        feedback['fetch'][str_to_datetime.__name__] = str(e)
+        feedback['kyc'][str_to_datetime.__name__] = str(e)
 
 
 
@@ -180,4 +180,4 @@ def str_to_date(acc, feedback):
         return converted
 
     except Exception as e:
-        feedback['fetch'][str_to_date.__name__] = str(e)
+        feedback['kyc'][str_to_date.__name__] = str(e)

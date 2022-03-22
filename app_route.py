@@ -24,7 +24,7 @@ def create_feedback_plaid():
 
 
 def create_feedback_coinbase():
-    return {'fetch': {}, 'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
+    return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
 
 # @measure_time_and_memory
