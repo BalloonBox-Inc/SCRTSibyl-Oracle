@@ -200,6 +200,7 @@ A Sample Response for Plaid Sandbox data
 ---
 ## **Errors**
 ---
+Note that error returns do not have score or feedback keys.
 ```
     {
         'endpoint': '/credit_score/plaid',
