@@ -54,10 +54,10 @@ Headers
 Body
 ```
     {
-        "keplr_token": your_kepler_token
-        "coinbase_access_token": your_coinbase_access_token,
-        "coinbase_refresh_token": your_coinbase_refresh_token,
-        "coinmarketcap_key": your_coinmarketcap_key
+        "keplr_token": "de9vf890-34r5-1e1r-9g9g-lmn2v3g12345",
+        "coinbase_access_token": "zzzDtMMMcLpP000z",
+        "coinbase_refresh_token": "zZZZzZzzZZz0zz00zz0ZzzZzzzzZzzZZ",
+        "coinmarketcap_key": "zz9zz000-11z1-1z1z-1z1z-zzz1z1z12345"
     }
 ```
 
@@ -116,10 +116,10 @@ Headers
 Body
 ```
     {
-        "keplr_token": your_keplr_token,
-        "plaid_token": your_plaid_token,
-        "plaid_client_id": your_plaid_client_id,
-        "plaid_client_secret": your_plaid_client_secret
+        "keplr_token": "49v5hja7-11ed-44cc-8q9q-0b3g567hhild",
+        "plaid_token": "access-sandbox-49v5hja7-11ed-44cc-8q9q-0b3g567hhild",
+        "plaid_client_id": "55e873tf849309090mm12345",
+        "plaid_client_secret": "1234a12345b12345c1234de1f1g1g1"
     }
 ```
 
