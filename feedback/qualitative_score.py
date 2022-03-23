@@ -67,7 +67,7 @@ def interpret_score_plaid(score, feedback):
             pass
         else:
             interpret['score']['score_exist'] = True
-            interpret['score']['points'] = int(round(score, 3))
+            interpret['score']['points'] = int(score)
             interpret['score']['quality'] = score_quality[np.digitize(score, score_bins, right=False)]
             interpret['score']['loan_amount'] = int(loan_bins[np.digitize(score, score_bins, right=False)])
             if ('loan_duedate' in list(feedback['stability'].keys())):
@@ -128,7 +128,7 @@ def qualitative_feedback_plaid(score, feedback):
     else:
         # Declare score variables
         quality = score_quality[np.digitize(score, score_bins, right=False)]
-        points = int(round(score, 0))
+        points = int(score)
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
@@ -230,7 +230,7 @@ def interpret_score_coinbase(score, feedback):
             pass
         else:
             interpret['score']['score_exist'] = True
-            interpret['score']['points'] = int(round(score, 3))
+            interpret['score']['points'] = int(score)
             interpret['score']['quality'] = score_quality[np.digitize(score, score_bins, right=False)]
             interpret['score']['loan_amount'] = int(loan_bins[np.digitize(score, score_bins, right=False)])
             interpret['score']['loan_duedate'] = int(feedback['liquidity']['loan_duedate'])
@@ -285,7 +285,7 @@ def qualitative_feedback_coinbase(score, feedback):
     else:
         # Declare score variables
         quality = score_quality[np.digitize(score, score_bins, right=False)]
-        points = int(round(score, 0))
+        points = int(score)
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
