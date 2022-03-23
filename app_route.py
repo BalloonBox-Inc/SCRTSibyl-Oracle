@@ -6,7 +6,7 @@ from icecream import ic
 from os import getenv
 
 from optimization.performance import *
-from feedback.qualitative_score import *
+from feedback.message import *
 from validator_api.coinmarketcap import *
 from validator_api.coinbase import *
 from validator_api.plaid import *
