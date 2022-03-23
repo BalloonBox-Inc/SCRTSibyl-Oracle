@@ -1,4 +1,5 @@
 
+from validator_api.coinmarketcap import *
 import numpy as np
 
 
@@ -104,7 +105,7 @@ def interpret_score_plaid(score, feedback):
 
 
 
-def qualitative_feedback_plaid(score, feedback):
+def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
     '''
     Description:
         A function to format and return a qualitative description of the numerical score obtained by the user
@@ -116,6 +117,9 @@ def qualitative_feedback_plaid(score, feedback):
     Returns:
         msg (str): qualitative message explaining the numerical score to the user. Return this message to the user in the front end of the Dapp
     '''
+    # Secret Rate
+    rate = coinmarketcap_rate(coinmarketcap_key, 'USD', 'SCRT')
+
     # SCORE
 
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
@@ -262,7 +266,7 @@ def interpret_score_coinbase(score, feedback):
 
         
 
-def qualitative_feedback_coinbase(score, feedback):
+def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
     '''
     Description:
         A function to format and return a qualitative description of the numerical score obtained by the user
@@ -274,6 +278,10 @@ def qualitative_feedback_coinbase(score, feedback):
     Returns:
         msg (str): qualitative message explaining the numerical score to the user. Return this message to the user in the front end of the Dapp
     '''
+
+    # Secret Rate
+    rate = coinmarketcap_rate(coinmarketcap_key, 'USD', 'SCRT')
+
     # SCORE
 
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]

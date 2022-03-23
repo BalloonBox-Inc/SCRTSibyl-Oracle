@@ -37,3 +37,26 @@ def coinmarketcap_coins(api_key, limit):
         top_cryptos = str(e)
     
     return top_cryptos
+
+
+def coinmarketcap_rate(api_key, coin_in, coin_out):
+    try:
+        headers = {
+            'Accepts': 'application/json',
+            'X-CMC_PRO_API_KEY': api_key,
+            }
+        
+        params = {
+            # add parameters
+            }
+
+        # Define url for coinmarketcap API
+        url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest' ######## update url
+
+        # Run GET task to fetch best cryptos from coinmarketcap API
+        r = requests.get(url, headers=headers, params=params).json()
+
+    except Exception as e:
+        rate = str(e)
+    
+    return rate

@@ -37,6 +37,7 @@ def credit_score_plaid():
             plaid_token = request.json.get('plaid_token', None)
             plaid_client_id = request.json.get('plaid_client_id', None)
             plaid_client_secret = request.json.get('plaid_client_secret', None)
+            coinmarketcap_key = request.json.get('coinmarketcap_key', None)
         except Exception as e:
             timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
             output = {
@@ -66,7 +67,7 @@ def credit_score_plaid():
             # compute score
             feedback = create_feedback_plaid()
             score, feedback = plaid_score(plaid_txn, feedback)
-            message = qualitative_feedback_plaid(score, feedback)
+            message = qualitative_feedback_plaid(score, feedback, coinmarketcap_key)
             feedback = interpret_score_plaid(score, feedback)
 
             status_code = 200
@@ -176,7 +177,7 @@ def credit_score_coinbase():
             # compute score
             feedback = create_feedback_coinbase()
             score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
-            message = qualitative_feedback_coinbase(score, feedback)
+            message = qualitative_feedback_coinbase(score, feedback, coinmarketcap_key)
             feedback = interpret_score_coinbase(score, feedback)
 
             status_code = 200
