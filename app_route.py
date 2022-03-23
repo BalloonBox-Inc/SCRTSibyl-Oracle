@@ -61,7 +61,7 @@ def credit_score_plaid():
             if 'error' in plaid_txn:
                 raise Exception(plaid_txn['error']['message'])
             
-            plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts','transactions']}
+            plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts', 'item', 'transactions']}
             plaid_txn['transactions'] = [t for t in plaid_txn['transactions'] if not t['pending']]
             
             # compute score

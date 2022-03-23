@@ -1,5 +1,6 @@
 from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
 from plaid.model.transactions_get_request import TransactionsGetRequest
+from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
 
 from plaid.api import plaid_api
 from dotenv import load_dotenv
@@ -68,6 +69,19 @@ def plaid_transactions(access_token, client, timeframe):
             )
         
         r = client.transactions_get(request).to_dict()
+    
+    except plaid.ApiException as e:
+        r = format_error(e)
+    
+    finally:
+        return r
+
+
+def plaid_institutions(client, bank_id):
+    try:
+        # Do not supply the country_code parameter so that it defaults to US
+        request = InstitutionsGetByIdRequest(institution_id=bank_id, country_codes=[]) 
+        r = client.institutions_get_by_id(request).to_dict()
     
     except plaid.ApiException as e:
         r = format_error(e)

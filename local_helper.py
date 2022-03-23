@@ -38,9 +38,10 @@ def get_tx(path_dir, userid, feedback):
             if f.startswith('{}-tx_'.format(userid)): #choose your user
                 tx_one_page = json.load(open(path_dir+f)) #open json
                 acc = tx_one_page['accounts']
+                item = tx_one_page['item']
                 lol.append(tx_one_page['transactions']) #append txn data only
         txn = list(np.concatenate(lol).flat) #flatten list 
-        data = {'accounts':acc, 'transactions':txn}
+        data = {'accounts':acc, 'item':item, 'transactions':txn}
         return data
 
     except Exception as e:
@@ -65,7 +66,7 @@ def str_to_datetime(plaid_txn, feedback):
                 all_txn.append(t)
 
         # Prettify and write to json
-        tx = {'accounts':plaid_txn['accounts'], 'transactions':all_txn}
+        tx = {'accounts':plaid_txn['accounts'],  'item':plaid_txn['item'], 'transactions':all_txn}
         return tx
 
     except Exception as e:

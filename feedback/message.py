@@ -299,7 +299,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if ('kyc' in feedback.keys()) & (feedback['kyc']['verified']==False):
-        msg = 'Sorry! SCRTSibyl could not calculate your credit score as there is no active wallet or transaction history associated with your account. Try to log into Coinbase with a different account.'
+        msg = 'Congratulations your Coinbase KYC status is successful! However, SCRTSibyl could not calculate your credit score as there is no active wallet or transaction history associated with your account. Try to log into Coinbase with a different account.'
     
     # Case #2: a score exists. Return descriptive score feedback
     else:
@@ -309,7 +309,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg = 'Your SCRTSibyl score is {} - {} points. This qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
+        msg = 'Congratulations your Coinbase KYC status is successful! Your SCRTSibyl score is {} - {} points. This qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
                 .format(quality.upper(), points, loan_amount, loan_amount*rate)
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['liquidity']['loan_duedate'])
