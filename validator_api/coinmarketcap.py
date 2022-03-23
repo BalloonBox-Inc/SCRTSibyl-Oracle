@@ -47,14 +47,17 @@ def coinmarketcap_rate(api_key, coin_in, coin_out):
             }
         
         params = {
-            # add parameters
+            'amount': 1,
+            'symbol': coin_in,
+            'convert': coin_out
             }
 
         # Define url for coinmarketcap API
-        url = f'https://pro-api.coinmarketcap.com/v1/ticker/{coin_in}/?convert={coin_out}' ######## update url
+        url = 'https://pro-api.coinmarketcap.com/v2/tools/price-conversion'
 
         # Run GET task to fetch best cryptos from coinmarketcap API
         r = requests.get(url, headers=headers, params=params).json()
+        rate = r['data'][0]['quote'][coin_out]['price']
 
     except Exception as e:
         rate = str(e)
