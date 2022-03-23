@@ -87,7 +87,7 @@ def credit_score_plaid():
                 'status_code': status_code,
                 'status': status,
                 'timestamp': timestamp,
-                'score': int(score),
+                'score': int(round(score,0)),
                 'feedback': feedback,
                 'message': message
                 }
@@ -195,7 +195,7 @@ def credit_score_coinbase():
                 'status_code': status_code,
                 'status': status,
                 'timestamp': timestamp,
-                'score': int(score),
+                'score': int(round(score,0)),
                 'feedback': feedback,
                 'message': message
                 }
