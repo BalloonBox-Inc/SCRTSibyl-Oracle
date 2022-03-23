@@ -9,6 +9,17 @@ loan_bins = np.array([0.5, 1, 5, 10, 15, 20, 25])*1000
 score_quality = ['very poor', 'poor', 'fair', 'good', 'very good', 'excellent', 'exceptional']
 
 
+# Some helper functions
+def comma_separated_list(l):
+    '''Takes a Pyhton list as input and returns a string of comma separated elements with AND at the end'''
+    if len(l) == 1:
+        msg = l[0]
+    elif len(l) == 2:
+        msg = l[0]+' and '+l[1]
+    else:
+        msg = ', '.join(l[:-1]) + ', and ' + l[-1]
+        
+    return msg
 
 
 # -------------------------------------------------------------------------- #
@@ -136,10 +147,10 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg = 'Your SCRTSibyl score is {0} - {1} points. This score qualifies you for a sort term loan of up to ${2} USD'\
+        msg = 'Your SCRTSibyl score is {} - {} points. This score qualifies you for a sort term loan of up to ${:,.0f} USD'\
                 .format(quality.upper(), points, loan_amount)
         if ('loan_duedate' in list(feedback['stability'].keys())):
-            msg = msg + 'over a recommended pay back period of {0} monthly installments.'.format(feedback['stability']['loan_duedate'])
+            msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['stability']['loan_duedate'])
         else:
             msg = msg + '.'
 
@@ -157,7 +168,8 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
 
             # Tot balance now
             if  'cumulative_current_balance' in all_keys:
-                msg = msg + ' Your total current balance is ${} USD across all accounts.'.format(feedback['stability']['cumulative_current_balance'])
+                msg = msg + ' Your total current balance is ${:,.0f} USD across all accounts.'.format(feedback['stability']['cumulative_current_balance'])
+                
 
 
                 
@@ -173,7 +185,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
             # Subcase #1.2: the error is elsewhere
             else:
                 metrics_w_errors = [k for k in feedback.keys() if 'error' in list(feedback[k].keys())]
-                msg = msg + ' An error occurred while computing your score which consists of the following metrics: {}. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.'.format(', '.join(metrics_w_errors))
+                msg = msg + ' An error occurred while computing the score metric called {}. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.'.format(comma_separated_list(metrics_w_errors))
 
     return msg
 
@@ -297,7 +309,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg = 'Your SCRTSibyl score is {0} - {1} points. This qualifies you for a short term loan of up to ${2} USD'\
+        msg = 'Your SCRTSibyl score is {} - {} points. This qualifies you for a short term loan of up to ${:,.0f} USD'\
                 .format(quality.upper(), points, loan_amount)
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['liquidity']['loan_duedate'])
@@ -308,7 +320,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
         # Coinbase account duration        
         if ('wallet_age(days)' in all_keys):
             if ('current_balance' in all_keys):
-                msg = msg + ' Your Coinbase account has been active for {} days and your total balance across all wallets is ${} USD.'.format(feedback['history']['wallet_age(days)'], feedback['liquidity']['current_balance'])
+                msg = msg + ' Your Coinbase account has been active for {} days and your total balance across all wallets is ${:,.0f} USD.'.format(feedback['history']['wallet_age(days)'], feedback['liquidity']['current_balance'])
             else: 
                 msg = msg + ' Your Coinbase account has been active for {} days.'.format(feedback['history']['wallet_age(days)'])
         
@@ -326,6 +338,6 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
         # Case #1: there's error(s). Either some functions broke or data is missing.       
         if 'error' in all_keys:
             metrics_w_errors = [k for k in feedback.keys() if 'error' in list(feedback[k].keys())]
-            msg = msg + ' An error occurred while computing your score which consists of the following metrics: {}. As a result, your score was rounded down. Try to log into Coinbase again later.'.format(', '.join(metrics_w_errors))
+            msg = msg + ' An error occurred while computing the score metric called {}. As a result, your score was rounded down. Try to log into Coinbase again later.'.format(comma_separated_list(metrics_w_errors))
 
     return msg
