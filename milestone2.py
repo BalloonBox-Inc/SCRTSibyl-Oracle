@@ -26,7 +26,7 @@ for userid in [i for i in [2]]:
     tx = get_tx(path_dir, userid, feedback)
     tx = str_to_datetime(tx, feedback)
     score, feedback = plaid_score(tx, feedback)
-    msg = qualitative_feedback_plaid(score, feedback, 'de9bd865-38e8-4d1d-8b6d-abe4f3c03021')
+    msg = qualitative_feedback_plaid(score, feedback, coinmarketcap_key)
     interpret = interpret_score_plaid(score, feedback)
     runtime = round(time.time() - start_time, 3)
     print('_____________________________________________')
@@ -95,7 +95,7 @@ for userid in ['0', '1', '2']:
     acc = str_to_date(acc, feedback)
     score, feedback = coinbase_score(acc, tx, feedback)
     interpret = interpret_score_coinbase(score, feedback)
-    msg = qualitative_feedback_coinbase(score, feedback, 'de9bd865-38e8-4d1d-8b6d-abe4f3c03021')
+    msg = qualitative_feedback_coinbase(score, feedback, coinmarketcap_key)
 
     print('_____________________________________________')
     print()
