@@ -149,7 +149,8 @@ Body
         "keplr_token": your_keplr_token
         "plaid_token": your_plaid_token,
         "plaid_client_id": your_plaid_client_id,
-        "plaid_client_secret": your_plaid_client_secret
+        "plaid_client_secret": your_plaid_client_secret,
+        "coinmarketcap_key": your_coinmarketcap_key
     }
 ```
 Response: **200** (typescript)
