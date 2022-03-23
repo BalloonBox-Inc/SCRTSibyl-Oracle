@@ -40,6 +40,18 @@ def coinmarketcap_coins(api_key, limit):
 
 
 def coinmarketcap_rate(api_key, coin_in, coin_out):
+    '''
+    Description:
+        returns a conversion rate for the coin pair coin_in-coin_out
+    
+    Parameters:
+        api_key (str): bearer token to authenticate into coinmarketcap API
+        coin_in (str): ticker symbol for your base coin
+        coin_out (str): ticker symbol for the coin to convert into
+
+    Returns:
+        rate (float): rate you ought to multiply your base coin by, to obtain its coin_out equilavent
+    '''
     try:
         headers = {
             'Accepts': 'application/json',
