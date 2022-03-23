@@ -121,8 +121,9 @@ def qualitative_feedback_plaid(score, feedback):
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if feedback['fetch']:
-        msg = 'SCRTSibyl was unable to retrieve your data and therefore could not calculate your credit score. Try to log in using a different bank account.'
+        msg = 'Sorry! SCRTSibyl could not calculate your credit score as there is no active credit line nor transaction history associated with your bank account. Try to log into an alternative bank account if you have one.'
     
+
     # Case #2: a score exists. Return descriptive score feedback
     else:
         # Declare score variables
@@ -131,70 +132,44 @@ def qualitative_feedback_plaid(score, feedback):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD'\
+        msg = 'Your SCRTSibyl score is {0} - {1} points. This score qualifies you for a sort term loan of up to ${2} USD'\
                 .format(quality.upper(), points, loan_amount)
         if ('loan_duedate' in list(feedback['stability'].keys())):
-            msg0 = msg0 + ' with a recommended payback period of {0} months.'.format(feedback['stability']['loan_duedate'])
+            msg = msg + 'over a recommended pay back period of {0} monthly installments.'.format(feedback['stability']['loan_duedate'])
         else:
-            msg0 = msg0 + '.'
+            msg = msg + '.'
 
         # Interpret the score        
-        if ('card_names' in all_keys) or ('cumulative_current_balance' in all_keys) or ('bank_accounts' in all_keys):
-            msg0 = msg0 + ' SCRTSibyl computed your score accounting for '
+        if ('card_names' in all_keys) or ('cumulative_current_balance' in all_keys):
+            msg = msg + ' Part of your score is based on '
 
             # Credit cards 
             if 'card_names' in all_keys:
-                msg0 = msg0 + 'your {} credit card'.format(', '.join([c.capitalize() for c in feedback['credit']['card_names']]))
+                msg = msg + 'the transaction history of your {} credit card'.format(', '.join([c.capitalize() for c in feedback['credit']['card_names']]))
                 if len(feedback['credit']['card_names']) > 1:
-                    msg0 = msg0 +'s '
+                    msg = msg +'s.'
                 else:
-                    msg0 = msg0 +' '
+                    msg = msg +'.'
 
             # Tot balance now
             if  'cumulative_current_balance' in all_keys:
-                msg0 = msg0 + 'your total current balance of ${} '.format(feedback['stability']['cumulative_current_balance'])
+                msg = msg + ' Your total current balance is ${} USD across all accounts.'.format(feedback['stability']['cumulative_current_balance'])
 
-            # All credit accounts    
-            if  ('bank_accounts' in all_keys) and (feedback['diversity']['bank_accounts']>1):
-                if ('card_names' in all_keys) or ('cumulative_current_balance' in all_keys):
-                    msg0 = msg0 + 'and your {} different bank accounts'.format(feedback['diversity']['bank_accounts'])
-                else:
-                    msg0 = msg0 + 'your {} different bank accounts'.format(feedback['diversity']['bank_accounts'])
-            msg0 = msg0 + '.'
+
                 
-
-
-
         # ADVICE
 
-        # Case #1: there's NO error. Calculation ran smoothly
-        if 'error' not in all_keys:
+        # Case #1: there's error(s). Either some functions broke or data is missing.       
+        if 'error' in all_keys:
 
-            # Subcase #1.1: the score is below median -> provide standard advice for improvement
-            if score < score_bins[int(round(len(score_bins)/2, 0)-1)]:
-                msg1= ' You can always improve your score by keeping a consistent and lively transaction history, owning a diverse set of active accunts (checking, credit, savings, investment,...), and by paying back regularly your credit card balance due.'
-            
-            # Subcase #1.2: the score is above median --> congratulate the user
-            else:
-                msg1 = ' Well done, your score is above average!'
-
-
-
-        # Case #2: there's error(s). Either some functions broke or data is missing.       
-        else: 
-
-            # Subcase #2.1: the error is that no credit card exists
+            # Subcase #1.1: the error is that no credit card exists
             if 'no credit card' in list(feedback['credit'].values()):
-                msg1 = ' There is no credit card associated with your bank account. Credit scores rely heavily on credit card history. Improve your score by selecting a different bank account showing you own a credit line.'
+                msg = msg + ' SCRTSibyl found no credit card associated with your bank account. Credit scores rely heavily on credit card history. Improve your score by selecting a different bank account which shows credit history.'
             
-            # Subcase #2.2: the error is elsewhere
+            # Subcase #1.2: the error is elsewhere
             else:
                 metrics_w_errors = [k for k in feedback.keys() if 'error' in list(feedback[k].keys())]
-                msg1 =' An error occurred during computation of the metrics: {}, and your score was rounded down. Try again later or log in using a different account.'.format(', '.join(metrics_w_errors))
-
-        # Concatenate and return message
-        msg = msg0 +msg1
-
+                msg = msg + ' An error occurred while computing your score which consists of the following metrics: {}. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.'.format(', '.join(metrics_w_errors))
 
     return msg
 
@@ -304,7 +279,7 @@ def qualitative_feedback_coinbase(score, feedback):
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if ('kyc' in feedback.keys()) & (feedback['kyc']['verified']==False):
-        msg = 'SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history in your Coinbase account. Try to log into Coinbase with a different account.'
+        msg = 'Sorry! SCRTSibyl could not calculate your credit score as there is no active wallet or transaction history associated with your account. Try to log into Coinbase with a different account.'
     
     # Case #2: a score exists. Return descriptive score feedback
     else:
@@ -314,53 +289,35 @@ def qualitative_feedback_coinbase(score, feedback):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg0 = 'Your SCRTSibyl score is {0}, with a total of {1} points, which qualifies you for a loan of up to ${2} USD'\
+        msg = 'Your SCRTSibyl score is {0} - {1} points. This qualifies you for a short term loan of up to ${2} USD'\
                 .format(quality.upper(), points, loan_amount)
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
-            msg0 = msg0 + ' with a recommended payback period of {0} months.'.format(feedback['liquidity']['loan_duedate'])
+            msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['liquidity']['loan_duedate'])
         else:
-            msg0 = msg0 + '.'
-
-        # Interpret the score        
-        if ('wallet_age(days)' in all_keys) or ('current_balance' in all_keys):
-            msg0 = msg0 + ' You obtained your score because '
+            msg = msg + '.'
 
 
-            # Coinbase account duration        
-            if 'wallet_age(days)' in all_keys:
-                msg0 = msg0 + 'your Coinbase account has been active for {} days'.format(feedback['history']['wallet_age(days)'])
-                if ('current_balance' in all_keys):
-                    msg0 = msg0 + ' and'
+        # Coinbase account duration        
+        if ('wallet_age(days)' in all_keys):
+            if ('current_balance' in all_keys):
+                msg = msg + ' Your Coinbase account has been active for {} days and your total balance across all wallets is ${} USD.'.format(feedback['history']['wallet_age(days)'], feedback['liquidity']['current_balance'])
+            else: 
+                msg = msg + ' Your Coinbase account has been active for {} days.'.format(feedback['history']['wallet_age(days)'])
+        
+        # Tot balance
+        else:
+            if ('current_balance' in all_keys):
+                msg = msg + ' Your total balance across all wallets is ${} USD.'.format(feedback['liquidity']['current_balance'])
+            else:
+                pass
 
-            # Tot balance
-            if  'current_balance' in all_keys:
-                msg0 = msg0 + ' your total balance across all wallets is ${} USD'.format(feedback['liquidity']['current_balance'])
-
-            msg0 = msg0 + '.'
 
 
         # ADVICE
 
-        # Case #1: there's NO error. Calculation ran smoothly
-        if 'error' not in all_keys:
-
-            # Subcase #1.1: the score is below median -> provide standard advice for improvement
-            if score < score_bins[int(round(len(score_bins)/2, 0)-1)]:
-                msg1= ' You can always improve your score by trading top trusted cryptocurrencies and having a lively trading history.'
-            
-            # Subcase #1.2: the score is above median --> congratulate the user
-            else:
-                msg1 = ' Well done, your score is above average!'
-
-
-        # Case #2: there's error(s). Either some functions broke or data is missing.       
-        else: 
-
+        # Case #1: there's error(s). Either some functions broke or data is missing.       
+        if 'error' in all_keys:
             metrics_w_errors = [k for k in feedback.keys() if 'error' in list(feedback[k].keys())]
-            msg1 =' An error occurred during computation of the metrics: {}, and your score was rounded down. Try again later or log in using a different Coinbase account.'.format(', '.join(metrics_w_errors))
-
-        # Concatenate and return message
-        msg = msg0 +msg1
-
+            msg = msg + ' An error occurred while computing your score which consists of the following metrics: {}. As a result, your score was rounded down. Try to log into Coinbase again later.'.format(', '.join(metrics_w_errors))
 
     return msg
