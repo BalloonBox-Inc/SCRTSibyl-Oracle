@@ -147,7 +147,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg = 'Your SCRTSibyl score is {} - {} points. This score qualifies you for a sort term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
+        msg = 'Your SCRTSibyl score is {} - {} points. This score qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
                 .format(quality.upper(), points, loan_amount, loan_amount*rate)
         if ('loan_duedate' in list(feedback['stability'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['stability']['loan_duedate'])
