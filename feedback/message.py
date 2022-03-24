@@ -155,21 +155,19 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
             msg = msg + '.'
 
         # Interpret the score        
-        if ('card_names' in all_keys) or ('cumulative_current_balance' in all_keys):
-            msg = msg + ' Part of your score is based on '
+        # Credit cards 
+        if ('card_names' in all_keys) and (feedback['credit']['card_names']):
+            msg = msg + ' Part of your score is based on the transaction history of your {} credit card'.format(', '.join([c.capitalize() for c in feedback['credit']['card_names']]))
+            if len(feedback['credit']['card_names']) > 1:
+                msg = msg +'s.'
+            else:
+                msg = msg +'.'
 
-            # Credit cards 
-            if 'card_names' in all_keys:
-                msg = msg + 'the transaction history of your {} credit card'.format(', '.join([c.capitalize() for c in feedback['credit']['card_names']]))
-                if len(feedback['credit']['card_names']) > 1:
-                    msg = msg +'s.'
-                else:
-                    msg = msg +'.'
+        # Tot balance now
+        if  'cumulative_current_balance' in all_keys:
+            msg = msg + ' Your total current balance is ${:,.0f} USD across all accounts held with {}.'.format(feedback['stability']['cumulative_current_balance'], feedback['diversity']['bank_name'])
+            
 
-            # Tot balance now
-            if  'cumulative_current_balance' in all_keys:
-                msg = msg + ' Your total current balance is ${:,.0f} USD across all accounts.'.format(feedback['stability']['cumulative_current_balance'])
-                
 
 
                 

@@ -66,6 +66,7 @@ def credit_score_plaid():
             
             # compute score
             feedback = create_feedback_plaid()
+            feedback = plaid_bank_name(client, plaid_txn['item']['institution_id'], feedback)
             score, feedback = plaid_score(plaid_txn, feedback)
             message = qualitative_feedback_plaid(score, feedback, coinmarketcap_key)
             feedback = interpret_score_plaid(score, feedback)

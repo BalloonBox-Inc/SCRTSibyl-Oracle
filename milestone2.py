@@ -19,6 +19,9 @@ from dotenv import dotenv_values
 config = dotenv_values()
 path_dir = config['PATH_REAL_USERS_DATA']
 coinmarketcap_key = config['COINMARKETCAP_KEY']
+plaid_client_id = config['PLAID_CLIENT_ID']
+plaid_secret = config['PLAID_CLIENT_SECRET']
+client = plaid_client('sandbox', plaid_client_id, plaid_secret)
 
 # Calculate score for all users you have data for
 list_of_feedback = []
@@ -27,6 +30,8 @@ for userid in [i for i in [0, 1, 2, 4, 5, 6]]:
     feedback = create_feedback_plaid()
     tx = get_tx(path_dir, userid, feedback)
     tx = str_to_datetime(tx, feedback)
+
+    feedback = plaid_bank_name(client, tx['item']['institution_id'], feedback)
     score, feedback = plaid_score(tx, feedback)
     msg = qualitative_feedback_plaid(score, feedback, coinmarketcap_key)
     interpret = interpret_score_plaid(score, feedback)
@@ -55,7 +60,14 @@ with open('interpret_plaid.json', 'w') as json_file:
 
 
 
+
 # # # Remote
+# config = dotenv_values()
+# coinmarketcap_key = config['COINMARKETCAP_KEY']
+# plaid_client_id = config['PLAID_CLIENT_ID']
+# plaid_client_secret = config['PLAID_CLIENT_SECRET']
+# plaid_token = config['PLAID_ACCESS_TOKEN']
+
 # start_time = time.time()
 # score, feedback = credit_score_plaid()
 # runtime = round(time.time() - start_time, 3)
