@@ -77,14 +77,52 @@ def plaid_transactions(access_token, client, timeframe):
         return r
 
 
-def plaid_institutions(client, bank_id):
-    try:
-        # Do not supply the country_code parameter so that it defaults to US
-        request = InstitutionsGetByIdRequest(institution_id=bank_id, country_codes=[]) 
-        r = client.institutions_get_by_id(request).to_dict()
+
+def plaid_institutions(plaid_client_id, plaid_secret, bank_id):
+  '''
+      Description:
+        returns the bank name where the user holds his bank account
     
-    except plaid.ApiException as e:
-        r = format_error(e)
+    Parameters:
+        plaid_client_id (str): plaid client api key
+        plaid_secret (str): plaid secret key
+        bank_id (str): the Plaid ID of the institution to get details about 
+
+    Returns:
+        bank_name (str): name of the bank uwhere user holds their fundings
+  '''
+  try:
+    url = 'https://sandbox.plaid.com/institutions/get_by_id'  # Must change this into 'Production' instead of 'Sandbox'
+
+    h = {
+        'Content-Type': 'application/json'}
+
+    d = {
+        "institution_id": bank_id,
+        "country_codes": ["US"], # Hard code 'US' to be the country_code parameter
+        "client_id":plaid_client_id,
+        "secret":plaid_secret
+      }
+
+
+    r = requests.post(url, headers=h, data=json.dumps(d)).json()
+    bank_name = r['institution']['name']
+
+  except:
+    bank_name = None
+  
+  finally:
+    return bank_name
+
+
+# def plaid_institutions(client, bank_id):
+#     try:
+#         # Do not supply the country_code parameter so that it defaults to US
+#         request = InstitutionsGetByIdRequest(institution_id=bank_id, country_codes=[]) 
+#         r = client.institutions_get_by_id(request).to_dict()
     
-    finally:
-        return r
+#     except plaid.ApiException as e:
+#         r = format_error(e)
+    
+#     finally:
+#         return r
