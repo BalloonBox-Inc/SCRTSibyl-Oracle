@@ -236,7 +236,7 @@ def credit_mix(data, feedback):
 
     try:
         credit = [d for d in data['accounts'] if d['type'].lower()=='credit']
-        card_names = [d['official_name'] for d in credit if isinstance(d['official_name'], str)==True]
+        card_names = [d['name'].lower().replace('credit', '').title().strip() for d in credit if (isinstance(d['name'], str)==True) and (d['name'].lower()!='credit card')]
 
         if credit:
             size = len(credit)

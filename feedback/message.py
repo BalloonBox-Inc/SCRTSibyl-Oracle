@@ -157,7 +157,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
         # Interpret the score        
         # Credit cards 
         if ('card_names' in all_keys) and (feedback['credit']['card_names']):
-            msg = msg + ' Part of your score is based on the transaction history of your {} credit card'.format(', '.join([c.capitalize() for c in feedback['credit']['card_names']]))
+            msg = msg + ' Part of your score is based on the transaction history of your {} credit card'.format(', '.join([c for c in feedback['credit']['card_names']]))
             if len(feedback['credit']['card_names']) > 1:
                 msg = msg +'s.'
             else:
