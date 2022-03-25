@@ -13,6 +13,7 @@
 # virtual environment
 /SCRTSibyl
 /SCRTSybil
+/venv-secret
 
 # Json files
 **.json
