@@ -38,20 +38,27 @@ for userid in [i for i in [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
     runtime = round(time.time() - start_time, 3)
     print('_____________________________________________')
     print()
-    # print('TEST USER #{} got a score of {}/900 points'.format(userid, round(score)))
-    # print('Runtime: {} seconds'.format(runtime))
-    # print('Validator: Plaid')
-    # print()
-    # for k in feedback.keys():
-    #     print()
-    #     print(k.upper())
-    #     for sub_key in feedback[k].keys():
-    #         print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+    print('TEST USER #{} got a score of {}/900 points'.format(userid, round(score)))
+    print('Runtime: {} seconds'.format(runtime))
+    print('Validator: Plaid')
+    print()
+    print('--FEEDBACK--')
+    for k in feedback.keys():
+        print()
+        print(k.upper())
+        for sub_key in feedback[k].keys():
+            print('{} : {}'.format(sub_key, feedback[k][sub_key]))
+    print()
+    print('--INTERPRET--')
+    for k in interpret.keys():
+        print()
+        print(k.upper())
+        for sub_key in interpret[k].keys():
+            print('{} : {}'.format(sub_key, interpret[k][sub_key]))
     print()
     print(msg)
-    # print(interpret)
-    # print('_____________________________________________')
-    # print()
+    print('_____________________________________________')
+    print()
     list_of_feedback.append(interpret)
 
 with open('interpret_plaid.json', 'w') as json_file:
