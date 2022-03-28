@@ -35,17 +35,17 @@ The API is in active development and we are changing things rapdily. Once we are
 [<span>**COINBASE**</span>](https://coinmarketcap.com/) : credit score model based on Coinbase account.
 ---
 
-```
+```bash
     POST {base_url}/credit_score/coinbase
 ```
 
 Headers
-```
+```bash
     {"Content-Type": "application/json"}
 ```
 
 Body
-```
+```bash
     {
         "keplr_token": "YOUR_KEPLER_TOKEN",
         "coinbase_access_token": "YOUR_COINBASE_ACCESS_TOKEN",
@@ -97,7 +97,7 @@ Response: **200**
 ```
 
 + Sample response from a Coinbase test account
-```
+```bash
 {
     "endpoint": "/credit_score/coinbase",
     "feedback": {
@@ -131,17 +131,17 @@ Response: **200**
 [<span>**PLAID**</span>](https://plaid.com/) : credit score model based on Plaid account.
 ---
 
-```
+```bash
     POST {base_url}/credit_score/plaid
 ```
 
 Headers
-```
+```bash
     {"Content-Type": "application/json"}
 ```
 
 Body
-```
+```bash
     {
         "keplr_token": "YOUR_KEPLER_TOKEN"
         "plaid_token": "YOUR_PLAID_TOKEN",
@@ -154,7 +154,7 @@ Body
 Response: **200**
 
 + Generalized Typescript response
-```
+```bash
     enum ScoreQuality {
     'very poor',
     'poor',
@@ -196,7 +196,7 @@ Response: **200**
 ```
 
 + Sample response from Plaid Sandbox environment
-```
+```bash
     {
         "endpoint": "/credit_score/plaid",
         "feedback": {
@@ -235,7 +235,7 @@ Response: **200**
 Note that error returns do not have `score` or `feedback` keys. The error description will appear under the message key.
 
 Sample error response from Plaid Sandbox environment
-```
+```bash
     {
         'endpoint': '/credit_score/plaid',
         'message': 'invalid client_id or secret provided',
