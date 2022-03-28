@@ -13,33 +13,33 @@ Public APIs allow users to:
 
 When using the SCRTSibyl API you agree with our [Terms and Conditions](https://) :copyright:.
 
----
+
 
 ## To Notice
 
-- **Beware**
+#### Beware
 
 All times provided are in UTC timezone :clock4:.
 
-- **Authentication**
+#### Authentication
 
 Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
-- **Help Us**
+#### Help Us
 
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-- **Caution**
+#### Caution
 
 The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
 
----
 
 ## Resources :gear:
 
-
+---
 [COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
+
 ---
 
 ```bash
@@ -135,8 +135,9 @@ Response: **200**
 }            
 ```
 
-
+---
 [PLAID](https://plaid.com/) : credit score model based on Plaid account.
+
 ---
 
 ```bash
