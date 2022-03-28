@@ -9,24 +9,24 @@ Public APIs allow users to:
 + undergo a credit score check,
 + validate their credibility to lenders issuing them a loan. 
 
-When using the SCRTSibyl API you agree with our :copyright: [Terms and Conditions](https://).
+When using the SCRTSibyl API you agree with our [Terms and Conditions](https://) :copyright:.
 
 ---
 
 
-**Beware** :clock4:
+- :clock4: **Beware** 
 
 All times provided are in UTC timezone.
 
-**Authentication** :electric_plug:
+- :electric_plug: **Authentication** 
 
 Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
-**Help Us** :bellhop_bell:
+- :bellhop_bell: **Help Us** 
 
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-**Caution** :warning:
+- :warning: **Caution** 
 
 The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
@@ -36,7 +36,7 @@ The API is in active development and we are changing things rapdily. Once we are
 ## Resources
 
 ---
-+ <span>**COINBASE**</span> : credit score model based on Coinbase account.
++ [<span>**COINBASE**</span>](https://coinmarketcap.com/) : credit score model based on Coinbase account.
 ---
 
 ```
