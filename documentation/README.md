@@ -93,11 +93,11 @@ Response: **200**
         wallet_age(days): number;
         };
     };
-    message: string[];
+    message: string;
     score: number;
     status: 'success' | 'error';
     status_code: 200 | 400;
-    timestamp: string[];
+    timestamp: string;
     title: 'Credit Score';
     }
 ```
@@ -184,7 +184,7 @@ Response: **200**
         };
         score: {
         bank_accounts: number;
-        card_names: list(string[]);
+        card_names: string[];
         cum_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
@@ -193,11 +193,11 @@ Response: **200**
         score_exist: boolean;
         };
     };
-    message: string[];
+    message: string;
     score: number;
     status: 'success' | 'error';
     status_code: 200 | 400;
-    timestamp: string[];
+    timestamp: string;
     title: 'Credit Score';
     }
 ```
