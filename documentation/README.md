@@ -1,5 +1,5 @@
 # 🚀 SCRT SIBYL API
-![scrt sibyl image](./SCRTSibyl-Oracle/images/logo_horizontal.png)
+![scrt sibyl image](/SCRTSibyl-Oracle/images/logo_horizontal.png)
 
 This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
@@ -14,21 +14,21 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 ---
 
 
-##### Beware :clock4:
+### Beware 
 
-All times provided are in UTC timezone.
+:clock4: All times provided are in UTC timezone.
 
-##### Authentication :electric_plug:
+### Authentication 
 
-Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
+:electric_plug: Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
-##### Help Us :bellhop_bell:
+### Help Us 
 
-Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
+:bellhop_bell: Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-##### Caution :warning:
+### Caution 
 
-The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
+:warning: The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
 
 
@@ -122,6 +122,7 @@ Sample response from a Coinbase test account
         }
     },
     "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history in your Coinbase account. Try to log into Coinbase with a different account.",
+    
     "score": 300.0,
     "status": "success",
     "status_code": 200,
@@ -180,11 +181,11 @@ Response: **200**
         };
         score: {
         bank_accounts: number;
-        card_names: string[];
+        card_names: list(string[]);
         cum_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
-        points: number;
+        points: number; // integer in range [300, 900]
         quality: ScoreQuality;
         score_exist: boolean;
         };
@@ -223,7 +224,8 @@ Response: **200**
                 "score_exist": true
             }
         },
-        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card credit card. Your total current balance is $44,520 USD across all accounts. An error occurred while computing the score metric called velocity. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.",
+        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card. Your total current balance is $44,520 USD across all accounts. An error occurred while computing the score metric called velocity. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.",
+        
         "score": 639,
         "status": "success",
         "status_code": 200,
@@ -234,9 +236,9 @@ Response: **200**
 
 ## **Errors**
 
-Note that error returns do not have score or feedback keys. The error description will appear under the message key.
+Note that error returns do not have `score` or `feedback` keys. The error description will appear under the message key.
 
-+ Sample error response from Plaid Sandbox environment
+Sample error response from Plaid Sandbox environment
 ```
     {
         'endpoint': '/credit_score/plaid',
