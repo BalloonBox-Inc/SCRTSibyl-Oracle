@@ -37,7 +37,7 @@ The API is in active development and we are changing things rapdily. Once we are
 
 ## Resources :gear:
 
----
+
 [COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
 ---
 
@@ -134,7 +134,7 @@ Response: **200**
 }            
 ```
 
----
+
 [PLAID](https://plaid.com/) : credit score model based on Plaid account.
 ---
 
