@@ -1,7 +1,7 @@
 # 🚀 SCRT SIBYL API
 ![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTSibyl-Oracle/blob/dev/images/logo_horizontal.png)
 
-## About
+## About :mailbox_with_mail:
 
 This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
@@ -15,11 +15,11 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 
 
 
-## To Notice
+## To Notice :eyes:
 
 #### Beware
 
-All times provided are in UTC timezone :clock4:.
+All times provided are in :clock4:UTC timezone.
 
 #### Authentication
 
