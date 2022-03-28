@@ -13,17 +13,16 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 
 ---
 
-
-#### Beware 
+- **Beware**
 All times provided are in UTC timezone :clock4:.
 
-#### Authentication 
+- **Authentication**
 Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
-#### Help Us 
+- **Help Us**
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-#### Caution 
+- **Caution**
 The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
 
@@ -117,7 +116,8 @@ Response: **200**
             "wallet_age(days)": null
         }
     },
-    "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history in your Coinbase account. Try to log into Coinbase with a different account.",
+    "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
+    in your Coinbase account. Try to log into Coinbase with a different account.",
     
     "score": 300.0,
     "status": "success",
