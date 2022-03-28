@@ -1,28 +1,39 @@
-# SECRET-SIBYL API
+# 🚀 SCRT SIBYL API
+![scrt sibyl image](./images/logo_horizontal.png)
 
-This documentation contains all APIs endpoints available.
+This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
-The intensions of the public API is to offer the possibility for the Secret Network community to integrate their existing Plaid and Coinbase accounts with Sibyl Credit Score model and offer seemless credibility to their lenders.
+Imagine you are a user who owns a Keplr wallet and wants to be issued a micro-loan.
+Public APIs allow users to:
++ integrate their existing Plaid and Coinbase accounts with the SCRTSibyl Credit Score model, 
++ undergo a credit score check,
++ validate their credibility to lenders issuing them a loan. 
 
-By using of this API you agree with our [Terms and Conditions](https://).
+When using the SCRTSibyl API you agree with our :copyright: [Terms and Conditions](https://).
 
-## **Caution**
+---
 
-The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
-## **Help Us**
+**Beware** :clock4:
+
+All times provided are in UTC timezone.
+
+**Authentication** :electric_plug:
+
+Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
+
+**Help Us** :bellhop_bell:
 
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-## **General**
+**Caution** :warning:
 
-+ All times provided are in UTC timezone.
+The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
-## **Authentication**
 
-Every endpoint is secured by User Oauth token or by Oauth Client key and secret.
 
-## **Resources**
+
+## Resources
 
 ---
 + <span>**COINBASE**</span> : credit score model based on Coinbase account.
