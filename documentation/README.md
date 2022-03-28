@@ -1,5 +1,5 @@
 # 🚀 SCRT SIBYL API
-![scrt sibyl image](/SCRTSibyl-Oracle/images/logo_horizontal.png)
+![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTSibyl-Oracle/blob/dev/images/logo_horizontal.png)
 
 This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
@@ -15,25 +15,21 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 
 
 ### Beware 
-
-:clock4: All times provided are in UTC timezone.
+All times provided are in UTC :clock4: timezone.
 
 ### Authentication 
-
-:electric_plug: Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
+Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
 ### Help Us 
+Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-:bellhop_bell: Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
-
-### Caution 
-
-:warning: The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
+### Caution :warning:
+The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
 
 
 
-## Resources
+## Resources :gear:
 
 ---
 [<span>**COINBASE**</span>](https://coinmarketcap.com/) : credit score model based on Coinbase account.
@@ -60,8 +56,8 @@ Body
 
 Response: **200**
 
-Generalized Typescript response
-```
++ Generalized Typescript response
+```bash
     enum ScoreQuality {
     'very poor',
     'poor',
@@ -85,7 +81,7 @@ Generalized Typescript response
         current_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
-        points: number;  // integer in range [300, 900]
+        points: number;  # integer in range [300, 900]
         quality: ScoreQuality;
         score_exist: boolean;
         wallet_age(days): number;
@@ -100,7 +96,7 @@ Generalized Typescript response
     }
 ```
 
-Sample response from a Coinbase test account
++ Sample response from a Coinbase test account
 ```
 {
     "endpoint": "/credit_score/coinbase",
@@ -157,7 +153,7 @@ Body
 
 Response: **200**
 
-+ Typescript response
++ Generalized Typescript response
 ```
     enum ScoreQuality {
     'very poor',
@@ -185,7 +181,7 @@ Response: **200**
         cum_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
-        points: number; // integer in range [300, 900]
+        points: number; # integer in range [300, 900]
         quality: ScoreQuality;
         score_exist: boolean;
         };
