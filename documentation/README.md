@@ -19,7 +19,7 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 
 #### Beware
 
-All times provided are in :clock4:UTC timezone.
+All times provided are in UTC timezone :clock4:.
 
 #### Authentication
 
@@ -39,7 +39,6 @@ The API is in active development and we are changing things rapdily. Once we are
 
 ---
 [COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
-
 ---
 
 ```bash
@@ -137,7 +136,6 @@ Response: **200**
 
 ---
 [PLAID](https://plaid.com/) : credit score model based on Plaid account.
-
 ---
 
 ```bash
