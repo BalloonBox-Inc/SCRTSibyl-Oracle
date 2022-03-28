@@ -1,6 +1,8 @@
 # 🚀 SCRT SIBYL API
 ![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTSibyl-Oracle/blob/dev/images/logo_horizontal.png)
 
+## About
+
 This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
 Imagine you are a user who owns a Keplr wallet and wants to be issued a micro-loan.
@@ -13,16 +15,22 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 
 ---
 
+## To Notice
+
 - **Beware**
+
 All times provided are in UTC timezone :clock4:.
 
 - **Authentication**
+
 Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
 - **Help Us**
+
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
 - **Caution**
+
 The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
 
@@ -220,7 +228,12 @@ Response: **200**
                 "score_exist": true
             }
         },
-        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card. Your total current balance is $44,520 USD across all accounts. An error occurred while computing the score metric called velocity. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.",
+        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan <br/>
+        of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. <br/>
+        Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card. <br/>
+        Your total current balance is $44,520 USD across all accounts. An error occurred while computing the <br/>
+        score metric called velocity. As a result, your score was rounded down. <br/>
+        Try again later or select an alternative bank account if you have one.",
         
         "score": 639,
         "status": "success",
