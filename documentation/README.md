@@ -1,5 +1,5 @@
 # 🚀 SCRT SIBYL API
-![scrt sibyl image](./images/logo_horizontal.png)
+![scrt sibyl image](./SCRTSibyl-Oracle/images/logo_horizontal.png)
 
 This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
@@ -14,19 +14,19 @@ When using the SCRTSibyl API you agree with our [Terms and Conditions](https://)
 ---
 
 
-- :clock4: **Beware** 
+##### Beware :clock4:
 
 All times provided are in UTC timezone.
 
-- :electric_plug: **Authentication** 
+##### Authentication :electric_plug:
 
 Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
 
-- :bellhop_bell: **Help Us** 
+##### Help Us :bellhop_bell:
 
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-- :warning: **Caution** 
+##### Caution :warning:
 
 The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
@@ -36,7 +36,7 @@ The API is in active development and we are changing things rapdily. Once we are
 ## Resources
 
 ---
-+ [<span>**COINBASE**</span>](https://coinmarketcap.com/) : credit score model based on Coinbase account.
+[<span>**COINBASE**</span>](https://coinmarketcap.com/) : credit score model based on Coinbase account.
 ---
 
 ```
@@ -60,7 +60,7 @@ Body
 
 Response: **200**
 
-+ Typescript response
+Generalized Typescript response
 ```
     enum ScoreQuality {
     'very poor',
@@ -85,22 +85,22 @@ Response: **200**
         current_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
-        points: number;
+        points: number;  // integer in range [300, 900]
         quality: ScoreQuality;
         score_exist: boolean;
         wallet_age(days): number;
         };
     };
-    message: string;
+    message: string[];
     score: number;
     status: 'success' | 'error';
     status_code: 200 | 400;
-    timestamp: string;
+    timestamp: string[];
     title: 'Credit Score';
     }
 ```
 
-+ Sample response from a Coinbase test account
+Sample response from a Coinbase test account
 ```
 {
     "endpoint": "/credit_score/coinbase",
@@ -131,7 +131,7 @@ Response: **200**
 ```
 
 ---
-+ <span>**PLAID**</span> : credit score model based on Plaid account.
+[<span>**PLAID**</span>](https://plaid.com/) : credit score model based on Plaid account.
 ---
 
 ```
@@ -189,11 +189,11 @@ Response: **200**
         score_exist: boolean;
         };
     };
-    message: string;
+    message: string[];
     score: number;
     status: 'success' | 'error';
     status_code: 200 | 400;
-    timestamp: string;
+    timestamp: string[];
     title: 'Credit Score';
     }
 ```
