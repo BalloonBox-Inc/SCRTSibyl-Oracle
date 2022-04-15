@@ -142,6 +142,7 @@ def kyc(acc, txn, feedback):
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
         txn (list): transactions history of above-listed accounts
+        feedback (dict): score feedback
 
     Returns:
         score (int): binary kyc verification
@@ -175,6 +176,7 @@ def history_acc_longevity(acc, feedback):
     
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        feedback (dict): score feedback
 
     Returns:
         score (float): score gained based on account longevity
@@ -186,7 +188,7 @@ def history_acc_longevity(acc, feedback):
         if acc:
             oldest = min([d['created_at'] for d in acc if d['created_at']])
             # age (in days) of longest standing Coinbase account
-            age = (now - oldest).days 
+            history_acc_longevity.age = (now - oldest).days 
             score = fico_medians[np.digitize(age, duration, right=True)]
 
             feedback['history']['wallet_age(days)'] = age
@@ -211,6 +213,7 @@ def liquidity_tot_balance_now(acc, feedback):
     
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        feedback (dict): score feedback
 
     Returns:
         score (float): score gained based on cumulative balance across accounts
@@ -286,6 +289,7 @@ def liquidity_avg_running_balance(acc, txn, feedback):
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
         txn (list): transactions history of above-listed accounts
+        feedback (dict): score feedback
 
     Returns:
         score (float): score gained for mimimum running balance

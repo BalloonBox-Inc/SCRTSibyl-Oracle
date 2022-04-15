@@ -75,7 +75,7 @@ There are two distinct models, one for each of our chosen validators, namely Pla
 
 [**Coinbase model**](./images/logic_coinbase.png) diagram and features:
 - :bell: check for user KYC status
-- :key: live fetch of top 20 cryptos by market cap via [CoinMarketCap](https://coinmarketcap.com/) API
+- :key: live fetch of top 25 cryptos by market cap via [CoinMarketCap](https://coinmarketcap.com/) API
 - :fire: dynamically select user's best crypto wallets
 - :closed_lock_with_key: auto-convert any currency to USD in real-time
 - :bulb: analyze all transactions since Coinbase account inception
