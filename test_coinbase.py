@@ -7,16 +7,22 @@ from support.metrics_coinbase import *
 
 # -------------------------------------------------------------------------- #
 #                                  FIXTURES                                  #
+#                         - create data to be used as -                      #
+#                - input parameters for our testing functions -              #
 # -------------------------------------------------------------------------- # 
 
-# good data
+# fake data - for testing purposes
 good_fb = create_feedback_coinbase()
-good_acc = str_to_date(json.load(open('test_user_coinbase.json'))['accounts'], good_fb)
-good_tx = json.load(open('test_user_coinbase.json'))['transactions']
+good_acc = str_to_date(json.load(open('data/test_user_coinbase.json'))['accounts'], good_fb)
+good_tx = json.load(open('data/test_user_coinbase.json'))['transactions']
+
+
 
 # -------------------------------------------------------------------------- #
 #                                TEST CASES                                  #
+#                - test core functions of Coinbase algorithm -               #
 # -------------------------------------------------------------------------- # 
+
 class TestMetrics(unittest.TestCase):
 
 
@@ -119,18 +125,33 @@ class TestMetrics(unittest.TestCase):
         self.assertGreater(activity_profit_since_inception.profit, 0)
         self.assertRegex(activity_profit_since_inception([], [], good_fb)[1]['activity']['error'], 'no net profit')
 
-    def test_helper_fn(self):
+    def test_net_flow(self):
         '''
-        - Ensure the output of flow() comprises of both positive and negative volumes
+        - output should be of type tuple(DataFrame, dict)
+        - bad input parameters should raise and exception       
         '''
-        # nested_dict()
-        # flow()
-        pass
+        a = net_flow(good_tx, 12, good_fb)
+        b = net_flow([], 6, good_fb)
+        c = net_flow(None, 6, create_feedback_coinbase())
+
+        # good inputs
+        self.assertIsInstance(a, tuple)
+        self.assertIsInstance(a[0], pd.core.frame.DataFrame)
+        self.assertIsInstance(a[1], dict)
+
+        # bad inputs
+        self.assertEqual(len(b[0]), len(c[0]))
+        self.assertRegex(b[1]['liquidity']['error'], 'no consistent net flow')
+        self.assertRegex(c[1]['liquidity']['error'], "'NoneType' object is not iterable")
+
 
 
 # -------------------------------------------------------------------------- #
 #                            PARAMETRIZATION                                 #
+#            - run same tests, passing different values each time -          #
+#                    - and expecting the same result -                       #
 # -------------------------------------------------------------------------- # 
+
 param = { 
 'fn_good': [
     kyc(good_acc, good_tx, good_fb), 

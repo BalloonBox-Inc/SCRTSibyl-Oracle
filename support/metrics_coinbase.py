@@ -120,7 +120,7 @@ def net_flow(txn, timeframe, feedback):
             df = df[-timeframe:]
 
         else:
-            raise Exception('No consistent net flow')
+            raise Exception('no consistent net flow')
     
     except Exception as e:
         df = pd.DataFrame()
