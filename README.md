@@ -92,10 +92,10 @@ SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The
 
 The algorithm has undergone extensive unit testing. To execute these tests yourself, run the following command in terminal, from the root folder of this Git repo:
 
-'''bash
+```bash
 python -m unittest -v test_coinbase             # Coinbase 
 python -m unittest -v test_plaid                # Plaid
-'''
+```
 
 
 
