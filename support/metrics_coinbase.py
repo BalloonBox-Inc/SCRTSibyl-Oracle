@@ -447,7 +447,7 @@ def activity_profit_since_inception(acc, txn, feedback):
     
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
-        txn (list): transactions history of above-listed accounts
+        txn (list): transaction history of above-listed accounts
 
     Returns:
         score (int): for user total net profit thus far
@@ -466,6 +466,7 @@ def activity_profit_since_inception(acc, txn, feedback):
         debits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['debit']])
         
         profit = (balance - credits) + debits
+        activity_profit_since_inception.profit = profit
         
         if profit == 0:
             raise Exception('no net profit')
