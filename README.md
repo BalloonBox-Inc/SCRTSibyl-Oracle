@@ -16,7 +16,7 @@ Ultimately, this will incentivize on-chain traffic, it will affirm the reputatio
  ---
 
 
-## Execute Locally 
+## Execute Locally
  * download or clone the repo to your machine
  * install dependancies 
  * set up ```.env``` file 

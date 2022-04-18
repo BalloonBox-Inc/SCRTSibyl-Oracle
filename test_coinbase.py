@@ -1,7 +1,8 @@
+import unittest
 from app_route import *
 from local.local_helper import str_to_date
 from support.metrics_coinbase import *
-import unittest
+
 
 
 # -------------------------------------------------------------------------- #
@@ -12,14 +13,6 @@ import unittest
 good_fb = create_feedback_coinbase()
 good_acc = str_to_date(json.load(open('test_user_coinbase.json'))['accounts'], good_fb)
 good_tx = json.load(open('test_user_coinbase.json'))['transactions']
-
-# empty data
-empty_fb = []
-empty_acc = []
-empty_tx = [] 
-
-
-
 
 # -------------------------------------------------------------------------- #
 #                                TEST CASES                                  #
@@ -33,7 +26,7 @@ class TestMetrics(unittest.TestCase):
         - ensure the output is never NoneType, even when parsing NoneTypes
         - ensure returns full score of 1 when good args are passed to the fn
         '''
-        bad_fb = good_fb.pop('kyc', None)
+        bad_fb = {'history': {}, 'liquidity': {}, 'activity': {}}
         badkyc = kyc(None, None, bad_fb)
 
         self.assertIsInstance(badkyc, tuple)  
@@ -41,6 +34,7 @@ class TestMetrics(unittest.TestCase):
         self.assertIsInstance(badkyc[1], dict)
         self.assertIsNotNone(kyc(None, None, None)) 
         self.assertEqual(kyc(good_acc, good_tx, good_fb)[0], 1) 
+        
 
 
     def test_history_acc_longevity(self):
@@ -52,14 +46,14 @@ class TestMetrics(unittest.TestCase):
 
         self.assertGreaterEqual(history_acc_longevity.age, 0) 
         self.assertIsInstance(history_acc_longevity.age, (int, float))
-        self.assertEqual(history_acc_longevity(empty_acc, good_fb)[0], 0) 
+        self.assertEqual(history_acc_longevity([], good_fb)[0], 0) 
 
 
     def test_liquidity_tot_balance_now(self):
         '''
         - empty account should result in 'no balance' error
         '''
-        self.assertRegex(liquidity_tot_balance_now(empty_acc, good_fb)[1]['liquidity']['error'], 'no balance')
+        self.assertRegex(liquidity_tot_balance_now([], good_fb)[1]['liquidity']['error'], 'no balance')
 
 
     def test_liquidity_loan_duedate(self):
@@ -73,14 +67,42 @@ class TestMetrics(unittest.TestCase):
         '''
         - no tx yields a 'no tx' error
         '''
-        self.assertRegex(liquidity_avg_running_balance(good_acc, empty_tx, good_fb)[1]['liquidity']['error'], 'no transaction history')
+        self.assertRegex(liquidity_avg_running_balance(good_acc, [], good_fb)[1]['liquidity']['error'], 'no transaction history')
 
 
     def test_activity_tot_volume_tot_count(self):
-        pass
+        '''
+        - tot_volume should be of type int or float
+        - tot_volume should be non-negative
+        - credit and debit checks share the same dictionary key
+        - no tx returns 'no tx history' error
+        '''
+        fb = create_feedback_coinbase()
+        cred, cred_fb = activity_tot_volume_tot_count(good_tx, 'credit', fb)
+        deb, deb_fb = activity_tot_volume_tot_count(good_tx, 'debit', fb)
+
+        for a in [cred, deb]:
+            self.assertIsInstance(a, (float, int))
+            self.assertGreaterEqual(a, 0)
+
+        self.assertEqual(cred_fb['activity'].get('credit').keys(), deb_fb['activity'].get('debit').keys())
+        self.assertRegex(activity_tot_volume_tot_count([], 'credit', good_fb)[1]['activity']['error'], 'no transaction history')
+
 
     def test_activity_consistency(self):
-        pass
+        '''
+        - ensure you've accounted for all registered txns
+        - ensure txn dates are of Type datetime (perform Type check on randomly chosen date)
+        - no tx returns 'no tx history' error
+        '''
+        activity_consistency(good_tx, 'credit', good_fb)
+        i = list(activity_consistency.frame.index)
+        d = [x[0] for x in activity_consistency.typed_txn]
+
+        self.assertCountEqual(i, d)
+        self.assertIsInstance(np.random.choice(d), datetime)
+        self.assertRegex(activity_consistency([], 'credit', good_fb)[1]['activity']['error'], 'no transaction history')
+
 
     def test_activity_profit_since_inception(self):
         pass
@@ -90,7 +112,6 @@ class TestMetrics(unittest.TestCase):
         - Ensure the output of flow() comprises of both positive and negative volumes
         '''
         pass
-
 
 
 # -------------------------------------------------------------------------- #
