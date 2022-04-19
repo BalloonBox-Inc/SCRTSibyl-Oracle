@@ -16,15 +16,12 @@ good_fb = create_feedback_coinbase()
 good_acc = str_to_date(json.load(open('data/test_user_coinbase.json'))['accounts'], good_fb)
 good_tx = json.load(open('data/test_user_coinbase.json'))['transactions']
 
-
-
 # -------------------------------------------------------------------------- #
 #                                TEST CASES                                  #
 #                - test core functions of Coinbase algorithm -               #
 # -------------------------------------------------------------------------- # 
 
-class TestMetrics(unittest.TestCase):
-
+class TestMetricsCoinbase(unittest.TestCase):
 
     def test_kyc(self):
         '''

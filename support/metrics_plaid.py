@@ -216,6 +216,7 @@ def balance_now_checking_only(data, feedback):
     except Exception as e:
         feedback['fetch'][balance_now_checking_only.__name__] = str(e)
         
+
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #
@@ -223,7 +224,7 @@ def balance_now_checking_only(data, feedback):
 def credit_mix(data, feedback):
     '''
     Description:
-        A score based on user's credits accounts composition and status
+        A score based on user's credit accounts composition and status
     
     Parameters:
         data (dict): Plaid 'Transactions' product
@@ -235,13 +236,13 @@ def credit_mix(data, feedback):
     '''
 
     try:
-        credit = [d for d in data['accounts'] if d['type'].lower()=='credit']
-        card_names = [d['name'].lower().replace('credit', '').title().strip() for d in credit if (isinstance(d['name'], str)==True) and (d['name'].lower()!='credit card')]
+        credit_mix.credit = [d for d in data['accounts'] if d['type'].lower()=='credit']
+        credit_mix.card_names = [d['name'].lower().replace('credit', '').title().strip() for d in credit_mix.credit if (isinstance(d['name'], str)==True) and (d['name'].lower()!='credit card')]
 
-        if credit:
-            size = len(credit)
+        if credit_mix.credit:
+            size = len(credit_mix.credit)
             
-            credit_ids = [d['account_id'] for d in credit]
+            credit_ids = [d['account_id'] for d in credit_mix.credit]
             credit_txn = [d for d in data['transactions'] if d['account_id'] in credit_ids]
             
             first_txn = credit_txn[-1]['date']
@@ -252,7 +253,7 @@ def credit_mix(data, feedback):
             score = m3x7_2_4[m][n]
             
             feedback['credit']['credit_cards'] = size
-            feedback['credit']['card_names'] = card_names # card_names could be an empty list of the card name was a NoneType
+            feedback['credit']['card_names'] = credit_mix.card_names # card_names could be an empty list of the card name was a NoneType
         else:
             raise Exception('no credit card')
     
@@ -267,7 +268,7 @@ def credit_mix(data, feedback):
 def credit_limit(data, feedback):
     '''
     Description:
-        A score of the cumulative credit limit of a user across ALL of his credit accounts
+        A score for the cumulative credit limit of a user across ALL of his credit accounts
 
     Parameters:
         data (dict): Plaid 'Transactions' product
@@ -485,6 +486,7 @@ def credit_livelihood(data, feedback):
 
             df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
             d = df.groupby(pd.Grouper(freq='M')).count()
+            credit_livelihood.d = d
 
             if len(d['amounts']) >= 2:
                 if d['amounts'][0] < 5: # exclude initial and final month with < 5 txn
