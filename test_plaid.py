@@ -120,42 +120,105 @@ class TestMetricCredit(unittest.TestCase):
 class TestMetricVelocity(unittest.TestCase):
 
     def test_velocity_withdrawals(self):
-        pass
+        '''
+        - passing a feedback of NoneType, returns a feedback of NoneType too
+        - good data but without withdrawals raises the 'no withdrawals' exception
+        - bad data returns an error
+        '''
+        self.assertIsNone(velocity_withdrawals(good_data, None)[1])
+        self.assertRegex(velocity_withdrawals(good_data, good_fb)[1]['velocity']['error'], 'no withdrawals')
+        self.assertIn('error', velocity_withdrawals([], good_fb)[1]['velocity'].keys())
+
 
     def test_velocity_deposits(self):
-        pass
+        '''
+        - if there are some 'payroll' trasactions, then the score should be positive
+        - bad data returns an error
+        '''
+        a = velocity_deposits(good_data, good_fb)
+
+        if [t for t in good_data['transactions'] if t['amount'] < -200 and 'payroll' in [x.lower() for x in t['category']]]:
+            self.assertGreater(a[0], 0)
+        self.assertRegex(a[1]['velocity']['error'], 'no deposits')
+
 
     def test_velocity_month_net_flow(self):
         pass
 
+
     def test_velocity_month_txn_count(self):
-        pass
+        '''
+        - if there is a legit checking account, then the score should be positive
+        '''
+        checking_acc = [a['account_id'] for a in good_data['accounts'] if a['subtype'].lower()=='checking']
+        if [t for t in good_data['transactions'] if t['account_id'] in checking_acc]:
+            self.assertGreater(velocity_month_txn_count(good_data, good_fb)[0], 0)
+    
 
     def test_velocity_slope(self):
         pass
 
 
 
+
 class TestMetricStability(unittest.TestCase):
 
     def test_stability_tot_balance_now(self):
-        pass
+        '''
+        - if tot balance variable exists, then the score should be > 0
+        - no account data returns an error
+        '''
+        a = stability_tot_balance_now(good_data, good_fb)
+        if stability_tot_balance_now.balance:
+            self.assertGreater(a[0], 0)
+        self.assertIn('error', stability_tot_balance_now([], good_fb)[1]['stability'].keys())
+
     
     def test_stability_min_running_balance(self):
         pass
+        
 
     def test_stability_loan_duedate(self):
-        pass
+        '''
+        - this function's output should be a feedback dict
+        - the max allowed loan duedate is 6 months
+        - feeding NoneTypes as function parameters should still return a feedback dict containing an error message
+        '''
+        a = stability_loan_duedate(good_data, good_fb)
+        self.assertIsInstance(a, dict)
+        self.assertLessEqual(a['stability']['loan_duedate'], 6)
+        self.assertIn('error', stability_loan_duedate(None, good_fb)['stability'].keys())
+
 
 
 
 class TestMetricDiversity(unittest.TestCase):
 
-    def test_diversity_account(self):
-        pass
+    def test_diversity_acc_count(self):
+        '''
+        - if one of the accounts was active for more than 4 months (120 days) --> score should be > 0.25/1
+        - users with at least 2 accounts get a positive score
+        - missing data raises an exception
+        '''
+        a = diversity_acc_count(good_data, good_fb)
+
+        if (datetime.now().date() - good_data['transactions'][-1]['date']).days > 120:
+            self.assertGreater(a[0], 0.25)
+        if len(good_data['accounts']) >= 2:
+            self.assertGreater(a[0], 0)
+        self.assertRaises(TypeError, 'tuple indices must be integers or slices, not str', diversity_acc_count, (None, good_fb))
+
 
     def test_diversity_profile(self):
-        pass
+        '''
+        - if user owns an investmenr of saving account, score will be > 0.17
+        - Plaid Sandbox data should score 1/1 
+        '''
+        bonus_acc = ['401k', 'cd', 'money market', 'mortgage', 'student', 'isa', 'ebt', 'non-taxable brokerage account', 'rdsp', 'rrif', 'pension', 'retirement', 'roth', 'roth 401k', 'stock plan', 'tfsa', 'trust', 'paypal', 'savings', 'prepaid', 'business', 'commercial', 'construction', 'loan', 'cash management', 'mutual fund', 'rewards']
+        if [a['account_id'] for a in good_data['accounts'] if a['subtype'] in bonus_acc]:
+            self.assertGreaterEqual(diversity_profile(good_data, good_fb)[0], 0.17)
+        self.assertEqual(diversity_profile(good_data, good_fb)[0], 1)
+
 
 
 # -------------------------------------------------------------------------- #

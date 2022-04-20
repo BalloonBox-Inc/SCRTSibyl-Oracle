@@ -657,7 +657,7 @@ def velocity_month_txn_count(data, feedback):
                 data (dict): Plaid 'Transactions' product 
         
             Returns: 
-                score (float): the larget the monthly count the larger the score
+                score (float): the larger the monthly count the larger the score
     '''
     try: 
         acc = data['accounts']
@@ -790,6 +790,7 @@ def stability_tot_balance_now(data, feedback):
         if balance > 0:
             score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
             feedback['stability']['cumulative_current_balance'] = balance
+            stability_tot_balance_now.balance = balance
         
         else:
             raise Exception('no balance')
@@ -944,12 +945,12 @@ def diversity_profile(data, feedback):
             id = a['account_id']
             type = '{}_{}'.format(a['type'], str(a['subtype']))
 
-            # Account for savings, hda, cd, money mart, paypal, prepaid, cash management, edt accounts
+            # Consider savings, hda, cd, money mart, paypal, prepaid, cash management, edt accounts
             if (type.split('_')[0]=='depository') & (type.split('_')[1]!='checking'): 
                 balance += int(a['balances']['current'] or 0)
                 myacc.append(id)
 
-            # Account for ANY type of investment account
+            # Consider ANY type of investment account
             if type.split('_')[0] == 'investment': 
                 balance += int(a['balances']['current'] or 0)
                 myacc.append(id)

@@ -97,7 +97,7 @@ python -m unittest -v test_coinbase             # Coinbase
 python -m unittest -v test_plaid                # Plaid
 ```
 
-> :warning: Plaid `unittest` relies on Plaid sandbox data, so before running the Plaid tests ensure your .env file is updated. Plaid unit tests require these Plaid credentials
+> :warning: Plaid `unittest` relies on Plaid sandbox data, so before running the Plaid tests ensure your `.env` file is updated. Specifically, Plaid unit tests require these Plaid credentials
 
 ```bash
 PLAID_CLIENT_ID=your_client_id
