@@ -145,7 +145,12 @@ class TestMetricVelocity(unittest.TestCase):
 
 
     def test_velocity_month_net_flow(self):
-        pass
+        '''
+        - the avg net flow should be a large positive integer
+        - bad input data results into an error
+        '''
+        self.assertGreater(velocity_month_net_flow(good_data, good_fb)[1]['velocity']['avg_net_flow'], 0)
+        self.assertIn('error', velocity_month_net_flow([], good_fb)[1]['velocity'].keys())
 
 
     def test_velocity_month_txn_count(self):
@@ -158,7 +163,17 @@ class TestMetricVelocity(unittest.TestCase):
     
 
     def test_velocity_slope(self):
-        pass
+        '''
+        - if there's more than 10 datapoint for months of transaction history, then the algo should persom linear regression
+            otherwise it'll simply calculate the monthly flow as 2 rations
+        - bad input data returns error
+        '''
+        if len(flows(good_data, 24, good_fb)) >= 10:
+            self.assertIn('slope', velocity_slope(good_data, good_fb)[1]['velocity'].keys())
+        else:
+            self.assertIn('monthly_flow', velocity_slope(good_data, good_fb)[1]['velocity'].keys())
+        
+        self.assertIn('error', velocity_slope([], good_fb)[1]['velocity'].keys())
 
 
 
@@ -171,14 +186,24 @@ class TestMetricStability(unittest.TestCase):
         - no account data returns an error
         '''
         a = stability_tot_balance_now(good_data, good_fb)
+
         if stability_tot_balance_now.balance:
             self.assertGreater(a[0], 0)
         self.assertIn('error', stability_tot_balance_now([], good_fb)[1]['stability'].keys())
 
     
     def test_stability_min_running_balance(self):
-        pass
-        
+        '''
+        - check 'timeframe' of txn history for min running balances to be an int
+        - good data should return 2 dict keys under the 'stability' scope of the 'feedback' dict
+        - bad input data should return error
+        '''
+        a = stability_min_running_balance(good_data, good_fb)
+
+        self.assertIsInstance(a[1]['stability']['min_running_timeframe'], int)
+        self.assertEqual(['min_running' in x for x in a[1]['stability']].count(True), 2)
+        self.assertIn('error', stability_min_running_balance([], good_fb)[1]['stability'].keys())
+
 
     def test_stability_loan_duedate(self):
         '''
@@ -189,7 +214,7 @@ class TestMetricStability(unittest.TestCase):
         a = stability_loan_duedate(good_data, good_fb)
         self.assertIsInstance(a, dict)
         self.assertLessEqual(a['stability']['loan_duedate'], 6)
-        self.assertIn('error', stability_loan_duedate(None, good_fb)['stability'].keys())
+        self.assertRegex(stability_loan_duedate(None, good_fb)['stability']['error'], "'NoneType' object is not subscriptable")
 
 
 

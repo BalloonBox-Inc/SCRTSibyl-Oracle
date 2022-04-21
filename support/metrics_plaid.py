@@ -86,7 +86,7 @@ def dynamic_select(data, acc_name, feedback):
             Parameters:
                 data (dict): Plaid 'Transactions' product 
                 acc_name (str): acccepts 'credit' or 'checking'
-                feedback (dict): descriptive feedback about the score
+                feedback (dict): feedback describing the score
         
             Returns: 
                 best (str or dict): Plaid account_id of best credit account 
@@ -139,7 +139,7 @@ def flows(data, how_many_months, feedback):
             Parameters:
                 data (dict): Plaid 'Transactions' product 
                 how_many_month (float): how many months of transaction history are you considering? 
-                feedback (dict): descriptive feedback about the score
+                feedback (dict): feedback describing the score
         
             Returns: 
                 flow (df): pandas dataframe with amounts for net monthly flow and datetime index
@@ -201,7 +201,7 @@ def balance_now_checking_only(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product
-                feedback (dict): descriptive feedback about the score
+                feedback (dict): feedback describing the score
 
             Returns:
                 balance (float): cumulative current balance in checking accounts
@@ -386,9 +386,11 @@ def credit_interest(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): gained based on interest charged
+                feedback (dict): feedback describing the score
     '''
     try:
         id = dynamic_select(data, 'credit', feedback)['id']
@@ -436,9 +438,11 @@ def credit_length(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): gained because of credit account duration
+                feedback (dict): feedback describing the score
     '''
     try:
         id = dynamic_select(data, 'credit', feedback)['id']
@@ -469,9 +473,11 @@ def credit_livelihood(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): based on avg monthly txn count
+                feedback (dict): feedback describing the score
     '''
     try:
         id = dynamic_select(data, 'credit', feedback)['id']
@@ -523,9 +529,11 @@ def velocity_withdrawals(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): score associated with reccurring monthly withdrawals
+                feedback (dict): feedback describing the score
     '''
     try: 
         txn = data['transactions']
@@ -564,6 +572,7 @@ def velocity_withdrawals(data, feedback):
     finally:
         return score, feedback
 
+
 #@measure_time_and_memory
 def velocity_deposits(data, feedback):
     '''
@@ -571,9 +580,11 @@ def velocity_deposits(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): score associated with direct deposits
+                feedback (dict): feedback describing the score
     '''
     try: 
         txn = data['transactions']
@@ -618,9 +629,11 @@ def velocity_month_net_flow(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): score associated with monthly new flow
+                feedback (dict): feedback describing the score
     '''
     try: 
         flow = flows(data, 12, feedback)
@@ -636,7 +649,7 @@ def velocity_month_net_flow(data, feedback):
         if neg:
             direction = len(pos)/len(neg)  # output in range [0, ...)
         else:
-            direction = 10
+            direction = 10  # 10 is an arbitralkity chosen large positive inteegr
 
         # Calculate score
         m = np.digitize(direction, ratio_flows, right=True)
@@ -658,10 +671,12 @@ def velocity_month_txn_count(data, feedback):
     returns score based on count of mounthly transactions
 
             Parameters:
-                data (dict): Plaid 'Transactions' product 
+                data (dict): Plaid 'Transactions' product
+                feedback (dict): feedback describing the score 
         
             Returns: 
                 score (float): the larger the monthly count the larger the score
+                feedback (dict): feedback describing the score
     '''
     try: 
         acc = data['accounts']
@@ -722,9 +737,11 @@ def velocity_slope(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
 
             Returns:
                 score (float): score for flow net behavior over past 24 months
+                feedback (dict): feedback describing the score
     '''
     try:
         flow = flows(data, 24, feedback)
@@ -749,10 +766,8 @@ def velocity_slope(data, feedback):
             magnitude = abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             if direction >= 1:
                 pass
-                # direct = '+'
             else:
                 magnitude = magnitude * -1
-                # direct = '-'
             m = np.digitize(direction, slope_product, right=True)
             n = np.digitize(magnitude, slope_product, right=True)
             score = m7x7_03_17.T[m][n]
@@ -874,7 +889,7 @@ def stability_min_running_balance(data, feedback):
         # Compute the score
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
-        score = m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
+        score = round(m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))), 2) # add 0.025 score penalty for each overdrafts
 
         feedback['stability']['min_running_balance'] = round(volume, 2)
         feedback['stability']['min_running_timeframe'] = length
