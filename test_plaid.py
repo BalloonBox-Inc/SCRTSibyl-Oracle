@@ -86,10 +86,10 @@ class TestMetricCredit(unittest.TestCase):
     def test_credit_interest(self):
         '''
         - Plaid Sandbox data has an impeccable credit card pedigree and thus should score 1/1
-        - bad data should raise an exception
+        - bad data should raise an exception because the dynamic_select() function will break
         '''
         self.assertEqual(credit_interest(good_data, good_fb)[0], 1)
-        self.assertIn('error',  credit_interest([], good_fb)[1]['credit'].keys())
+        self.assertIn('dynamic_select',  credit_interest([], good_fb)[1]['fetch'].keys())
 
 
     def test_credit_length(self):
@@ -219,6 +219,31 @@ class TestMetricDiversity(unittest.TestCase):
             self.assertGreaterEqual(diversity_profile(good_data, good_fb)[0], 0.17)
         self.assertEqual(diversity_profile(good_data, good_fb)[0], 1)
 
+    def test_helper_dynamic_select(self):
+        '''
+        - ensure the output is a dict with 2 keys
+        - if there exists at least one credit OR one checking account, then the output should return that id as best account
+        - bad data should still return a dict with 'inexistent' id for the best account
+        (Notice that 'credit' and 'checking' are used interchangeably here and are both equally valid input parameters)
+        '''
+        a = dynamic_select(good_data, 'credit', good_fb)
+        b = dynamic_select([], 'credit', good_fb)
+        c = dynamic_select(None, 'credit', good_fb)
+        fn = [a,b,c]
+
+        for x in fn:
+            with self.subTest():
+                self.assertIsInstance(x, dict)
+
+        self.assertEqual(len(a.keys()), 2)
+        self.assertIs(dynamic_select([], 'checking', good_fb)['id'], 'inexistent')
+
+
+    def test_helper_flows(self):
+        pass
+
+    def test_helper_balance_now_checking_only(self):
+        pass
 
 
 # -------------------------------------------------------------------------- #
@@ -226,6 +251,31 @@ class TestMetricDiversity(unittest.TestCase):
 #            - run same tests, passing different values each time -          #
 #                    - and expecting the same result -                       #
 # -------------------------------------------------------------------------- # 
+arg = {
+    'good': {'data':good_data, 'feedback':good_fb},
+    'empty': {'data':[], 'feedback':good_fb},
+    'none': {'data':None, 'feedback':good_fb},
+}
+
+func = {
+    'fn_good': [
+        credit_mix,
+        credit_limit,
+        credit_util_ratio,
+        credit_interest,
+        credit_length,
+        credit_livelihood,
+        velocity_withdrawals,
+        velocity_deposits,
+        velocity_month_net_flow,
+        velocity_month_txn_count,
+        velocity_slope,
+        stability_tot_balance_now,
+        stability_min_running_balance,
+        diversity_acc_count,
+        diversity_profile
+        ]
+}
 
 class TestParametrizeOutput(unittest.TestCase):
     '''
@@ -237,10 +287,31 @@ class TestParametrizeOutput(unittest.TestCase):
     Finally, it checks that even when all args are NoneTypes, th output is still a tuple
     '''
     def test_output_good(self):
-        pass
+        for f in func['fn_good']:
+            z  = f(**arg['good'])
+            with self.subTest():
+                self.assertIsInstance(z, tuple)
+                self.assertLessEqual(z[0], 1)
+                self.assertIsInstance(z[0], (float, int))
+                self.assertIsInstance(z[1], dict)
 
     def test_output_empty(self):
-        pass
+        for f in func['fn_good']:
+            z  = f(**arg['empty'])
+            with self.subTest():
+                self.assertIsInstance(z, tuple)
+                self.assertEqual(z[0], 0)
+                self.assertIsInstance(z[0], (float, int))
+                self.assertIsInstance(z[1], dict)
+
+    def test_output_none(self):
+        for f in func['fn_good']:
+            z  = f(**arg['none'])
+            with self.subTest():
+                self.assertIsInstance(z, tuple)
+                self.assertIsNotNone(z[0])
+                self.assertIsInstance(z[1], dict)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -121,10 +121,13 @@ def dynamic_select(data, acc_name, feedback):
             best = {'id': info[index_best_acc][0], 'limit': info[index_best_acc][2]} 
         else:
             best = {'id': 'inexistent', 'limit': 0}
-        return best
 
     except Exception as e:
         feedback['fetch'][dynamic_select.__name__] = str(e)
+        best = {'id': 'inexistent', 'limit': 0}
+
+    finally:
+        return best
  
 
 
