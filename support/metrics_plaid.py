@@ -86,6 +86,7 @@ def dynamic_select(data, acc_name, feedback):
             Parameters:
                 data (dict): Plaid 'Transactions' product 
                 acc_name (str): acccepts 'credit' or 'checking'
+                feedback (dict): descriptive feedback about the score
         
             Returns: 
                 best (str or dict): Plaid account_id of best credit account 
@@ -138,6 +139,7 @@ def flows(data, how_many_months, feedback):
             Parameters:
                 data (dict): Plaid 'Transactions' product 
                 how_many_month (float): how many months of transaction history are you considering? 
+                feedback (dict): descriptive feedback about the score
         
             Returns: 
                 flow (df): pandas dataframe with amounts for net monthly flow and datetime index
@@ -183,11 +185,9 @@ def flows(data, how_many_months, feedback):
             flow = flow[:-1] 
 
         # Keep only past X months. If longer, then crop
-        daytoday = datetime.today().date().day
-        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-        yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
-        if yearago in flow.index:
-            flow = flow[flow.index.tolist().index(yearago):]
+        flow.reset_index(drop=True, inplace=True)
+        if how_many_months-1 in flow.index:
+            flow = flow[-(how_many_months):]
 
         return flow
 
@@ -201,6 +201,7 @@ def balance_now_checking_only(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product
+                feedback (dict): descriptive feedback about the score
 
             Returns:
                 balance (float): cumulative current balance in checking accounts

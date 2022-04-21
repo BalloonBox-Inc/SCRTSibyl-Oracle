@@ -117,6 +117,8 @@ class TestMetricCredit(unittest.TestCase):
         self.assertIn('error', a[1]['credit'].keys())
 
 
+
+
 class TestMetricVelocity(unittest.TestCase):
 
     def test_velocity_withdrawals(self):
@@ -219,7 +221,12 @@ class TestMetricDiversity(unittest.TestCase):
             self.assertGreaterEqual(diversity_profile(good_data, good_fb)[0], 0.17)
         self.assertEqual(diversity_profile(good_data, good_fb)[0], 1)
 
-    def test_helper_dynamic_select(self):
+
+
+
+class TestHelperFunctions(unittest.TestCase):
+
+    def test_dynamic_select(self):
         '''
         - ensure the output is a dict with 2 keys
         - if there exists at least one credit OR one checking account, then the output should return that id as best account
@@ -239,11 +246,39 @@ class TestMetricDiversity(unittest.TestCase):
         self.assertIs(dynamic_select([], 'checking', good_fb)['id'], 'inexistent')
 
 
-    def test_helper_flows(self):
-        pass
+    def test_flows(self):
+        '''
+        - check output Type is pandas DataFrame
+        - if you want to retrieve data history for the last, say, 6 months, then the output should have length of 6
+        - bad input data should return a NoneType
+        - bad input parameters should return an error in feedback['fetch']
+        '''
+        a = flows(good_data, 6, good_fb)
+        b = flows([], 6, good_fb)
+        c = flows(None, 6, good_fb)
 
-    def test_helper_balance_now_checking_only(self):
-        pass
+        self.assertIsInstance(a, pd.DataFrame)
+        self.assertEqual(len(a), 6)
+
+        for df in [b, c]:
+            self.assertIsNone(df)
+            self.assertIn('flows', good_fb['fetch'].keys())
+
+
+    def test_balance_now_checking_only(self):
+        '''
+        - check balance against expected value
+        - output should be of type float or int
+        - bad input data should return an error
+        '''
+        b = balance_now_checking_only(good_data, good_fb)
+        expected_b = sum([a['balances']['current'] for a in good_data['accounts'] if a['subtype']=='checking'])
+
+        self.assertEqual(b, expected_b)
+        self.assertIsInstance(b, (float, int))
+
+        balance_now_checking_only([], good_fb)
+        self.assertIn('balance_now_checking_only', good_fb['fetch'].keys())
 
 
 # -------------------------------------------------------------------------- #
