@@ -1,0 +1,1453 @@
+{
+    "accounts": [
+        {
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "balances": {
+                "available": 100.0,
+                "current": 110.0,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "0000",
+            "name": "Plaid Checking",
+            "official_name": "Plaid Gold Standard 0% Interest Checking",
+            "type": "depository",
+            "subtype": "checking"
+        },
+        {
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "balances": {
+                "available": 200.0,
+                "current": 210.0,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "1111",
+            "name": "Plaid Saving",
+            "official_name": "Plaid Silver Standard 0.1% Interest Saving",
+            "type": "depository",
+            "subtype": "savings"
+        },
+        {
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "balances": {
+                "available": null,
+                "current": 1000.0,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "2222",
+            "name": "Plaid CD",
+            "official_name": "Plaid Bronze Standard 0.2% Interest CD",
+            "type": "depository",
+            "subtype": "cd"
+        },
+        {
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "balances": {
+                "available": null,
+                "current": 410.0,
+                "limit": 2000.0,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "3333",
+            "name": "Plaid Credit Card",
+            "official_name": "Plaid Diamond 12.5% APR Interest Credit Card",
+            "type": "credit",
+            "subtype": "credit card"
+        },
+        {
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "balances": {
+                "available": 43200.0,
+                "current": 43200.0,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "4444",
+            "name": "Plaid Money Market",
+            "official_name": "Plaid Platinum Standard 1.85% Interest Money Market",
+            "type": "depository",
+            "subtype": "money market"
+        },
+        {
+            "account_id": "voBGqDqAazu3arDaygApUWAd9mN4WdIn9E167",
+            "balances": {
+                "available": null,
+                "current": 320.76,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "5555",
+            "name": "Plaid IRA",
+            "official_name": null,
+            "type": "investment",
+            "subtype": "ira"
+        },
+        {
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7abxDqk7bHXmBApr",
+            "balances": {
+                "available": null,
+                "current": 23631.9805,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "6666",
+            "name": "Plaid 401k",
+            "official_name": null,
+            "type": "investment",
+            "subtype": "401k"
+        },
+        {
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMkGPRzektbVyeDE",
+            "balances": {
+                "available": null,
+                "current": 65262.0,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "7777",
+            "name": "Plaid Student Loan",
+            "official_name": null,
+            "type": "loan",
+            "subtype": "student"
+        },
+        {
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjLbzXAwLUPw3LKw",
+            "balances": {
+                "available": null,
+                "current": 56302.06,
+                "limit": null,
+                "iso_currency_code": "USD",
+                "unofficial_currency_code": null
+            },
+            "mask": "8888",
+            "name": "Plaid Mortgage",
+            "official_name": null,
+            "type": "loan",
+            "subtype": "mortgage"
+        }
+    ],
+    "transactions": [
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-04-20",
+            "pending": false,
+            "transaction_id": "dzg4wXw8yPtPmbpmKyEWSKAA69Nm4oH6BMR1D"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-04-18",
+            "pending": false,
+            "transaction_id": "QLzbJMJmj1fm1JG1rjg9SjzJ7zvaLJC3jn7GK"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-04-15",
+            "pending": false,
+            "transaction_id": "Ed7M9K9vqxc4dLZd7qJmCqbjNbxm6jc96Mkg5"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment"
+            ],
+            "name": "AUTOMATIC PAYMENT - THANK",
+            "amount": 2078.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-04-14",
+            "pending": false,
+            "transaction_id": "G4wLQzQoraFWy8kyzraPUrzXdz5MxXFAZLPGM"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "KFC",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-04-14",
+            "pending": false,
+            "transaction_id": "Az17nVnpDrtPLmgL5zE3fyRgmRNlqgS6BkA4J"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-04-14",
+            "pending": false,
+            "transaction_id": "WWJ6RMRz1EIMlbel81JaU14XZ4MV6XswB51P3"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment",
+                "Credit Card"
+            ],
+            "name": "CREDIT CARD 3333 PAYMENT *//",
+            "amount": 25.0,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-04-05",
+            "pending": false,
+            "transaction_id": "oebp5D59KgCZd4Jd9RL6FNo9EokMa9CkvP7p7"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 063015 SF**POOL**",
+            "amount": 5.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-04-05",
+            "pending": false,
+            "transaction_id": "ZnblqMqeoKfG5XJ5poE9TgoWJorxQWurxvXJM"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Debit"
+            ],
+            "name": "ACH Electronic CreditGUSTO PAY 123456",
+            "amount": 5850.0,
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "date": "2022-04-04",
+            "pending": false,
+            "transaction_id": "mjJ15D5blpFjm45mZrVMiWq8eqMm48IMrld45"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Deposit"
+            ],
+            "name": "CD DEPOSIT .INITIAL.",
+            "amount": 1000.0,
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "date": "2022-04-04",
+            "pending": false,
+            "transaction_id": "8b6BpmpqnLfPjMQjLWZ8fvxXBxqkQXuKNRLZ8"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Recreation",
+                "Gyms and Fitness Centers"
+            ],
+            "name": "Touchstone Climbing",
+            "amount": 78.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-04-03",
+            "pending": false,
+            "transaction_id": "n74L5D5wqoSJNQBNX5WDUp89w8Ke49uKJXW3q"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": -500.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-04-03",
+            "pending": false,
+            "transaction_id": "MQlW747oaefGyZjyzakMTakmrkKJBmCem5P4q"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "McDonald's",
+            "amount": 12.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-04-02",
+            "pending": false,
+            "transaction_id": "1gJXlVlmojhWKvPK6alJUrMaLMdmqaFZDaeqx"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Coffee Shop"
+            ],
+            "name": "Starbucks",
+            "amount": 4.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-04-02",
+            "pending": false,
+            "transaction_id": "LeMEVaVod7Cj3wR3XdZmid4E54yAVEFl3mpey"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "SparkFun",
+            "amount": 89.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-04-01",
+            "pending": false,
+            "transaction_id": "pQgo5D59r8fLn49ngPbWT5AXWAEr1XTEXqVJ3"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Credit"
+            ],
+            "name": "INTRST PYMNT",
+            "amount": -4.22,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-03-31",
+            "pending": false,
+            "transaction_id": "gxpjbXbkReF8ld1lyRGPCmqepq49DeI4yGnL1"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-03-21",
+            "pending": false,
+            "transaction_id": "bKpdxXxgb4C8mrMmZ5WeCzLWpLNeyWfNBJZoX"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-03-19",
+            "pending": false,
+            "transaction_id": "voBGqDqAazu3arDaygApUWAvR41a8DUXpKwdN"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-03-16",
+            "pending": false,
+            "transaction_id": "qZlgRDR9zEFpLjqLA9XaiBxQPvJ47qcVEjQJp"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment"
+            ],
+            "name": "AUTOMATIC PAYMENT - THANK",
+            "amount": 2078.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-03-15",
+            "pending": false,
+            "transaction_id": "zWJymrm9jdIl1go17EzpinbMQZgByougVyeoR"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "KFC",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-03-15",
+            "pending": false,
+            "transaction_id": "rMq8JDJ9BlHJpXqpDKyNUgoArW7mDquDQAGlZ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-03-15",
+            "pending": false,
+            "transaction_id": "K7R8ndnZxjSw87n86xvQUxBNplPKnWumy956w"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment",
+                "Credit Card"
+            ],
+            "name": "CREDIT CARD 3333 PAYMENT *//",
+            "amount": 25.0,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-03-06",
+            "pending": false,
+            "transaction_id": "j4pQb5bPDMFojN3j1gdpTW5J6wPe83UGE7QoK"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 063015 SF**POOL**",
+            "amount": 5.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-03-06",
+            "pending": false,
+            "transaction_id": "RpBm8M8o7LfZWeGWp78zF7aA9kyJGWcG9qZE8"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Debit"
+            ],
+            "name": "ACH Electronic CreditGUSTO PAY 123456",
+            "amount": 5850.0,
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "date": "2022-03-05",
+            "pending": false,
+            "transaction_id": "WWJ6RMRz1EIMlbel81JaU14lRw5EeDF4RbBwQ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Deposit"
+            ],
+            "name": "CD DEPOSIT .INITIAL.",
+            "amount": 1000.0,
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "date": "2022-03-05",
+            "pending": false,
+            "transaction_id": "QLzbJMJmj1fm1JG1rjg9Sjz61Pdl4bfa1gjkQ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Recreation",
+                "Gyms and Fitness Centers"
+            ],
+            "name": "Touchstone Climbing",
+            "amount": 78.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-03-04",
+            "pending": false,
+            "transaction_id": "BBweRZR9Vzc8k1QkdGAxCMeoyaGqWwcLBpkwr"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": -500.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-03-04",
+            "pending": false,
+            "transaction_id": "6GXrg6gdAMS1VRyVlpXkUeMmVza8QAtx6lz5y"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "McDonald's",
+            "amount": 12.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-03-03",
+            "pending": false,
+            "transaction_id": "XAoX8G8BLlC3ePKe8LV4Uwj9DAmBKNTxQXDaN"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Coffee Shop"
+            ],
+            "name": "Starbucks",
+            "amount": 4.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-03-03",
+            "pending": false,
+            "transaction_id": "DkoZ8q8Vl3IAk7akVlXmhlx941mNdBuX1oZMx"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "SparkFun",
+            "amount": 89.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-03-02",
+            "pending": false,
+            "transaction_id": "VEpRWLWrM8FZJ6NJgMwdFMdgpz6BNbcnaVDrP"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Credit"
+            ],
+            "name": "INTRST PYMNT",
+            "amount": -4.22,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-03-01",
+            "pending": false,
+            "transaction_id": "7nPzpbplG1fyaRNaox59hx13M7RAkvu1Z5w4y"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-02-19",
+            "pending": false,
+            "transaction_id": "3EPlKbKd8eFblnZlDoGJhEvDrnP7ydi8AjWqB"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-02-17",
+            "pending": false,
+            "transaction_id": "wk3nKlKJ4BI3Pb6PZlxEUnl8ky1jo6ulGpQ8V"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-02-14",
+            "pending": false,
+            "transaction_id": "x8xbrqr5N3fW95Q9G6xpUDRGLXmApQuA1zQnR"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment"
+            ],
+            "name": "AUTOMATIC PAYMENT - THANK",
+            "amount": 2078.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-02-13",
+            "pending": false,
+            "transaction_id": "4W6qrbrGEQIAB7JBdLGnhzwVQM7qynf3ovmdM"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "KFC",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-02-13",
+            "pending": false,
+            "transaction_id": "aqkxeXe9naHDBoaBpnl3CW6R7N8VabUeNEX7Q"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-02-13",
+            "pending": false,
+            "transaction_id": "dzg4wXw8yPtPmbpmKyEafPbzWgyXpau6kbXZe"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment",
+                "Credit Card"
+            ],
+            "name": "CREDIT CARD 3333 PAYMENT *//",
+            "amount": 25.0,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-02-04",
+            "pending": false,
+            "transaction_id": "eB6NvXv19jcpxAbxl9nviXLVPKDb6juVgbxy9"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 063015 SF**POOL**",
+            "amount": 5.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-02-04",
+            "pending": false,
+            "transaction_id": "5A7Kobo6WZC9oX1om8JbHB5z6WaRrmcpvn6m8"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Debit"
+            ],
+            "name": "ACH Electronic CreditGUSTO PAY 123456",
+            "amount": 5850.0,
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "date": "2022-02-03",
+            "pending": false,
+            "transaction_id": "Az17nVnpDrtPLmgL5zE3fyRVMa6Bd4uo8pB6L"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Deposit"
+            ],
+            "name": "CD DEPOSIT .INITIAL.",
+            "amount": 1000.0,
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "date": "2022-02-03",
+            "pending": false,
+            "transaction_id": "ZnblqMqeoKfG5XJ5poE9Tgow3Kb51Xub3Ex86"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Recreation",
+                "Gyms and Fitness Centers"
+            ],
+            "name": "Touchstone Climbing",
+            "amount": 78.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-02-02",
+            "pending": false,
+            "transaction_id": "NZqkRNRg4QFRvVgvE4nlf41VeyDag6f73GVWQ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": -500.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-02-02",
+            "pending": false,
+            "transaction_id": "JjkgExE93PFbv1Rvm38eh31zlqVdRBC5AynPe"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "McDonald's",
+            "amount": 12.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-02-01",
+            "pending": false,
+            "transaction_id": "kNwZyDykV1Cn5Lb5dXGQs4VgDLJBkbf89jmv7"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Coffee Shop"
+            ],
+            "name": "Starbucks",
+            "amount": 4.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-02-01",
+            "pending": false,
+            "transaction_id": "lP7MZDZdwLfrLR5LgWxAT1negzxXJrFr4qMxg"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "SparkFun",
+            "amount": 89.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-31",
+            "pending": false,
+            "transaction_id": "qZlgRDR9zEFpLjqLA9XaiBxQPvJ47qcVEjQ3r"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Credit"
+            ],
+            "name": "INTRST PYMNT",
+            "amount": -4.22,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-01-30",
+            "pending": false,
+            "transaction_id": "QLzbJMJmj1fm1JG1rjg9Sjz61Pdl4bfa1gjrQ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-01-20",
+            "pending": false,
+            "transaction_id": "P1rnbWboPMHQBXrBpPe9sPyL1NjarVuN1eK7y"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-18",
+            "pending": false,
+            "transaction_id": "K7R8ndnZxjSw87n86xvQUxBNplPKnWumy95QX"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-01-15",
+            "pending": false,
+            "transaction_id": "j4pQb5bPDMFojN3j1gdpTW5J6wPe83UGE7Q1K"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment"
+            ],
+            "name": "AUTOMATIC PAYMENT - THANK",
+            "amount": 2078.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-01-14",
+            "pending": false,
+            "transaction_id": "qZlgRDR9zEFpLjqLA9XaiBxQPvJ47qcVEjQdK"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "KFC",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-01-14",
+            "pending": false,
+            "transaction_id": "eB6NvXv19jcpxAbxl9nviXLVPKDb6juVgbxL9"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-01-14",
+            "pending": false,
+            "transaction_id": "7nPzpbplG1fyaRNaox59hx13M7RAkvu1Z5wgy"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment",
+                "Credit Card"
+            ],
+            "name": "CREDIT CARD 3333 PAYMENT *//",
+            "amount": 25.0,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2022-01-05",
+            "pending": false,
+            "transaction_id": "ZnblqMqeoKfG5XJ5poE9Tgow3Kb51Xub3Exn6"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 063015 SF**POOL**",
+            "amount": 5.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-05",
+            "pending": false,
+            "transaction_id": "rMq8JDJ9BlHJpXqpDKyNUgoArW7mDquDQAGze"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Debit"
+            ],
+            "name": "ACH Electronic CreditGUSTO PAY 123456",
+            "amount": 5850.0,
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "date": "2022-01-04",
+            "pending": false,
+            "transaction_id": "G4wLQzQoraFWy8kyzraPUrzv9ymgkVtnapZAx"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Deposit"
+            ],
+            "name": "CD DEPOSIT .INITIAL.",
+            "amount": 1000.0,
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "date": "2022-01-04",
+            "pending": false,
+            "transaction_id": "MQlW747oaefGyZjyzakMTakQLqNAjDF7KWmDo"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Recreation",
+                "Gyms and Fitness Centers"
+            ],
+            "name": "Touchstone Climbing",
+            "amount": 78.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2022-01-03",
+            "pending": false,
+            "transaction_id": "K7R8ndnZxjSw87n86xvQUxBNplPKnWumy95Vx"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": -500.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-03",
+            "pending": false,
+            "transaction_id": "zWJymrm9jdIl1go17EzpinbMQZgByougVyenG"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "McDonald's",
+            "amount": 12.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-02",
+            "pending": false,
+            "transaction_id": "BBweRZR9Vzc8k1QkdGAxCMeoyaGqWwcLBpklK"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Coffee Shop"
+            ],
+            "name": "Starbucks",
+            "amount": 4.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-02",
+            "pending": false,
+            "transaction_id": "3EPlKbKd8eFblnZlDoGJhEvDrnP7ydi8AjWxp"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "SparkFun",
+            "amount": 89.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2022-01-01",
+            "pending": false,
+            "transaction_id": "x8xbrqr5N3fW95Q9G6xpUDRGLXmApQuA1zQb1"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Credit"
+            ],
+            "name": "INTRST PYMNT",
+            "amount": -4.22,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2021-12-31",
+            "pending": false,
+            "transaction_id": "MQlW747oaefGyZjyzakMTakQLqNAjDF7KWmbo"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-12-21",
+            "pending": false,
+            "transaction_id": "rMq8JDJ9BlHJpXqpDKyNUgoArW7mDquDQAGlv"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-12-19",
+            "pending": false,
+            "transaction_id": "dzg4wXw8yPtPmbpmKyEafPbzWgyXpau6kbXpb"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-12-16",
+            "pending": false,
+            "transaction_id": "zWJymrm9jdIl1go17EzpinbMQZgByougVyeov"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment"
+            ],
+            "name": "AUTOMATIC PAYMENT - THANK",
+            "amount": 2078.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-12-15",
+            "pending": false,
+            "transaction_id": "x8xbrqr5N3fW95Q9G6xpUDRGLXmApQuA1zQnz"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "KFC",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-12-15",
+            "pending": false,
+            "transaction_id": "3EPlKbKd8eFblnZlDoGJhEvDrnP7ydi8AjWqA"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-12-15",
+            "pending": false,
+            "transaction_id": "BBweRZR9Vzc8k1QkdGAxCMeoyaGqWwcLBpkwP"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment",
+                "Credit Card"
+            ],
+            "name": "CREDIT CARD 3333 PAYMENT *//",
+            "amount": 25.0,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2021-12-06",
+            "pending": false,
+            "transaction_id": "1gJXlVlmojhWKvPK6alJUrMR8pB3E1tmzkDbJ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 063015 SF**POOL**",
+            "amount": 5.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-12-06",
+            "pending": false,
+            "transaction_id": "aqkxeXe9naHDBoaBpnl3CW6R7N8VabUeNEXMa"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Debit"
+            ],
+            "name": "ACH Electronic CreditGUSTO PAY 123456",
+            "amount": 5850.0,
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "date": "2021-12-05",
+            "pending": false,
+            "transaction_id": "n74L5D5wqoSJNQBNX5WDUp8gV7ymQBcGo5JKl"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Deposit"
+            ],
+            "name": "CD DEPOSIT .INITIAL.",
+            "amount": 1000.0,
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "date": "2021-12-05",
+            "pending": false,
+            "transaction_id": "1gJXlVlmojhWKvPK6alJUrMR8pB3E1tmzkDQJ"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Recreation",
+                "Gyms and Fitness Centers"
+            ],
+            "name": "Touchstone Climbing",
+            "amount": 78.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-12-04",
+            "pending": false,
+            "transaction_id": "dzg4wXw8yPtPmbpmKyEafPbzWgyXpau6kbXZM"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": -500.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-12-04",
+            "pending": false,
+            "transaction_id": "4W6qrbrGEQIAB7JBdLGnhzwVQM7qynf3ovmP5"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "McDonald's",
+            "amount": 12.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-12-03",
+            "pending": false,
+            "transaction_id": "NZqkRNRg4QFRvVgvE4nlf41VeyDag6f73GVwd"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Coffee Shop"
+            ],
+            "name": "Starbucks",
+            "amount": 4.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-12-03",
+            "pending": false,
+            "transaction_id": "P1rnbWboPMHQBXrBpPe9sPyL1NjarVuN1eKRR"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "SparkFun",
+            "amount": 89.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-12-02",
+            "pending": false,
+            "transaction_id": "j4pQb5bPDMFojN3j1gdpTW5J6wPe83UGE7Qej"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Credit"
+            ],
+            "name": "INTRST PYMNT",
+            "amount": -4.22,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2021-12-01",
+            "pending": false,
+            "transaction_id": "LeMEVaVod7Cj3wR3XdZmid4lXNPrR9F97x3gb"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-11-21",
+            "pending": false,
+            "transaction_id": "aqkxeXe9naHDBoaBpnl3CW6R7N8VabUeNEX74"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-11-19",
+            "pending": false,
+            "transaction_id": "7nPzpbplG1fyaRNaox59hx13M7RAkvu1Z5wqz"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-11-16",
+            "pending": false,
+            "transaction_id": "4W6qrbrGEQIAB7JBdLGnhzwVQM7qynf3ovmdz"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment"
+            ],
+            "name": "AUTOMATIC PAYMENT - THANK",
+            "amount": 2078.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-11-15",
+            "pending": false,
+            "transaction_id": "j4pQb5bPDMFojN3j1gdpTW5J6wPe83UGE7Q1k"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "KFC",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-11-15",
+            "pending": false,
+            "transaction_id": "P1rnbWboPMHQBXrBpPe9sPyL1NjarVuN1eK7n"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-11-15",
+            "pending": false,
+            "transaction_id": "NZqkRNRg4QFRvVgvE4nlf41VeyDag6f73GVWw"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Payment",
+                "Credit Card"
+            ],
+            "name": "CREDIT CARD 3333 PAYMENT *//",
+            "amount": 25.0,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2021-11-06",
+            "pending": false,
+            "transaction_id": "pQgo5D59r8fLn49ngPbWT5AgjKmpB9uKwvX9w"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 063015 SF**POOL**",
+            "amount": 5.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-11-06",
+            "pending": false,
+            "transaction_id": "eB6NvXv19jcpxAbxl9nviXLVPKDb6juVgbxGy"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Debit"
+            ],
+            "name": "ACH Electronic CreditGUSTO PAY 123456",
+            "amount": 5850.0,
+            "account_id": "VEpRWLWrM8FZJ6NJgMwdFMdopLeVplTp3wEgN",
+            "date": "2021-11-05",
+            "pending": false,
+            "transaction_id": "bKpdxXxgb4C8mrMmZ5WeCzLJE98nMDf3lkBNp"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Deposit"
+            ],
+            "name": "CD DEPOSIT .INITIAL.",
+            "amount": 1000.0,
+            "account_id": "XAoX8G8BLlC3ePKe8LV4UwjMDQzXDZTPw3LKD",
+            "date": "2021-11-05",
+            "pending": false,
+            "transaction_id": "LeMEVaVod7Cj3wR3XdZmid4lXNPrR9F97x3Lb"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Recreation",
+                "Gyms and Fitness Centers"
+            ],
+            "name": "Touchstone Climbing",
+            "amount": 78.5,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-11-04",
+            "pending": false,
+            "transaction_id": "7nPzpbplG1fyaRNaox59hx13M7RAkvu1Z5wg4"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": -500.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-11-04",
+            "pending": false,
+            "transaction_id": "qZlgRDR9zEFpLjqLA9XaiBxQPvJ47qcVEjQ3J"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Fast Food"
+            ],
+            "name": "McDonald's",
+            "amount": 12.0,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-11-03",
+            "pending": false,
+            "transaction_id": "K7R8ndnZxjSw87n86xvQUxBNplPKnWumy95QV"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants",
+                "Coffee Shop"
+            ],
+            "name": "Starbucks",
+            "amount": 4.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-11-03",
+            "pending": false,
+            "transaction_id": "rMq8JDJ9BlHJpXqpDKyNUgoArW7mDquDQAGz7"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "SparkFun",
+            "amount": 89.4,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-11-02",
+            "pending": false,
+            "transaction_id": "zWJymrm9jdIl1go17EzpinbMQZgByougVyen3"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Transfer",
+                "Credit"
+            ],
+            "name": "INTRST PYMNT",
+            "amount": -4.22,
+            "account_id": "6GXrg6gdAMS1VRyVlpXkUeMXVnPRVgfbVyeDm",
+            "date": "2021-11-01",
+            "pending": false,
+            "transaction_id": "oebp5D59KgCZd4Jd9RL6FNogKB1XVJCKjZv4Z"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Airlines and Aviation Services"
+            ],
+            "name": "United Airlines",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-10-22",
+            "pending": false,
+            "transaction_id": "eB6NvXv19jcpxAbxl9nviXLVPKDb6juVgbxLM"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Travel",
+                "Taxi"
+            ],
+            "name": "Uber 072515 SF**POOL**",
+            "amount": 6.33,
+            "account_id": "RpBm8M8o7LfZWeGWp78zF7a39dDq9RhXmBApJ",
+            "date": "2021-10-20",
+            "pending": false,
+            "transaction_id": "BBweRZR9Vzc8k1QkdGAxCMeoyaGqWwcLBpklA"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Food and Drink",
+                "Restaurants"
+            ],
+            "name": "Tectra Inc",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-10-17",
+            "pending": false,
+            "transaction_id": "QLzbJMJmj1fm1JG1rjg9Sjz61Pdl4bfa1gjpp"
+        },
+        {
+            "pending_transaction_id": null,
+            "category": [
+                "Shops",
+                "Sporting Goods"
+            ],
+            "name": "Madison Bicycle Shop",
+            "amount": 500.0,
+            "account_id": "DkoZ8q8Vl3IAk7akVlXmhlxz4VMP4GiEKkJWd",
+            "date": "2021-10-16",
+            "pending": false,
+            "transaction_id": "ZnblqMqeoKfG5XJ5poE9Tgow3Kb51Xub3Exge"
+        }
+    ]
+}
