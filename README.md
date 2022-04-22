@@ -93,8 +93,7 @@ SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The
 The algorithm has undergone extensive unit testing. To execute these tests yourself, run the following command in terminal, from the root folder of this Git repo:
 
 ```bash
-python -m unittest -v test_coinbase             # Coinbase 
-python -m unittest -v test_plaid                # Plaid
+python -m unittest -v unit_tests                # for both Coinbase & Plaid
 ```
 
 > :warning: Plaid `unittest` relies on Plaid sandbox data, so before running the Plaid tests ensure your `.env` file is updated. Specifically, Plaid unit tests require these Plaid credentials

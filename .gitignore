@@ -18,8 +18,5 @@ milestone2.py
 /SCRTSybil
 /venv-secret
 
-# Json files
-**.json
-
 # Local Datasets
 /data

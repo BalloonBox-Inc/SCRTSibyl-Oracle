@@ -66,11 +66,11 @@ def str_to_datetime(plaid_txn, feedback):
                 all_txn.append(t)
 
         # Prettify and write to json
-        tx = {'accounts':plaid_txn['accounts'],  'item':plaid_txn['item'], 'transactions':all_txn}
+        tx = {'accounts':plaid_txn['accounts'],  'transactions':all_txn}
         return tx
 
     except Exception as e:
-        feedback['kyc'][str_to_datetime.__name__] = str(e)
+        feedback['fetch'][str_to_datetime.__name__] = str(e)
 
 
 
