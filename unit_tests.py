@@ -4,7 +4,7 @@ from support.tests.test_plaid import *
 from support.metrics_coinbase import *
 
 
-# Run the actual tests bunding classes of test cases into test suites
+# Run the actual tests bundling classes of test cases into test suites
 def suite():
     suite = unittest.TestSuite()
 
@@ -26,6 +26,3 @@ def suite():
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
     runner.run(suite())
-
-
-
