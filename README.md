@@ -96,13 +96,7 @@ The algorithm has undergone extensive unit testing. To execute these tests yours
 python -m unittest -v unit_tests                # for both Coinbase & Plaid
 ```
 
-> :warning: Plaid `unittest` relies on Plaid sandbox data, so before running the Plaid tests ensure your `.env` file is updated. Specifically, Plaid unit tests require these Plaid credentials
-
-```bash
-PLAID_CLIENT_ID=your_client_id
-PLAID_CLIENT_SECRET=your_sandbox_key
-PLAID_TOKEN=your_unique_access_token
-```
+> :warning: both Coinbase and Plaid `unittest` relies on imported test data (_json_ files). We crafted two fake and anonimized test data-sets with the explicit goal of executing unit tests. Find these two data sets in the `data` directory, under the names of `test_user_coinbase.json` and `test_user_plaid.json`, respectively. 
 
 
 
