@@ -70,7 +70,6 @@ m7x7_03_17.flags.writeable = False
 m7x7_85_55.flags.writeable = False
 fico_medians.flags.writeable = False
 
-
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 # -------------------------------------------------------------------------- #
@@ -121,7 +120,7 @@ def net_flow(txn, timeframe, feedback):
             df = df[-timeframe:]
 
         else:
-            raise Exception('No consistent net flow')
+            raise Exception('no consistent net flow')
     
     except Exception as e:
         df = pd.DataFrame()
@@ -142,6 +141,7 @@ def kyc(acc, txn, feedback):
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
         txn (list): transactions history of above-listed accounts
+        feedback (dict): score feedback
 
     Returns:
         score (int): binary kyc verification
@@ -175,6 +175,7 @@ def history_acc_longevity(acc, feedback):
     
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        feedback (dict): score feedback
 
     Returns:
         score (float): score gained based on account longevity
@@ -186,10 +187,10 @@ def history_acc_longevity(acc, feedback):
         if acc:
             oldest = min([d['created_at'] for d in acc if d['created_at']])
             # age (in days) of longest standing Coinbase account
-            age = (now - oldest).days 
-            score = fico_medians[np.digitize(age, duration, right=True)]
+            history_acc_longevity.age = (now - oldest).days 
+            score = fico_medians[np.digitize(history_acc_longevity.age, duration, right=True)]
 
-            feedback['history']['wallet_age(days)'] = age
+            feedback['history']['wallet_age(days)'] = history_acc_longevity.age
         else:
             raise Exception('unknown account longevity')
     
@@ -211,6 +212,7 @@ def liquidity_tot_balance_now(acc, feedback):
     
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
+        feedback (dict): score feedback
 
     Returns:
         score (float): score gained based on cumulative balance across accounts
@@ -286,6 +288,7 @@ def liquidity_avg_running_balance(acc, txn, feedback):
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
         txn (list): transactions history of above-listed accounts
+        feedback (dict): score feedback
 
     Returns:
         score (float): score gained for mimimum running balance
@@ -299,7 +302,7 @@ def liquidity_avg_running_balance(acc, txn, feedback):
             # Calculate net flow (i.e, |income-expenses|) each month for past 12 months
             net, feedback = net_flow(txn, 12, feedback)
 
-            # Iteratively subtract net flow from balancenow to calculate the running balance for the past 12 months
+            # Iteratively subtract net flow from balance now to calculate the running balance for the past 12 months
             net = net['amount'].tolist()[::-1]
             net = [n+balance for n in net]
             size = len(net)
@@ -401,9 +404,10 @@ def activity_consistency(txn, type, feedback):
                 }
 
             # Filter by transaction type and keep txn amounts and dates
-            typed_txn = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), float(d['native_amount']['amount'])) for d in txn if d['type'] in accepted_types[type]]
-            df = pd.DataFrame(typed_txn, columns=['created_at','amount'])
+            activity_consistency.typed_txn = [(datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ'), float(d['native_amount']['amount'])) for d in txn if d['type'] in accepted_types[type]]
+            df = pd.DataFrame(activity_consistency.typed_txn, columns=['created_at','amount'])
             df = df.set_index('created_at')
+            activity_consistency.frame = df
             df = df.groupby(pd.Grouper(freq='M')).sum()
             df = df[-12:]
             df = df[df['amount']!=0]
@@ -443,7 +447,7 @@ def activity_profit_since_inception(acc, txn, feedback):
     
     Parameters:
         acc (list): non-zero balance Coinbase accounts owned by the user in currencies of trusted reputation
-        txn (list): transactions history of above-listed accounts
+        txn (list): transaction history of above-listed accounts
 
     Returns:
         score (int): for user total net profit thus far
@@ -462,6 +466,7 @@ def activity_profit_since_inception(acc, txn, feedback):
         debits = sum([float(d['native_amount']['amount']) for d in txn if d['type'] in accepted_types['debit']])
         
         profit = (balance - credits) + debits
+        activity_profit_since_inception.profit = profit
         
         if profit == 0:
             raise Exception('no net profit')

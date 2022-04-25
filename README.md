@@ -16,7 +16,7 @@ Ultimately, this will incentivize on-chain traffic, it will affirm the reputatio
  ---
 
 
-## Execute Locally 
+## Execute Locally
  * download or clone the repo to your machine
  * install dependancies 
  * set up ```.env``` file 
@@ -75,7 +75,7 @@ There are two distinct models, one for each of our chosen validators, namely Pla
 
 [**Coinbase model**](./images/logic_coinbase.png) diagram and features:
 - :bell: check for user KYC status
-- :key: live fetch of top 20 cryptos by market cap via [CoinMarketCap](https://coinmarketcap.com/) API
+- :key: live fetch of top 25 cryptos by market cap via [CoinMarketCap](https://coinmarketcap.com/) API
 - :fire: dynamically select user's best crypto wallets
 - :closed_lock_with_key: auto-convert any currency to USD in real-time
 - :bulb: analyze all transactions since Coinbase account inception
@@ -88,6 +88,21 @@ There are two distinct models, one for each of our chosen validators, namely Pla
 SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor | poor | fair | good | very good | excellent | exceptional), which describe the score qualitatively (see fuel gauge in the diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTSibyl oracle calculation. Lastly, the SCRTSibyl also returns the estimated payback period, namely the expected time it will take for the user to pay back the loan. The loan terms (loan amount, qualitative descriptor, and payback period) are algorithmic recommendations, and, therefore, they are not prescriptive. Although we strongly advise lenders and borrowers to consider the SCRTSibyl Oracle's parameters, we also encourage them to stipulate loan terms to best suit their needs. 
 ![](./images/ranges.png) 
 
+### Unit tests :pencil2: :black_nib: :page_facing_up:
+
+The algorithm has undergone extensive unit testing. To execute these tests yourself, run the following command in terminal, from the root folder of this Git repo:
+
+```bash
+python -m unittest -v unit_tests                # for both Coinbase & Plaid
+```
+
+> :warning: Plaid `unittest` relies on Plaid sandbox data, so before running the Plaid tests ensure your `.env` file is updated. Specifically, Plaid unit tests require these Plaid credentials
+
+```bash
+PLAID_CLIENT_ID=your_client_id
+PLAID_CLIENT_SECRET=your_sandbox_key
+PLAID_TOKEN=your_unique_access_token
+```
 
 
 

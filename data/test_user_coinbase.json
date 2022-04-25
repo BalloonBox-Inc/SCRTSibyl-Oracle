@@ -1,0 +1,1807 @@
+{
+    "accounts": [
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "48.8989426",
+                "currency": "XLM"
+            },
+            "created_at": "2021-08-07T23:09:05Z",
+            "currency": "XLM",
+            "id": "ce4o392f0-49g8vgj-sm3400002ji-000000",
+            "name": "XLM Wallet",
+            "native_balance": {
+                "amount": "12.40",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/ce4o392f0-49g8vgj-sm3400002ji-000000",
+            "type": "wallet",
+            "updated_at": "2021-08-07T23:09:05Z"
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "0.037",
+                "currency": "BTC"
+            },
+            "created_at": "2021-05-03T22:55:32Z",
+            "currency": "BTC",
+            "id": "9894fv8mdk-0394Bnsj-9nnfj800-0000001",
+            "name": "BTC Wallet",
+            "native_balance": {
+                "amount": "1624.3",
+                "currency": "USD"
+            },
+            "primary": true,
+            "resource": "account",
+            "resource_path": "/v2/accounts/9894fv8mdk-0394Bnsj-9nnfj800-0000001",
+            "type": "wallet",
+            "updated_at": "2021-05-03T22:55:32Z"
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "0.0022",
+                "currency": "ETH"
+            },
+            "created_at": null,
+            "currency": "ETH",
+            "id": "ETH",
+            "name": "ETH Wallet",
+            "native_balance": {
+                "amount": "6.7",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/ETH",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "10",
+                "currency": "USDC"
+            },
+            "created_at": null,
+            "currency": "USDC",
+            "id": "USDC",
+            "name": "USDC Wallet",
+            "native_balance": {
+                "amount": "9.9",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/USDC",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "1.5",
+                "currency": "XRP"
+            },
+            "created_at": null,
+            "currency": "XRP",
+            "id": "XRP",
+            "name": "XRP Wallet",
+            "native_balance": {
+                "amount": "1.2",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/XRP",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "2250",
+                "currency": "DOGE"
+            },
+            "created_at": null,
+            "currency": "DOGE",
+            "id": "DOGE",
+            "name": "DOGE Wallet",
+            "native_balance": {
+                "amount": "375",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/DOGE",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "189",
+                "currency": "MATIC"
+            },
+            "created_at": null,
+            "currency": "MATIC",
+            "id": "MATIC",
+            "name": "MATIC Wallet",
+            "native_balance": {
+                "amount": "343.98",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/MATIC",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "3",
+                "currency": "USDT"
+            },
+            "created_at": null,
+            "currency": "USDT",
+            "id": "USDT",
+            "name": "USDT Wallet",
+            "native_balance": {
+                "amount": "3",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/USDT",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "2000",
+                "currency": "SOL"
+            },
+            "created_at": null,
+            "currency": "SOL",
+            "id": "SOL",
+            "name": "SOL Wallet",
+            "native_balance": {
+                "amount": "520",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/SOL",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "99",
+                "currency": "DAI"
+            },
+            "created_at": null,
+            "currency": "DAI",
+            "id": "DAI",
+            "name": "DAI Wallet",
+            "native_balance": {
+                "amount": "100",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/DAI",
+            "rewards": {
+                "apy": "0.02",
+                "formatted_apy": "2.00%",
+                "label": "2.00% APY"
+            },
+            "rewards_apy": "0.02",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "2",
+                "currency": "ATOM"
+            },
+            "created_at": null,
+            "currency": "ATOM",
+            "id": "ATOM",
+            "name": "ATOM Wallet",
+            "native_balance": {
+                "amount": "57.4",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/ATOM",
+            "rewards": {
+                "apy": "0.05",
+                "formatted_apy": "5.00%",
+                "label": "5.00% APY"
+            },
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "14.5",
+                "currency": "LINK"
+            },
+            "created_at": null,
+            "currency": "LINK",
+            "id": "LINK",
+            "name": "LINK Wallet",
+            "native_balance": {
+                "amount": "249.98",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/LINK",
+            "type": "wallet",
+            "updated_at": null
+        },
+        {
+            "allow_deposits": true,
+            "allow_withdrawals": true,
+            "balance": {
+                "amount": "50",
+                "currency": "LTC"
+            },
+            "created_at": null,
+            "currency": "LTC",
+            "id": "LTC",
+            "name": "LTC Wallet",
+            "native_balance": {
+                "amount": "6430.5",
+                "currency": "USD"
+            },
+            "primary": false,
+            "resource": "account",
+            "resource_path": "/v2/accounts/LTC",
+            "type": "wallet",
+            "updated_at": null
+        }
+    ],
+    "transactions": [
+        {
+            "id": "9576fafc-c670-532f-85ad-358634add820",
+            "type": "fiat_deposit",
+            "status": "completed",
+            "amount": {
+                "amount": "206",
+                "currency": "USD"
+            },
+            "native_amount": {
+                "amount": "206",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-02-10T23:08:29Z",
+            "updated_at": "2022-02-10T23:08:29Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/9576fafc-c670-hl2f-85ad-3_8shr645e85",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "USD money injection",
+                "subtitle": "From Scotiabank owner account",
+                "header": "Received 206 USD ($206)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "9576fafc-c670-532f-85ad-3586ecadd098",
+            "type": "request",
+            "status": "completed",
+            "amount": {
+                "amount": "0.01",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "438.49",
+                "currency": " USD"
+            },
+            "description": "None",
+            "created_at": "2022-02-08T23:08:29Z",
+            "updated_at": "2022-02-08T23:08:29Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/9576fafc-c670-hl2f-85ad-3_8shr645e85",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Requested and received some BTC",
+                "subtitle": "From my friend Joe",
+                "header": "Received 0.01 BTC ($438.49)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "9576fafc-c670-532f-85ad-3586ecadd013",
+            "type": "fiat_withdrawal",
+            "status": "completed",
+            "amount": {
+                "amount": "3",
+                "currency": "ETH"
+            },
+            "native_amount": {
+                "amount": "109.14",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-02-04T23:08:29Z",
+            "updated_at": "2022-02-04T23:08:29Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/9576fafc-c670-hl2f-85ad-3_8shr645e85",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "ETH"
+            },
+            "details": {
+                "title": "Withdraw Ethereum ETH",
+                "subtitle": "From my Coinbase account",
+                "header": "Received 3 ETH ($109.14)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "9576fafc-c670-hl2f-85ad-3_8shr645e85",
+            "type": "request",
+            "status": "completed",
+            "amount": {
+                "amount": "0.12",
+                "currency": "ETH"
+            },
+            "native_amount": {
+                "amount": "365.76",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-01-21T23:08:29Z",
+            "updated_at": "2022-01-21T23:08:29Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/9576fafc-c670-hl2f-85ad-3_8shr645e85",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "ETH"
+            },
+            "details": {
+                "title": "Received Ethereum ETH",
+                "subtitle": "From Coinbase Earn",
+                "header": "Received 0.12 ETH ($365.76)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f7fh5k8",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-0.5",
+                "currency": "ETH"
+            },
+            "native_amount": {
+                "amount": "1645",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-01-21T23:07:18Z",
+            "updated_at": "2022-01-21T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "ETH"
+            },
+            "details": {
+                "title": "Sent ETH -fake transaction",
+                "subtitle": "P2P send",
+                "header": "Sent 0.5 ETH ($1645)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "0.005",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "221.655",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-01-20T23:07:55Z",
+            "updated_at": "2022-01-20T23:07:55Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Sold some Bitcoin",
+                "subtitle": "Sold Bitcoin",
+                "header": "Sell 0.005 BTC ($221.655)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "06f04e63-83-_/mwoc-a188-9d39osk2/834",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "0.002",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "88.662",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-01-11T23:07:37Z",
+            "updated_at": "2022-01-11T23:07:37Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/06f04e63-83-_/mwoc-a188-9d39osk2/834",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Sell Bitcoin",
+                "subtitle": "From Coinbase BuyEarn",
+                "header": "Sold 88.662 BTC ($0.002)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "123965a8-7b3d-526d-93eb-65c58daddb03",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-9.7799511",
+                "currency": "XLM"
+            },
+            "native_amount": {
+                "amount": "2.52",
+                "currency": "CAD"
+            },
+            "description": "None",
+            "created_at": "2022-01-11T23:07:18Z",
+            "updated_at": "2022-01-11T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/123965a8-7b3d-526d-93eb-65c58daddb03",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "XLM"
+            },
+            "details": {
+                "title": "Sent stuff",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sent 9.7799511 XLM ($2.52)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "3",
+                "currency": "DOT"
+            },
+            "native_amount": {
+                "amount": "63.93",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2022-01-07T23:06:52Z",
+            "updated_at": "2022-01-07T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "DOT"
+            },
+            "details": {
+                "title": "Sell DOT coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sell 3 DOT ($63.93)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f49add0",
+            "type": "buy",
+            "status": "completed",
+            "amount": {
+                "amount": "0.0025",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "110.50",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-23T23:07:18Z",
+            "updated_at": "2021-12-23T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Received Bitcoin -fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Received 0.0025 BTC ($11.050)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f9ej5n6",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-0.0001",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "11.05",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-22T23:07:18Z",
+            "updated_at": "2021-12-22T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Received Bitcoin -fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Received 0.001 BTC ($11.05)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f7stgur",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "42",
+                "currency": "LINK"
+            },
+            "native_amount": {
+                "amount": "714",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-20T23:07:18Z",
+            "updated_at": "2021-12-20T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "LINK"
+            },
+            "details": {
+                "title": "Sold LINK -fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sold 42 LINK ($714)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "06f04e63-8344-503c-a188-9d399c87add1",
+            "type": "send_credit",
+            "status": "completed",
+            "amount": {
+                "amount": "0.025",
+                "currency": "BNB"
+            },
+            "native_amount": {
+                "amount": "105.22",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-19T23:07:18Z",
+            "updated_at": "2021-12-19T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/06f04e63-83-_/mwoc-a188-9d39osk2/834",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BNB"
+            },
+            "details": {
+                "title": "Received fake BNB transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Received 0.025 BNB ($105.2225)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "123965a8-7b3d-526d-93eb-65c58dadadd2",
+            "type": "fiat_deposit",
+            "status": "completed",
+            "amount": {
+                "amount": "10",
+                "currency": "CAD"
+            },
+            "native_amount": {
+                "amount": "7.90",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-16T23:07:18Z",
+            "updated_at": "2021-12-16T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/123965a8-7b3d-526d-93eb-65c58daddb03",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "Received Stellar Lumens",
+                "subtitle": "From Coinbase Earn",
+                "header": "Inject CAD into my fake Coinbase account",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b5535467s8",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "201",
+                "currency": "DAI"
+            },
+            "native_amount": {
+                "amount": "203",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-15T23:07:18Z",
+            "updated_at": "2021-12-15T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "LINK"
+            },
+            "details": {
+                "title": "Sold DAI -fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sold 201 DAI ($203)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fc8d2add3",
+            "type": "fiat_withdrawal",
+            "status": "completed",
+            "amount": {
+                "amount": "1",
+                "currency": "DOT"
+            },
+            "native_amount": {
+                "amount": "21.9",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-12-15T23:06:52Z",
+            "updated_at": "2021-12-15T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "DOT"
+            },
+            "details": {
+                "title": "Withdraw DOT coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Withdrawn 1 DOT ($21.9)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f49add4",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "0.021",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "1005",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-11-23T23:07:18Z",
+            "updated_at": "2021-11-23T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Received Bitcoin -fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Received 0.05 BTC ($1105)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "06f04e63-8344-503c-a188-9d399c87add5",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "0.3",
+                "currency": "BNB"
+            },
+            "native_amount": {
+                "amount": "130",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-11-03T23:07:18Z",
+            "updated_at": "2021-11-03T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/06f04e63-83-_/mwoc-a188-9d39osk2/834",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BNB"
+            },
+            "details": {
+                "title": "Sell fake BNB transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sold 0.3 BNB ($130",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "123965a8-7b3d-526d-93eb-65c58dadadd6",
+            "type": "fiat_deposit",
+            "status": "completed",
+            "amount": {
+                "amount": "100",
+                "currency": "CAD"
+            },
+            "native_amount": {
+                "amount": "79",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-10-10T23:07:18Z",
+            "updated_at": "2021-10-10T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/123965a8-7b3d-526d-93eb-65c58daddb03",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "CAD injection",
+                "subtitle": "From Coinbase Earn",
+                "header": "Inject CAD into my fake Coinbase account",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fc8d2add7",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "78",
+                "currency": "USD"
+            },
+            "native_amount": {
+                "amount": "78",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-09-07T23:06:52Z",
+            "updated_at": "2021-09-07T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "Sell USD",
+                "subtitle": "Test sell",
+                "header": "Sold 78 USD ($78)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "06f04e63-8344-503c-a188-9d399add738y",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-0.5",
+                "currency": "BNB"
+            },
+            "native_amount": {
+                "amount": "245",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-08-30T23:07:18Z",
+            "updated_at": "2021-08-30T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/06f04e63-83-_/mwoc-a188-9d39osk2/834",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BNB"
+            },
+            "details": {
+                "title": "Sent fake BNB transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sent 0.5 BNB ($245)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "123965a8-7b3d-526d-93eb-65c58dad1234",
+            "type": "fiat_deposit",
+            "status": "completed",
+            "amount": {
+                "amount": "500",
+                "currency": "CAD"
+            },
+            "native_amount": {
+                "amount": "390",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-08-10T23:07:18Z",
+            "updated_at": "2021-08-10T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/123965a8-7b3d-526d-93eb-65c58daddb03",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "Deposit some funds",
+                "subtitle": "From Coinbase Earn",
+                "header": "Deposit CAD out of my Coinbase account",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcsh5nfi6",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "12",
+                "currency": "DOT"
+            },
+            "native_amount": {
+                "amount": "110",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-07-17T23:06:52Z",
+            "updated_at": "2021-07-17T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "DOT"
+            },
+            "details": {
+                "title": "Sell DOT coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sell 12 DOT ($110)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f49mmm7",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-0.015",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "657.73",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-07-01T23:07:18Z",
+            "updated_at": "2021-07-01T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Sent Bitcoin - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sent 0.015 BTC ($657.73) to another user",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f272727",
+            "type": "send_credit",
+            "status": "completed",
+            "amount": {
+                "amount": "17",
+                "currency": "MATIC"
+            },
+            "native_amount": {
+                "amount": "25",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-07-01T23:07:18Z",
+            "updated_at": "2021-07-01T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "MATIC"
+            },
+            "details": {
+                "title": "Sent Bitcoin - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sent 17 MATIC ($25) into my account",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-cofl5f49m00l",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-3",
+                "currency": "ATOM"
+            },
+            "native_amount": {
+                "amount": "84",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-07-01T23:07:18Z",
+            "updated_at": "2021-07-01T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "ATOM"
+            },
+            "details": {
+                "title": "Sent Atom - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sent 3 ATOM ($84) to another user",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcsdnrj324",
+            "type": "buy",
+            "status": "completed",
+            "amount": {
+                "amount": "86",
+                "currency": "XRP"
+            },
+            "native_amount": {
+                "amount": "73.1",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-06-25T23:06:52Z",
+            "updated_at": "2021-06-25T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "XRP"
+            },
+            "details": {
+                "title": "Buy XRP coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Buy 86 XRP ($73.1)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f000000",
+            "type": "send_credit",
+            "status": "completed",
+            "amount": {
+                "amount": "0.74",
+                "currency": "ETH"
+            },
+            "native_amount": {
+                "amount": "26.92",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-06-07T23:07:18Z",
+            "updated_at": "2021-06-07T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "ETH"
+            },
+            "details": {
+                "title": "Get Ethereum - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Received 0.74 ETH ($26.92)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcsnhnh94",
+            "type": "fiat_withdrawal",
+            "status": "completed",
+            "amount": {
+                "amount": "20",
+                "currency": "USD"
+            },
+            "native_amount": {
+                "amount": "20",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-05-19T23:06:52Z",
+            "updated_at": "2021-05-19T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "Sell USD coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sell 20 USD ($20)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55fo6k7j8",
+            "type": "buy",
+            "status": "completed",
+            "amount": {
+                "amount": "7.5",
+                "currency": "AVAX"
+            },
+            "native_amount": {
+                "amount": "693.975",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-05-11T23:07:18Z",
+            "updated_at": "2021-05-11T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "AVAX"
+            },
+            "details": {
+                "title": "Buy Avax - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Buy 7.5 AVAX ($693.975)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcsnhnh94",
+            "type": "fiat_deposit",
+            "status": "completed",
+            "amount": {
+                "amount": "5",
+                "currency": "USD"
+            },
+            "native_amount": {
+                "amount": "5",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-05-07T23:06:52Z",
+            "updated_at": "2021-05-07T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "Injected USD coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Deposited 5 USD ($5)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55fo6k7j8",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "7.5",
+                "currency": "AVAX"
+            },
+            "native_amount": {
+                "amount": "693.975",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-04-14T23:07:18Z",
+            "updated_at": "2021-04-14T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "AVAX"
+            },
+            "details": {
+                "title": "Sell Avax - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sell 7.5 AVAX ($693.975)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcsnhnh94",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "40",
+                "currency": "XRP"
+            },
+            "native_amount": {
+                "amount": "33.6",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-04-12T23:06:52Z",
+            "updated_at": "2021-04-12T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "XRP"
+            },
+            "details": {
+                "title": "Sell XRP coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sell 40 USD ($33.6)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55fo6k7j8",
+            "type": "buy",
+            "status": "completed",
+            "amount": {
+                "amount": "3.2",
+                "currency": "AVAX"
+            },
+            "native_amount": {
+                "amount": "385.95",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-03-08T23:07:18Z",
+            "updated_at": "2021-03-08T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "AVAX"
+            },
+            "details": {
+                "title": "Buy Avax - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Buy 3.2 AVAX ($385.95)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55fo6k7j8",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-13.76",
+                "currency": "LTC"
+            },
+            "native_amount": {
+                "amount": "859.55",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-02-12T23:07:18Z",
+            "updated_at": "2021-02-12T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "AVAX"
+            },
+            "details": {
+                "title": "Send away LTC - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Send away 13.76 LTC ($859.55)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcsehrj56",
+            "type": "fiat_deposit",
+            "status": "completed",
+            "amount": {
+                "amount": "10.25",
+                "currency": "USD"
+            },
+            "native_amount": {
+                "amount": "10.25",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-02-07T23:06:52Z",
+            "updated_at": "2021-02-07T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "USD"
+            },
+            "details": {
+                "title": "Injected USD coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Deposited 10.25 USD ($10.25)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55fskr8g9",
+            "type": "request",
+            "status": "completed",
+            "amount": {
+                "amount": "54",
+                "currency": "DOGE"
+            },
+            "native_amount": {
+                "amount": "8.1",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-02-06T23:07:18Z",
+            "updated_at": "2021-02-06T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "DOGE"
+            },
+            "details": {
+                "title": "Request Doge coins - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Request 54 DOGE ($8.1)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55fdhtngo",
+            "type": "send_credit",
+            "status": "completed",
+            "amount": {
+                "amount": "186",
+                "currency": "XRP"
+            },
+            "native_amount": {
+                "amount": "154.38",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-02-05T23:07:18Z",
+            "updated_at": "2021-02-05T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "DOGE"
+            },
+            "details": {
+                "title": "Request XRP coins - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Request 186 XRP ($154.38)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f84959t",
+            "type": "request",
+            "status": "completed",
+            "amount": {
+                "amount": "0.008",
+                "currency": "BTC"
+            },
+            "native_amount": {
+                "amount": "351.2",
+                "currency": "BTC"
+            },
+            "description": "None",
+            "created_at": "2021-02-02T23:07:18Z",
+            "updated_at": "2021-02-02T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "BTC"
+            },
+            "details": {
+                "title": "Request BTC coins - fake transaction",
+                "subtitle": "From Coinbase Earn",
+                "header": "Request 0.008 BTC ($351.2)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "05e945a5-4d38-5bec-b255-927fcs9keosp",
+            "type": "sell",
+            "status": "completed",
+            "amount": {
+                "amount": "33.6",
+                "currency": "XRP"
+            },
+            "native_amount": {
+                "amount": "28.23",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-01-12T23:06:52Z",
+            "updated_at": "2021-01-12T23:06:52Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/05e000k654dpp0lr00-blsk-9shwlaosjr4e",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "XRP"
+            },
+            "details": {
+                "title": "Sell XRP coins",
+                "subtitle": "From Coinbase Earn",
+                "header": "Sell 33.6 USD ($28.23)",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        },
+        {
+            "id": "b0ba08b1-1c3d-5dde-81ed-c8b55f94038y",
+            "type": "send_debit",
+            "status": "completed",
+            "amount": {
+                "amount": "-150",
+                "currency": "XRP"
+            },
+            "native_amount": {
+                "amount": "126",
+                "currency": "USD"
+            },
+            "description": "None",
+            "created_at": "2021-01-12T23:07:18Z",
+            "updated_at": "2021-01-12T23:07:18Z",
+            "resource": "transaction",
+            "resource_path": "/v2/accounts/00000000-0000-mmdd-eedd-ppll-0000000/transactions/b0ba08--31sXd-d2de-81ed-c8b5os096ddc",
+            "instant_exchange": "False",
+            "off_chain_status": "completed",
+            "network": {
+                "status": "off_blockchain",
+                "status_description": "None"
+            },
+            "from": {
+                "id": "test_user_03Webegr90KOJe00043rjn6ydp",
+                "resource": "user",
+                "resource_path": "/v2/users/test_user_03Webegr90KOJe00043rjn6ydp",
+                "currency": "XRP"
+            },
+            "details": {
+                "title": "Send Ripple - fake transaction",
+                "subtitle": "via off-chain fake transaction",
+                "header": "Send 150 XRP ($126) to my friend",
+                "health": "positive"
+            },
+            "hide_native_amount": "False"
+        }
+    ]
+}

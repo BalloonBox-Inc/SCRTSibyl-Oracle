@@ -1,44 +1,57 @@
-# SECRET-SIBYL API
+# 🚀 SCRT SIBYL API
+![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTSibyl-Oracle/blob/dev/images/logo_horizontal.png)
 
-This documentation contains all APIs endpoints available.
+## About :mailbox_with_mail:
 
-The intensions of the public API is to offer the possibility for the Secret Network community to integrate their existing Plaid and Coinbase accounts with Sibyl Credit Score model and offer seemless credibility to their lenders.
+This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
 
-By using of this API you agree with our [Terms and Conditions](https://).
+Imagine you are a user who owns a Keplr wallet and wants to be issued a micro-loan.
+Public APIs allow users to:
++ integrate their existing Plaid and Coinbase accounts with the SCRTSibyl Credit Score model, 
++ undergo a credit score check,
++ validate their credibility to lenders issuing them a loan. 
 
-## **Caution**
+When using the SCRTSibyl API you agree with our [Terms and Conditions](https://) :copyright:.
 
-The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
-## **Help Us**
+
+## To Notice :eyes:
+
+#### Beware
+
+All times provided are in UTC timezone :clock4:.
+
+#### Authentication
+
+Every endpoint is secured by either a User Oauth token or by the pair Oauth Client key & secret key.
+
+#### Help Us
 
 Have you spotted a mistake in our API docs? Help us improve it by [letting us know](https://www.balloonbox.io/contact).
 
-## **General**
+#### Caution
 
-+ All times provided are in UTC timezone.
+The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
-## **Authentication**
 
-Every endpoint is secured by User Oauth token or by Oauth Client key and secret.
 
-## **Resources**
+## Resources :gear:
 
----
-+ <span>**COINBASE**</span> : credit score model based on Coinbase account.
+
+[COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
 ---
 
-```
+```bash
     POST {base_url}/credit_score/coinbase
 ```
 
 Headers
-```
+```bash
     {"Content-Type": "application/json"}
 ```
 
 Body
-```
+```bash
     {
         "keplr_token": "YOUR_KEPLER_TOKEN",
         "coinbase_access_token": "YOUR_COINBASE_ACCESS_TOKEN",
@@ -49,8 +62,8 @@ Body
 
 Response: **200**
 
-+ Typescript response
-```
++ Generalized Typescript response
+```bash
     enum ScoreQuality {
     'very poor',
     'poor',
@@ -74,7 +87,7 @@ Response: **200**
         current_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
-        points: number;
+        points: number;  # integer in range [300, 900]
         quality: ScoreQuality;
         score_exist: boolean;
         wallet_age(days): number;
@@ -90,7 +103,7 @@ Response: **200**
 ```
 
 + Sample response from a Coinbase test account
-```
+```bash
 {
     "endpoint": "/credit_score/coinbase",
     "feedback": {
@@ -110,7 +123,9 @@ Response: **200**
             "wallet_age(days)": null
         }
     },
-    "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history in your Coinbase account. Try to log into Coinbase with a different account.",
+    "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
+    in your Coinbase account. Try to log into Coinbase with a different account.",
+    
     "score": 300.0,
     "status": "success",
     "status_code": 200,
@@ -119,21 +134,21 @@ Response: **200**
 }            
 ```
 
----
-+ <span>**PLAID**</span> : credit score model based on Plaid account.
+
+[PLAID](https://plaid.com/) : credit score model based on Plaid account.
 ---
 
-```
+```bash
     POST {base_url}/credit_score/plaid
 ```
 
 Headers
-```
+```bash
     {"Content-Type": "application/json"}
 ```
 
 Body
-```
+```bash
     {
         "keplr_token": "YOUR_KEPLER_TOKEN"
         "plaid_token": "YOUR_PLAID_TOKEN",
@@ -145,8 +160,8 @@ Body
 
 Response: **200**
 
-+ Typescript response
-```
++ Generalized Typescript response
+```bash
     enum ScoreQuality {
     'very poor',
     'poor',
@@ -173,7 +188,7 @@ Response: **200**
         cum_balance: number;
         loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
         loan_duedate: 3 | 4 | 5 | 6;
-        points: number;
+        points: number; # integer in range [300, 900]
         quality: ScoreQuality;
         score_exist: boolean;
         };
@@ -188,7 +203,7 @@ Response: **200**
 ```
 
 + Sample response from Plaid Sandbox environment
-```
+```bash
     {
         "endpoint": "/credit_score/plaid",
         "feedback": {
@@ -212,7 +227,13 @@ Response: **200**
                 "score_exist": true
             }
         },
-        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card credit card. Your total current balance is $44,520 USD across all accounts. An error occurred while computing the score metric called velocity. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one.",
+        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan <br/>
+        of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. <br/>
+        Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card. <br/>
+        Your total current balance is $44,520 USD across all accounts. An error occurred while computing the <br/>
+        score metric called velocity. As a result, your score was rounded down. <br/>
+        Try again later or select an alternative bank account if you have one.",
+        
         "score": 639,
         "status": "success",
         "status_code": 200,
@@ -223,10 +244,10 @@ Response: **200**
 
 ## **Errors**
 
-Note that error returns do not have score or feedback keys. The error description will appear under the message key.
+Note that error returns do not have `score` or `feedback` keys. The error description will appear under the message key.
 
-+ Sample error response from Plaid Sandbox environment
-```
+Sample error response from Plaid Sandbox environment
+```bash
     {
         'endpoint': '/credit_score/plaid',
         'message': 'invalid client_id or secret provided',

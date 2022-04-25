@@ -86,6 +86,7 @@ def dynamic_select(data, acc_name, feedback):
             Parameters:
                 data (dict): Plaid 'Transactions' product 
                 acc_name (str): acccepts 'credit' or 'checking'
+                feedback (dict): feedback describing the score
         
             Returns: 
                 best (str or dict): Plaid account_id of best credit account 
@@ -121,10 +122,13 @@ def dynamic_select(data, acc_name, feedback):
             best = {'id': info[index_best_acc][0], 'limit': info[index_best_acc][2]} 
         else:
             best = {'id': 'inexistent', 'limit': 0}
-        return best
 
     except Exception as e:
         feedback['fetch'][dynamic_select.__name__] = str(e)
+        best = {'id': 'inexistent', 'limit': 0}
+
+    finally:
+        return best
  
 
 
@@ -135,6 +139,7 @@ def flows(data, how_many_months, feedback):
             Parameters:
                 data (dict): Plaid 'Transactions' product 
                 how_many_month (float): how many months of transaction history are you considering? 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 flow (df): pandas dataframe with amounts for net monthly flow and datetime index
@@ -180,11 +185,9 @@ def flows(data, how_many_months, feedback):
             flow = flow[:-1] 
 
         # Keep only past X months. If longer, then crop
-        daytoday = datetime.today().date().day
-        lastmonth = datetime.today().date() - pd.offsets.DateOffset(days=daytoday)
-        yearago = lastmonth - pd.offsets.DateOffset(months=how_many_months)
-        if yearago in flow.index:
-            flow = flow[flow.index.tolist().index(yearago):]
+        flow.reset_index(drop=True, inplace=True)
+        if how_many_months-1 in flow.index:
+            flow = flow[-(how_many_months):]
 
         return flow
 
@@ -198,6 +201,7 @@ def balance_now_checking_only(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product
+                feedback (dict): feedback describing the score
 
             Returns:
                 balance (float): cumulative current balance in checking accounts
@@ -216,6 +220,7 @@ def balance_now_checking_only(data, feedback):
     except Exception as e:
         feedback['fetch'][balance_now_checking_only.__name__] = str(e)
         
+
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #
@@ -223,7 +228,7 @@ def balance_now_checking_only(data, feedback):
 def credit_mix(data, feedback):
     '''
     Description:
-        A score based on user's credits accounts composition and status
+        A score based on user's credit accounts composition and status
     
     Parameters:
         data (dict): Plaid 'Transactions' product
@@ -235,13 +240,13 @@ def credit_mix(data, feedback):
     '''
 
     try:
-        credit = [d for d in data['accounts'] if d['type'].lower()=='credit']
-        card_names = [d['name'].lower().replace('credit', '').title().strip() for d in credit if (isinstance(d['name'], str)==True) and (d['name'].lower()!='credit card')]
+        credit_mix.credit = [d for d in data['accounts'] if d['type'].lower()=='credit']
+        credit_mix.card_names = [d['name'].lower().replace('credit', '').title().strip() for d in credit_mix.credit if (isinstance(d['name'], str)==True) and (d['name'].lower()!='credit card')]
 
-        if credit:
-            size = len(credit)
+        if credit_mix.credit:
+            size = len(credit_mix.credit)
             
-            credit_ids = [d['account_id'] for d in credit]
+            credit_ids = [d['account_id'] for d in credit_mix.credit]
             credit_txn = [d for d in data['transactions'] if d['account_id'] in credit_ids]
             
             first_txn = credit_txn[-1]['date']
@@ -252,7 +257,7 @@ def credit_mix(data, feedback):
             score = m3x7_2_4[m][n]
             
             feedback['credit']['credit_cards'] = size
-            feedback['credit']['card_names'] = card_names # card_names could be an empty list of the card name was a NoneType
+            feedback['credit']['card_names'] = credit_mix.card_names # card_names could be an empty list of the card name was a NoneType
         else:
             raise Exception('no credit card')
     
@@ -267,7 +272,7 @@ def credit_mix(data, feedback):
 def credit_limit(data, feedback):
     '''
     Description:
-        A score of the cumulative credit limit of a user across ALL of his credit accounts
+        A score for the cumulative credit limit of a user across ALL of his credit accounts
 
     Parameters:
         data (dict): Plaid 'Transactions' product
@@ -381,9 +386,11 @@ def credit_interest(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): gained based on interest charged
+                feedback (dict): feedback describing the score
     '''
     try:
         id = dynamic_select(data, 'credit', feedback)['id']
@@ -431,9 +438,11 @@ def credit_length(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): gained because of credit account duration
+                feedback (dict): feedback describing the score
     '''
     try:
         id = dynamic_select(data, 'credit', feedback)['id']
@@ -464,9 +473,11 @@ def credit_livelihood(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): based on avg monthly txn count
+                feedback (dict): feedback describing the score
     '''
     try:
         id = dynamic_select(data, 'credit', feedback)['id']
@@ -485,6 +496,7 @@ def credit_livelihood(data, feedback):
 
             df = pd.DataFrame(data={'amounts':amounts}, index=pd.DatetimeIndex(dates))
             d = df.groupby(pd.Grouper(freq='M')).count()
+            credit_livelihood.d = d
 
             if len(d['amounts']) >= 2:
                 if d['amounts'][0] < 5: # exclude initial and final month with < 5 txn
@@ -517,9 +529,11 @@ def velocity_withdrawals(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): score associated with reccurring monthly withdrawals
+                feedback (dict): feedback describing the score
     '''
     try: 
         txn = data['transactions']
@@ -558,6 +572,7 @@ def velocity_withdrawals(data, feedback):
     finally:
         return score, feedback
 
+
 #@measure_time_and_memory
 def velocity_deposits(data, feedback):
     '''
@@ -565,9 +580,11 @@ def velocity_deposits(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): score associated with direct deposits
+                feedback (dict): feedback describing the score
     '''
     try: 
         txn = data['transactions']
@@ -612,9 +629,11 @@ def velocity_month_net_flow(data, feedback):
 
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
         
             Returns: 
                 score (float): score associated with monthly new flow
+                feedback (dict): feedback describing the score
     '''
     try: 
         flow = flows(data, 12, feedback)
@@ -630,7 +649,7 @@ def velocity_month_net_flow(data, feedback):
         if neg:
             direction = len(pos)/len(neg)  # output in range [0, ...)
         else:
-            direction = 10
+            direction = 10  # 10 is an arbitralkity chosen large positive inteegr
 
         # Calculate score
         m = np.digitize(direction, ratio_flows, right=True)
@@ -652,10 +671,12 @@ def velocity_month_txn_count(data, feedback):
     returns score based on count of mounthly transactions
 
             Parameters:
-                data (dict): Plaid 'Transactions' product 
+                data (dict): Plaid 'Transactions' product
+                feedback (dict): feedback describing the score 
         
             Returns: 
-                score (float): the larget the monthly count the larger the score
+                score (float): the larger the monthly count the larger the score
+                feedback (dict): feedback describing the score
     '''
     try: 
         acc = data['accounts']
@@ -716,9 +737,11 @@ def velocity_slope(data, feedback):
     
             Parameters:
                 data (dict): Plaid 'Transactions' product 
+                feedback (dict): feedback describing the score
 
             Returns:
                 score (float): score for flow net behavior over past 24 months
+                feedback (dict): feedback describing the score
     '''
     try:
         flow = flows(data, 24, feedback)
@@ -743,10 +766,8 @@ def velocity_slope(data, feedback):
             magnitude = abs(sum(pos)/sum(neg))  # output in range [0, 2+]
             if direction >= 1:
                 pass
-                # direct = '+'
             else:
                 magnitude = magnitude * -1
-                # direct = '-'
             m = np.digitize(direction, slope_product, right=True)
             n = np.digitize(magnitude, slope_product, right=True)
             score = m7x7_03_17.T[m][n]
@@ -788,6 +809,7 @@ def stability_tot_balance_now(data, feedback):
         if balance > 0:
             score = fico_medians[np.digitize(balance, volume_balance_now, right=True)]
             feedback['stability']['cumulative_current_balance'] = balance
+            stability_tot_balance_now.balance = balance
         
         else:
             raise Exception('no balance')
@@ -867,7 +889,7 @@ def stability_min_running_balance(data, feedback):
         # Compute the score
         m = np.digitize(length, duration, right=True)
         n = np.digitize(volume, volume_min_run, right=True)
-        score = m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))) # add 0.025 score penalty for each overdrafts
+        score = round(m7x7_85_55[m][n] -0.025*len(list(filter(lambda x: (x < 0), running_balances))), 2) # add 0.025 score penalty for each overdrafts
 
         feedback['stability']['min_running_balance'] = round(volume, 2)
         feedback['stability']['min_running_timeframe'] = length
@@ -942,12 +964,12 @@ def diversity_profile(data, feedback):
             id = a['account_id']
             type = '{}_{}'.format(a['type'], str(a['subtype']))
 
-            # Account for savings, hda, cd, money mart, paypal, prepaid, cash management, edt accounts
+            # Consider savings, hda, cd, money mart, paypal, prepaid, cash management, edt accounts
             if (type.split('_')[0]=='depository') & (type.split('_')[1]!='checking'): 
                 balance += int(a['balances']['current'] or 0)
                 myacc.append(id)
 
-            # Account for ANY type of investment account
+            # Consider ANY type of investment account
             if type.split('_')[0] == 'investment': 
                 balance += int(a['balances']['current'] or 0)
                 myacc.append(id)

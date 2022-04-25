@@ -66,11 +66,11 @@ def str_to_datetime(plaid_txn, feedback):
                 all_txn.append(t)
 
         # Prettify and write to json
-        tx = {'accounts':plaid_txn['accounts'],  'item':plaid_txn['item'], 'transactions':all_txn}
+        tx = {'accounts':plaid_txn['accounts'],  'transactions':all_txn}
         return tx
 
     except Exception as e:
-        feedback['kyc'][str_to_datetime.__name__] = str(e)
+        feedback['fetch'][str_to_datetime.__name__] = str(e)
 
 
 
@@ -81,7 +81,7 @@ def str_to_datetime(plaid_txn, feedback):
 #                                   Coinbase                                 #
 # -------------------------------------------------------------------------- #
 # Eventually remove this next function, which is merely used to import local json data to test the Coinbase model during development phase. 
-def local_get_data(path_dir, userid, top_coins):
+def refactor_test_data(path_dir, userid, top_coins):
     """
     returns the Coinbase json data for the accounts and the transactions of one user
             Parameters:
@@ -117,48 +117,17 @@ def local_get_data(path_dir, userid, top_coins):
             filtered_acc.append(a)
 
     # Filter transactions
-    filtered_tx = list()
-    accepted_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-    for t in tx:
-        if (t['amount']['currency'] in list(top_coins.keys())) & (t['status']=='completed') & (t['type'] in accepted_types):
-            filtered_tx.append(t)
+    txn_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+    filtered_tx = [n for n in tx if n['status'] == 'completed' and n['type'] in txn_types]
+    for d in filtered_tx:
+        # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
+        if d['type']=='send' and np.sign(float(d['amount']['amount']))==1:
+            d['type'] = 'send_credit'
+        # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit' 
+        elif d['type']=='send' and np.sign(float(d['amount']['amount']))==-1:
+            d['type'] = 'send_debit'
 
     return filtered_acc, filtered_tx
-
-
-
-
-
-def refactor_send_tx(tx):
-   """
-   returns list of transactions after re-labeling all 'send' type transactions either into 'send_credit' or into 'send_debit'
-         Parameters:
-            tx (list): user's chronologically ordered transactions (newest to oldest) for user's best accounts
-         Returns:
-            tx (list of dict): list of chronologically ordered transactions in user accounts (from most recent to oldest)
-   """
-   try:
-      new_tx = list()
-      for t in tx:
-
-         # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
-         if (t['type'] == 'send') & (np.sign(float(t['amount']['amount'])) == 1):
-            t['type'] = 'send_credit'
-
-         # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit'   
-         elif (t['type'] == 'send') & (np.sign(float(t['amount']['amount'])) == -1):
-            t['type'] = 'send_debit'
-            
-         # If it's not a 'send' transaction, then move on
-         else:
-            pass
-
-         new_tx.append(t)
-
-      return new_tx
-      
-   except Exception as e:
-       print(e)
 
 
 
@@ -171,7 +140,6 @@ def str_to_date(acc, feedback):
                 all_txn (list): serialized list containing user accounts OR transactions. String dates are converted to datetime objects
      """
     try:
-        # Keep only completed transactions (filter out pending transactions)
         converted = []
         for x in acc:
             if x['created_at']:
