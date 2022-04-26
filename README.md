@@ -2,6 +2,58 @@
 
 ![scrt sibyl image](./images/logo_horizontal.png)
 
+## This Repo
+This GitHub repo contains the codebase of the SCRTSibyl credit score algorithm. The code features 2 validators, 3 API integrations, 10 score metrics, and 25+ functions to calculate users' credit scores. The front end of the SCRTSibyl DApp, after fetching the user's data, passes it to the algorithm to execute and return a score. The Rust smart contract is stored at the [SCRTSibyl-Oracle](https://github.com/BalloonBox-Inc/SCRTSibyl-Contract) repo, whereas the Next.js frontend is found at [scrt-network-oracle-client](https://github.com/BalloonBox-Inc/scrt-network-oracle-client). The tree for the repo is:
+
+```
+.
+├── LICENSE
+├── Procfile
+├── README.md
+├── app.py
+├── app_route.py
+├── data
+│   ├── README.md
+│   ├── test_user_coinbase.json
+│   └── test_user_plaid.json
+├── demo.py
+├── documentation
+│   └── README.md
+├── feedback
+│   └── message.py
+├── images
+│   ├── README.md
+│   ├── logic_coinbase.png
+│   ├── logic_plaid.png
+│   ├── logo_horizontal.png
+│   └── ranges.png
+├── interpret.ipynb
+├── metrics_coinbase.ipynb
+├── metrics_plaid.ipynb
+├── optimization
+│   └── performance.py
+├── requirements.txt
+├── runtime.py
+├── support
+│   ├── __init__.py
+│   ├── metrics_coinbase.py
+│   ├── metrics_plaid.py
+│   ├── models.py
+│   ├── score.py
+│   └── tests
+│       ├── README.md
+│       ├── __init__.py
+│       ├── test_coinbase.py
+│       └── test_plaid.py
+├── unit_tests.py
+├── validator_api
+│   ├── coinbase.py
+│   ├── coinmarketcap.py
+│   └── plaid.py
+└── wsgi.py
+```
+
+
 ## At a Glance
 SCRTSibyl is an oracle for credit scoring developed for the Secret Network. The oracle returns a numerical, private, and encrypted credit score affirming users' credibility and trustworthiness within the Secret Network ecosystem. The DApp was designed with one specific use case in mind: unsecured P2P micro-lending, which is facilitating lending and borrowing of microloans ranging between $1-25K USD. The Sibyl does not require any type of collaterals -hence unsecured-, but rather the lender approves the loans based on a borrower's creditworthiness affirmed by the SCRTsibyl oracle. Running a credit score check on a user you are considering lending money to or borrowing money from, will inform you whether and how much a user can pay back upon loan issuance. 
 
@@ -14,10 +66,6 @@ The DApp works as follow:
 Ultimately, this will incentivize on-chain traffic, it will affirm the reputation of those users requesting a credit score, and it will execute a credit score check to validate their credibility, while also preserving their privacy. 
 
  ---
-
-## This Repo
-This GitHub repo contains the codebase of the SCRTSibyl credit score algorithm. The code features 2 validators, 3 API integrations, 10 score metrics, and 25+ functions to calculate users' credit scores. The front end of the SCRTSibyl DApp, after fetching the user's data, passes it to the algorithm to execute and return a score. The Rust smart contract is stored at [this](https://github.com/BalloonBox-Inc/SCRTSibyl-Contract) repo, whereas the Next.js frontend is found [here](https://github.com/BalloonBox-Inc/scrt-network-oracle-client).
-
 
 ## Execute Locally
  * download or clone the repo to your machine
@@ -46,7 +94,7 @@ conda create --name <env_name> --file requirements.txt          # using Conda
 
 If you want to spin up the entire DApp on your local machine, then follow the guideline found [here](https://github.com/BalloonBox-Inc/scrt-network-oracle-client#readme).
 
-If you want to test the algorithm alone (independently from the DApp frontend), then continue reading this page and follow the step-by-step guide below. You'll need to create a Developer CoinMarketCap API Key, following the CoinMarketCap Developers guide [here.](https://coinmarketcap.com/api/documentation/v1/#section/Introduction). In addition, you'll need either a Plaid or Coinbase account or (ideally) both. If you don't own one yet, you can create an account [here](https://dashboard.plaid.com/signin) and [here](https://www.coinbase.com/signup), respectively and then retrieve your Plaid [keys](https://dashboard.plaid.com/team/keys) and your Coinbase [keys](https://www.coinbase.com/settings/api). For Coinbase, you'll need to generate a new set of API keys. Do so, following this flow: `Coinbase` -> `settings` -> `API` -> `New API Key`.
+If you want to test the algorithm alone (independently from the DApp frontend), then continue reading this page and follow the step-by-step guide below. You'll need to create a Developer CoinMarketCap API Key, following the CoinMarketCap Developers guide [here](https://coinmarketcap.com/api/documentation/v1/#section/Introduction). In addition, you'll need either a Plaid or Coinbase account or (ideally) both. If you don't own one yet, you can create an account [here](https://dashboard.plaid.com/signin) and [here](https://www.coinbase.com/signup), respectively and then retrieve your Plaid [keys](https://dashboard.plaid.com/team/keys) and your Coinbase [keys](https://www.coinbase.com/settings/api). For Coinbase, you'll need to generate a new set of API keys. Do so, following this flow: `Coinbase` -> `settings` -> `API` -> `New API Key`.
 
 Next, create a ```.env``` local file in your root folder: 
 
