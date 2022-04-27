@@ -29,7 +29,7 @@ def comma_separated_list(l):
 def create_interpret_plaid():
     '''
    Description:
-        Initializes a dict with a concise summary to communicate and interpret the SCRTSibyl score. 
+        Initializes a dict with a concise summary to communicate and interpret the SCRTsibyl score. 
         It includes the most important metrics used by the credit scoring algorithm (for Plaid).
     '''
     return {'score': 
@@ -63,7 +63,7 @@ def interpret_score_plaid(score, feedback):
         returns a dict explaining the meaning of the numerical score
     
     Parameters:
-        score (float): user's SCRTSibyl numerical score
+        score (float): user's SCRTsibyl numerical score
         feedback (dict): score feedback, reporting stats on main Plaid metrics
 
     Returns:
@@ -122,7 +122,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
         A function to format and return a qualitative description of the numerical score obtained by the user
     
     Parameters:
-        score (float): user's SCRTSibyl numerical score
+        score (float): user's SCRTsibyl numerical score
         feedback (dict): score feedback, reporting stats on main Plaid metrics
 
     Returns:
@@ -136,7 +136,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if feedback['fetch']:
-        msg = 'Sorry! SCRTSibyl could not calculate your credit score as there is no active credit line nor transaction history associated with your bank account. Try to log into an alternative bank account if you have one.'
+        msg = 'Sorry! SCRTsibyl could not calculate your credit score as there is no active credit line nor transaction history associated with your bank account. Try to log into an alternative bank account if you have one.'
     
 
     # Case #2: a score exists. Return descriptive score feedback
@@ -147,7 +147,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg = 'Your SCRTSibyl score is {} - {} points. This score qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
+        msg = 'Your SCRTsibyl score is {} - {} points. This score qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
                 .format(quality.upper(), points, loan_amount, loan_amount*rate)
         if ('loan_duedate' in list(feedback['stability'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['stability']['loan_duedate'])
@@ -178,7 +178,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
 
             # Subcase #1.1: the error is that no credit card exists
             if 'no credit card' in list(feedback['credit'].values()):
-                msg = msg + ' SCRTSibyl found no credit card associated with your bank account. Credit scores rely heavily on credit card history. Improve your score by selecting a different bank account which shows credit history.'
+                msg = msg + ' SCRTsibyl found no credit card associated with your bank account. Credit scores rely heavily on credit card history. Improve your score by selecting a different bank account which shows credit history.'
             
             # Subcase #1.2: the error is elsewhere
             else:
@@ -196,7 +196,7 @@ def qualitative_feedback_plaid(score, feedback, coinmarketcap_key):
 def create_interpret_coinbase():
     '''
    Description:
-        Initializes a dict with a concise summary to communicate and interpret the SCRTSibyl score. 
+        Initializes a dict with a concise summary to communicate and interpret the SCRTsibyl score. 
         It includes the most important metrics used by the credit scoring algorithm (for Coinbase).
     '''
     return {'score': 
@@ -228,7 +228,7 @@ def interpret_score_coinbase(score, feedback):
         returns a dict explaining the meaning of the numerical score
     
     Parameters:
-        score (float): user's SCRTSibyl numerical score
+        score (float): user's SCRTsibyl numerical score
         feedback (dict): score feedback, reporting stats on main Coinbase metrics
 
     Returns:
@@ -282,7 +282,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
         A function to format and return a qualitative description of the numerical score obtained by the user
     
     Parameters:
-        score (float): user's SCRTSibyl numerical score
+        score (float): user's SCRTsibyl numerical score
         feedback (dict): score feedback, reporting stats on main Coinbase metrics
 
     Returns:
@@ -297,7 +297,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
     all_keys = [x for y in [list(feedback[k].keys()) for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if ('kyc' in feedback.keys()) & (feedback['kyc']['verified']==False):
-        msg = 'Congratulations your Coinbase KYC status is successful! However, SCRTSibyl could not calculate your credit score as there is no active wallet or transaction history associated with your account. Try to log into Coinbase with a different account.'
+        msg = 'Congratulations your Coinbase KYC status is successful! However, SCRTsibyl could not calculate your credit score as there is no active wallet or transaction history associated with your account. Try to log into Coinbase with a different account.'
     
     # Case #2: a score exists. Return descriptive score feedback
     else:
@@ -307,7 +307,7 @@ def qualitative_feedback_coinbase(score, feedback, coinmarketcap_key):
         loan_amount = int(loan_bins[np.digitize(score, score_bins, right=False)])
 
         # Communicate the score
-        msg = 'Congratulations your Coinbase KYC status is successful! Your SCRTSibyl score is {} - {} points. This qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
+        msg = 'Congratulations your Coinbase KYC status is successful! Your SCRTsibyl score is {} - {} points. This qualifies you for a short term loan of up to ${:,.0f} USD ({:,.0f} SCRT)'\
                 .format(quality.upper(), points, loan_amount, loan_amount*rate)
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments.'.format(feedback['liquidity']['loan_duedate'])

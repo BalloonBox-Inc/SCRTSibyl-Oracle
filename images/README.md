@@ -1,1 +1,1 @@
-Various SCRTSibyl images.
+Various SCRTsibyl images.

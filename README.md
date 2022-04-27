@@ -3,7 +3,7 @@
 ![scrt sibyl image](./images/logo_horizontal.png)
 
 ## At a Glance
-SCRTSibyl is an oracle for credit scoring developed for the Secret Network. The oracle returns a numerical, private, and encrypted credit score affirming users' credibility and trustworthiness within the Secret Network ecosystem. The DApp was designed with one specific use case in mind: unsecured P2P micro-lending, which is facilitating lending and borrowing of microloans ranging between $1-25K USD. The Sibyl does not require any type of collaterals -hence unsecured-, but rather the lender approves the loans based on a borrower's creditworthiness affirmed by the SCRTsibyl oracle. Running a credit score check on a user you are considering lending money to or borrowing money from, will inform you whether and how much a user can pay back upon loan issuance. 
+SCRTsibyl is an oracle for credit scoring developed for the Secret Network. The oracle returns a numerical, private, and encrypted credit score affirming users' credibility and trustworthiness within the Secret Network ecosystem. The DApp was designed with one specific use case in mind: unsecured P2P micro-lending, which is facilitating lending and borrowing of microloans ranging between $1-25K USD. The Sibyl does not require any type of collaterals -hence unsecured-, but rather the lender approves the loans based on a borrower's creditworthiness affirmed by the SCRTsibyl oracle. Running a credit score check on a user you are considering lending money to or borrowing money from, will inform you whether and how much a user can pay back upon loan issuance. 
 
 The DApp works as follow: 
  - it acquires user's financial data by integrating with two validators ([Plaid](https://dashboard.plaid.com/overview) & [Coinbase](https://developers.coinbase.com/))
@@ -16,7 +16,7 @@ Ultimately, this will incentivize on-chain traffic, it will affirm the reputatio
  ---
 
 ## This Repo
-This GitHub repo contains the codebase of the SCRTSibyl credit score algorithm. The code features 2 validators, 3 API integrations, 10 score metrics, and 25+ functions to calculate users' credit scores. The front end of the SCRTSibyl DApp, after fetching the user's data, passes it to the algorithm to execute and return a score. The Rust smart contract is stored at the [SCRTSibyl-Oracle](https://github.com/BalloonBox-Inc/SCRTSibyl-Contract) repo, whereas the Next.js frontend is found at [scrt-network-oracle-client](https://github.com/BalloonBox-Inc/scrt-network-oracle-client). 
+This GitHub repo contains the codebase of the SCRTsibyl credit score algorithm. The code features 2 validators, 3 API integrations, 10 score metrics, and 25+ functions to calculate users' credit scores. The front end of the SCRTsibyl DApp, after fetching the user's data, passes it to the algorithm to execute and return a score. The Rust smart contract is stored at the [SCRTsibyl-Oracle](https://github.com/BalloonBox-Inc/SCRTsibyl-Contract) repo, whereas the Next.js frontend is found at [scrt-network-oracle-client](https://github.com/BalloonBox-Inc/scrt-network-oracle-client). 
 
 
 ## Execute Locally
@@ -62,14 +62,14 @@ COINMARKETCAP_KEY=your_coinmarketcap_key
 ```
 
 ### Run Locally
-`cd` into the local directory where you cloned SCRTSibyl_Oracle. To run the credit score algorithm locally as a stand-alone Python project execute this command in terminal. Ensure you are in your project root
+`cd` into the local directory where you cloned SCRTsibyl_Oracle. To run the credit score algorithm locally as a stand-alone Python project execute this command in terminal. You must also ensure you are in your project root.
 
 ```bash
 cd my-project-name
 python demo.py
 ```
 
-> :warning: the oracle will execute properly, only if you set up a correct and complete `.env` file.
+> :warning: The oracle will execute properly, only if you set up a correct and complete `.env` file.
 
 
 ## Credit Score Model 
@@ -99,13 +99,13 @@ There are two distinct models, one for each of our chosen validators, namely Pla
   
 ## Interpret Your Score :mag:
 
-SCRTSibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor | poor | fair | good | very good | excellent | exceptional), which describe the score qualitatively (see fuel gauge in the diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTSibyl oracle calculation. Lastly, the SCRTSibyl also returns the estimated payback period, namely the expected time it will take for the user to pay back the loan. The loan terms (loan amount, qualitative descriptor, and payback period) are algorithmic recommendations, and, therefore, they are not prescriptive. Although we strongly advise lenders and borrowers to consider the SCRTSibyl Oracle's parameters, we also encourage them to stipulate loan terms to best suit their needs. 
+SCRTsibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor | poor | fair | good | very good | excellent | exceptional), which describe the score qualitatively (see fuel gauge in the diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTsibyl oracle calculation. Lastly, the SCRTsibyl also returns the estimated payback period, namely the expected time it will take for the user to pay back the loan. The loan terms (loan amount, qualitative descriptor, and payback period) are algorithmic recommendations, and, therefore, they are not prescriptive. Although we strongly advise lenders and borrowers to consider the SCRTsibyl Oracle's parameters, we also encourage them to stipulate loan terms to best suit their needs. 
 ![](./images/ranges.png) 
 
 
 ### Data Privacy
 
-We developed SCRTSibyl with data privacy and security in mind. That's why our DApp is not storing any Plaid banking data or Coinbase data at all (no on-premise, neither remote database nor cloud storage). The API access the data to run it through the algorithm in the backend so that the frontend never interacts with raw and confidential data. Furthermore, the DApp only writes to the Secret Network blockchain -via a Rust smart contract- only your numerical score and a qualitative descriptor about the score. This ensures both lightweight (hence low gas fee) of the smart contract as well as data confidentiality so that the user is in charge of his own data from start to end.  
+We developed SCRTsibyl with data privacy and security in mind. That's why our DApp is not storing any Plaid banking data or Coinbase data at all (no on-premise, neither remote database nor cloud storage). The API access the data to run it through the algorithm in the backend so that the frontend never interacts with raw and confidential data. Furthermore, the DApp only writes to the Secret Network blockchain -via a Rust smart contract- only your numerical score and a qualitative descriptor about the score. This ensures both lightweight (hence low gas fee) of the smart contract as well as data confidentiality so that the user is in charge of his own data from start to end.  
 
 ### Unit tests :pencil2: :black_nib: :page_facing_up:
 
