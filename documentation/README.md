@@ -1,17 +1,17 @@
 # 🚀 SCRT SIBYL API
-![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTSibyl-Oracle/blob/dev/images/logo_horizontal.png)
+![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTsibyl-Oracle/blob/dev/images/logo_horizontal.png)
 
 ## About :mailbox_with_mail:
 
-This documentation contains all APIs endpoints featured in our SCRTSibyl Dapp.
+This documentation contains all APIs endpoints featured in our SCRTsibyl DApp.
 
 Imagine you are a user who owns a Keplr wallet and wants to be issued a micro-loan.
-Public APIs allow users to:
-+ integrate their existing Plaid and Coinbase accounts with the SCRTSibyl Credit Score model, 
+The SCRTsibyl DApp leverages public APIs to allow users to:
++ integrate their existing Plaid and Coinbase accounts with the SCRTsibyl Credit Score model, 
 + undergo a credit score check,
 + validate their credibility to lenders issuing them a loan. 
 
-When using the SCRTSibyl API you agree with our [Terms and Conditions](https://) :copyright:.
+When using the SCRTsibyl API you agree with our [Terms and Conditions](https://) :copyright:.
 
 
 
@@ -123,7 +123,7 @@ Response: **200**
             "wallet_age(days)": null
         }
     },
-    "message": "SCRTSibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
+    "message": "SCRTsibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
     in your Coinbase account. Try to log into Coinbase with a different account.",
     
     "score": 300.0,
@@ -227,7 +227,7 @@ Response: **200**
                 "score_exist": true
             }
         },
-        "message": "Your SCRTSibyl score is FAIR - 639 points. This score qualifies you for a short term loan <br/>
+        "message": "Your SCRTsibyl score is FAIR - 639 points. This score qualifies you for a short term loan <br/>
         of up to $5,000 USD (1,011 SCRT) over a recommended pay back period of 6 monthly installments. <br/>
         Part of your score is based on the transaction history of your Plaid diamond 12.5% apr interest credit card. <br/>
         Your total current balance is $44,520 USD across all accounts. An error occurred while computing the <br/>
