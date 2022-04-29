@@ -20,11 +20,11 @@ def coinbase_client(access_token, refresh_token):
 
 def format_error(e):
     error = {'error': {
-                'status_code': e.status_code,
-                'message': e.message,
-                'error_type': e.id
-                }
-            }
+        'status_code': e.status_code,
+        'message': e.message,
+        'error_type': e.id
+    }
+    }
     ic(error)
     return error
 
@@ -39,10 +39,10 @@ def coinbase_currencies(client):
     try:
         r = client.get_currencies()
         r = dict([(n['id'], float(n['min_size'])) for n in r['data']])
-        
+
     except CoinbaseError as e:
         r = format_error(e)
-    
+
     finally:
         return r
 
@@ -54,7 +54,7 @@ def coinbase_native_currency(client):
 
     except CoinbaseError as e:
         r = format_error(e)
-    
+
     finally:
         return r
 
@@ -63,10 +63,10 @@ def coinbase_set_native_currency(client, symbol):
     '''Reset the currency of the user's Coinbase account to its initial default native currency'''
     try:
         r = client.update_current_user(native_currency=symbol)
-    
+
     except CoinbaseError as e:
         r = format_error(e)
-    
+
     finally:
         return r
 
@@ -75,19 +75,20 @@ def coinbase_accounts(client):
     '''Returns list of accounts with balance > $0. Current balances are reported both in native currency and in USD for each account.'''
     try:
         r = convert_to_json(client.get_accounts()['data'])
-        r = [n for n in r if float(n['native_balance']['amount'])!=0]
-        
+        r = [n for n in r if float(n['native_balance']['amount']) != 0]
+
         for d in r:
-            create_at = datetime.strptime(d['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
+            create_at = datetime.strptime(
+                d['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
             native_balance = float(d['native_balance']['amount'])
             balance = float(d['balance']['amount'])
             d['created_at'] = create_at
             d['native_balance']['amount'] = native_balance
             d['balance']['amount'] = balance
-    
+
     except CoinbaseError as e:
         r = format_error(e)
-    
+
     finally:
         return r
 
@@ -99,6 +100,6 @@ def coinbase_transactions(client, account_id):
 
     except CoinbaseError as e:
         r = format_error(e)
-    
+
     finally:
         return r

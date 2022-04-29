@@ -3,6 +3,7 @@ import tracemalloc
 
 k = 10**3
 
+
 def format_time(t):
     if t >= k:
         t = t/k
@@ -31,16 +32,16 @@ def measure_time_and_memory(func):
 
         # run function
         result = func(*args, **kwargs)
-        
+
         # stop measure
         t1 = time.time()
         memory, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
         # format output
-        span = (t1 - t0)*k # ms
-        memory = memory/k # KB
-        peak = peak/k # KB
+        span = (t1 - t0)*k  # ms
+        memory = memory/k  # KB
+        peak = peak/k  # KB
 
         span = format_time(span)
         memory = format_memory(memory)

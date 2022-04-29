@@ -1,14 +1,13 @@
 import json
 import unittest
 from datetime import datetime
-from ..metrics_coinbase import * # import testing code
-
+from ..metrics_coinbase import *  # import testing code
 
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
 #                                                                            #
-# -------------------------------------------------------------------------- # 
+# -------------------------------------------------------------------------- #
 
 def create_feedback_coinbase():
     return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
@@ -26,7 +25,8 @@ def str_to_date(acc, feedback):
         converted = []
         for x in acc:
             if x['created_at']:
-                x['created_at'] = datetime.strptime(x['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
+                x['created_at'] = datetime.strptime(
+                    x['created_at'], '%Y-%m-%dT%H:%M:%SZ').date()
                 converted.append(x)
 
         return converted
@@ -38,7 +38,7 @@ def str_to_date(acc, feedback):
 # -------------------------------------------------------------------------- #
 #                                TEST CASES                                  #
 #                - test core functions of Coinbase algorithm -               #
-# -------------------------------------------------------------------------- # 
+# -------------------------------------------------------------------------- #
 
 class TestMetricsCoinbase(unittest.TestCase):
 
@@ -52,10 +52,9 @@ class TestMetricsCoinbase(unittest.TestCase):
 
     # clean up code at the end of this test class
     def tearDown(self):
-        self.fb =  None
-        self.acc =  None
+        self.fb = None
+        self.acc = None
         self.tx = None
-
 
     def test_kyc(self):
         '''
@@ -66,12 +65,11 @@ class TestMetricsCoinbase(unittest.TestCase):
         bad_fb = {'history': {}, 'liquidity': {}, 'activity': {}}
         badkyc = kyc(None, None, bad_fb)
 
-        self.assertIsInstance(badkyc, tuple)  
+        self.assertIsInstance(badkyc, tuple)
         self.assertIsInstance(badkyc[0], int)
         self.assertIsInstance(badkyc[1], dict)
-        self.assertIsNotNone(kyc(None, None, None)) 
-        self.assertEqual(kyc(self.acc, self.tx, self.fb)[0], 1) 
-        
+        self.assertIsNotNone(kyc(None, None, None))
+        self.assertEqual(kyc(self.acc, self.tx, self.fb)[0], 1)
 
     def test_history_acc_longevity(self):
         '''
@@ -80,33 +78,32 @@ class TestMetricsCoinbase(unittest.TestCase):
         '''
         history_acc_longevity(self.acc, self.fb)
 
-        self.assertGreaterEqual(history_acc_longevity.age, 0) 
+        self.assertGreaterEqual(history_acc_longevity.age, 0)
         self.assertIsInstance(history_acc_longevity.age, (int, float))
-        self.assertEqual(history_acc_longevity([], self.fb)[0], 0) 
-
+        self.assertEqual(history_acc_longevity([], self.fb)[0], 0)
 
     def test_liquidity_tot_balance_now(self):
         '''
         - empty account should result in 'no balance' error
         '''
-        self.assertRegex(liquidity_tot_balance_now([], self.fb)[1]['liquidity']['error'], 'no balance')
-
+        self.assertRegex(liquidity_tot_balance_now([], self.fb)[
+                         1]['liquidity']['error'], 'no balance')
 
     def test_liquidity_loan_duedate(self):
         '''
         - duedate should be at most 6 months
         - this is the only function that returns no score, but rather, it returns only the feedback dict
         '''
-        self.assertLessEqual(liquidity_loan_duedate(self.tx, self.fb)['liquidity']['loan_duedate'], 6)
+        self.assertLessEqual(liquidity_loan_duedate(self.tx, self.fb)[
+                             'liquidity']['loan_duedate'], 6)
         self.assertIsInstance(liquidity_loan_duedate(self.tx, self.fb), dict)
-
 
     def test_liquidity_avg_running_balance(self):
         '''
         - no tx yields a 'no tx' error
         '''
-        self.assertRegex(liquidity_avg_running_balance(self.acc, [], self.fb)[1]['liquidity']['error'], 'no transaction history')
-
+        self.assertRegex(liquidity_avg_running_balance(self.acc, [], self.fb)[
+                         1]['liquidity']['error'], 'no transaction history')
 
     def test_activity_tot_volume_tot_count(self):
         '''
@@ -123,9 +120,10 @@ class TestMetricsCoinbase(unittest.TestCase):
             self.assertIsInstance(a, (float, int))
             self.assertGreaterEqual(a, 0)
 
-        self.assertEqual(cred_fb['activity'].get('credit').keys(), deb_fb['activity'].get('debit').keys())
-        self.assertRegex(activity_tot_volume_tot_count([], 'credit', self.fb)[1]['activity']['error'], 'no transaction history')
-
+        self.assertEqual(cred_fb['activity'].get(
+            'credit').keys(), deb_fb['activity'].get('debit').keys())
+        self.assertRegex(activity_tot_volume_tot_count([], 'credit', self.fb)[
+                         1]['activity']['error'], 'no transaction history')
 
     def test_activity_consistency(self):
         '''
@@ -141,8 +139,8 @@ class TestMetricsCoinbase(unittest.TestCase):
         self.assertCountEqual(i, d)
         self.assertIsInstance(np.random.choice(d), datetime)
         self.assertGreater(a, 0)
-        self.assertRegex(activity_consistency([], 'credit', self.fb)[1]['activity']['error'], 'no transaction history')
-
+        self.assertRegex(activity_consistency([], 'credit', self.fb)[
+                         1]['activity']['error'], 'no transaction history')
 
     def test_activity_profit_since_inception(self):
         '''
@@ -151,10 +149,12 @@ class TestMetricsCoinbase(unittest.TestCase):
         - if there's no profit, then should raise an exception
         '''
         activity_profit_since_inception(self.acc, self.tx, self.fb)
-        
-        self.assertIsInstance(activity_profit_since_inception.profit, (float, int))
+
+        self.assertIsInstance(
+            activity_profit_since_inception.profit, (float, int))
         self.assertGreater(activity_profit_since_inception.profit, 0)
-        self.assertRegex(activity_profit_since_inception([], [], self.fb)[1]['activity']['error'], 'no net profit')
+        self.assertRegex(activity_profit_since_inception([], [], self.fb)[
+                         1]['activity']['error'], 'no net profit')
 
     def test_net_flow(self):
         '''
@@ -173,15 +173,15 @@ class TestMetricsCoinbase(unittest.TestCase):
         # bad inputs
         self.assertEqual(len(b[0]), len(c[0]))
         self.assertRegex(b[1]['liquidity']['error'], 'no consistent net flow')
-        self.assertRegex(c[1]['liquidity']['error'], "'NoneType' object is not iterable")
-
+        self.assertRegex(c[1]['liquidity']['error'],
+                         "'NoneType' object is not iterable")
 
 
 # -------------------------------------------------------------------------- #
 #                            PARAMETRIZATION                                 #
 #            - run same tests, passing different values each time -          #
 #                    - and expecting the same result -                       #
-# -------------------------------------------------------------------------- # 
+# -------------------------------------------------------------------------- #
 
 class TestParametrizeCoinbase(unittest.TestCase):
     '''
@@ -200,10 +200,10 @@ class TestParametrizeCoinbase(unittest.TestCase):
         with open('data/test_user_coinbase.json') as my_file:
             self.tx = json.load(my_file)['transactions']
 
-        self.param = { 
+        self.param = {
             'fn_good': [
-                kyc(self.acc, self.tx, self.fb), 
-                history_acc_longevity(self.acc, self.fb), 
+                kyc(self.acc, self.tx, self.fb),
+                history_acc_longevity(self.acc, self.fb),
                 liquidity_avg_running_balance(self.acc, self.tx, self.fb),
                 liquidity_tot_balance_now(self.acc, self.fb),
                 activity_consistency(self.tx, 'credit', self.fb),
@@ -212,8 +212,8 @@ class TestParametrizeCoinbase(unittest.TestCase):
                 activity_tot_volume_tot_count(self.tx, 'debit', self.fb),
                 activity_profit_since_inception(self.acc, self.tx, self.fb)],
             'fn_empty': [
-                kyc([], None, self.fb), 
-                history_acc_longevity(None, self.fb), 
+                kyc([], None, self.fb),
+                history_acc_longevity(None, self.fb),
                 liquidity_avg_running_balance([], [], self.fb),
                 liquidity_tot_balance_now(None, self.fb),
                 activity_consistency([], None, self.fb),

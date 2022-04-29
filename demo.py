@@ -16,10 +16,9 @@ from support.metrics_plaid import *
 from support.metrics_coinbase import *
 
 
-
 # ------------------------------------- #
 #                 PLAID                 #
-# ------------------------------------- # 
+# ------------------------------------- #
 def create_feedback_plaid():
     '''create a feedback dict for Plaid'''
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
@@ -29,7 +28,7 @@ def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketc
     '''
     Description:
         Import Plaid Sandbox data, calculate credit score for Sandbox user, return the numerical score and a qualitative feedback
-        
+
     Parameters:
         plaid_client_id (str): client API key
         plaid_client_secret (str): client API secret key
@@ -48,29 +47,33 @@ def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketc
         if 'error' in plaid_txn:
             raise Exception(plaid_txn['error']['message'])
 
-        plaid_txn = {k:v for k,v in plaid_txn.items() if k in ['accounts', 'item', 'transactions']}
-        plaid_txn['transactions'] = [t for t in plaid_txn['transactions'] if not t['pending']]
-
+        plaid_txn = {k: v for k, v in plaid_txn.items(
+        ) if k in ['accounts', 'item', 'transactions']}
+        plaid_txn['transactions'] = [
+            t for t in plaid_txn['transactions'] if not t['pending']]
 
         # compute score
         feedback = create_feedback_plaid()
-        feedback = plaid_bank_name(client, plaid_txn['item']['institution_id'], feedback)
+        feedback = plaid_bank_name(
+            client, plaid_txn['item']['institution_id'], feedback)
         score, feedback = plaid_score(plaid_txn, feedback)
-        message = qualitative_feedback_plaid(score, feedback, coinmarketcap_key)
+        message = qualitative_feedback_plaid(
+            score, feedback, coinmarketcap_key)
         feedback = interpret_score_plaid(score, feedback)
 
         status_code = 200
         status = 'success'
-    
+
     except Exception as e:
         status_code = 400
         status = 'error'
         score = 0
         feedback = {}
         message = str(e)
-    
+
     finally:
-        timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
+        timestamp = datetime.now(timezone.utc).strftime(
+            '%m-%d-%Y %H:%M:%S GMT')
         output = {
             'endpoint': '/credit_score/plaid',
             'title': 'Credit Score',
@@ -80,7 +83,7 @@ def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketc
             'score': int(score),
             'feedback': feedback,
             'message': message
-            }
+        }
         if score == 0:
             output.pop('score', None)
             output.pop('feedback', None)
@@ -89,12 +92,9 @@ def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketc
         return make_response(output, output['status_code'])
 
 
-
-
-
 # ------------------------------------- #
 #               COINBASE                #
-# ------------------------------------- # 
+# ------------------------------------- #
 def create_feedback_coinbase():
     return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
@@ -103,7 +103,7 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
     '''
     Description:
         Import your Coinbase account data, calculate your credit score, return the numerical score and a qualitative feedback
-        
+
     Parameters:
         coinbase_client_id (str): Coinbase id key
         coinbase_client_secret (str): Coinbase secret key
@@ -123,8 +123,10 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
         if 'error' in currencies:
             raise Exception(currencies['error']['message'])
 
-        odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW', 'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
-        currencies = {k:1 for (k,v) in currencies.items() if v == 0.01 or k in odd_fiats}
+        odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW',
+                     'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
+        currencies = {k: 1 for (k, v) in currencies.items()
+                      if v == 0.01 or k in odd_fiats}
         top_coins.update(currencies)
         coins = list(top_coins.keys())
 
@@ -141,42 +143,47 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
         if 'error' in coinbase_acc:
             raise Exception(coinbase_acc['error']['message'])
         coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
-        
-        coinbase_txn = [coinbase_transactions(client, n['id']) for n in coinbase_acc]
+
+        coinbase_txn = [coinbase_transactions(
+            client, n['id']) for n in coinbase_acc]
         coinbase_txn = [x for n in coinbase_txn for x in n]
-        
+
         # keep only certain transaction types
-        txn_types = ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-        coinbase_txn = [n for n in coinbase_txn if n['status'] == 'completed' and n['type'] in txn_types]
+        txn_types = ['fiat_deposit', 'request', 'buy',
+                     'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+        coinbase_txn = [n for n in coinbase_txn if n['status']
+                        == 'completed' and n['type'] in txn_types]
         for d in coinbase_txn:
             # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
-            if d['type']=='send' and np.sign(float(d['amount']['amount']))==1:
+            if d['type'] == 'send' and np.sign(float(d['amount']['amount'])) == 1:
                 d['type'] = 'send_credit'
-            # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit' 
-            elif d['type']=='send' and np.sign(float(d['amount']['amount']))==-1:
+            # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit'
+            elif d['type'] == 'send' and np.sign(float(d['amount']['amount'])) == -1:
                 d['type'] = 'send_debit'
-        
+
         # reset native currency
         set_native = coinbase_set_native_currency(client, native)
-        
+
         # compute score
         feedback = create_feedback_coinbase()
         score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
-        message = qualitative_feedback_coinbase(score, feedback, coinmarketcap_key)
+        message = qualitative_feedback_coinbase(
+            score, feedback, coinmarketcap_key)
         feedback = interpret_score_coinbase(score, feedback)
 
         status_code = 200
         status = 'success'
-    
+
     except Exception as e:
         status_code = 400
         status = 'error'
         score = 0
         feedback = {}
         message = str(e)
-    
+
     finally:
-        timestamp = datetime.now(timezone.utc).strftime('%m-%d-%Y %H:%M:%S GMT')
+        timestamp = datetime.now(timezone.utc).strftime(
+            '%m-%d-%Y %H:%M:%S GMT')
         output = {
             'endpoint': '/credit_score/coinbase',
             'title': 'Credit Score',
@@ -186,7 +193,7 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
             'score': int(score),
             'feedback': feedback,
             'message': message
-            }
+        }
         if score == 0:
             output.pop('score', None)
             output.pop('feedback', None)
@@ -195,28 +202,25 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
         return make_response(output, output['status_code'])
 
 
-
-
 # ------------------------------------- #
 #                  DEMO                 #
-# ------------------------------------- # 
+# ------------------------------------- #
 if __name__ == '__main__':
     load_dotenv()
     config = dotenv_values()
 
     # Plaid
     hit_plaid_api(
-        config['PLAID_CLIENT_ID'], 
-        config['PLAID_CLIENT_SECRET'], 
-        config['PLAID_ACCESS_TOKEN'], 
+        config['PLAID_CLIENT_ID'],
+        config['PLAID_CLIENT_SECRET'],
+        config['PLAID_ACCESS_TOKEN'],
         config['COINMARKETCAP_KEY']
-        )
+    )
     print()
-
 
     # Coinbase
     hit_coinbase_api(
-        config['COINBASE_CLIENT_ID'], 
+        config['COINBASE_CLIENT_ID'],
         config['COINBASE_CLIENT_SECRET'],
         config['COINMARKETCAP_KEY']
-        )
+    )

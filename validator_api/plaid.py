@@ -38,21 +38,21 @@ def plaid_client(plaid_env, client_id, secret):
         api_key={
             'clientId': client_id,
             'secret': secret
-            }
-        )
+        }
+    )
     return plaid_api.PlaidApi(plaid.ApiClient(config))
 
 
 def format_error(e):
     r = json.loads(e.body)
     error = {'error': {
-                'status_code': e.status,
-                'message': r['error_message'],
-                'error_code': r['error_code'],
-                'error_type': r['error_type']
-                }
-            }
-    ic(error) 
+        'status_code': e.status,
+        'message': r['error_message'],
+        'error_code': r['error_code'],
+        'error_type': r['error_type']
+    }
+    }
+    ic(error)
     return error
 
 
@@ -67,13 +67,13 @@ def plaid_transactions(access_token, client, timeframe):
             start_date=start_date.date(),
             end_date=end_date.date(),
             options=TransactionsGetRequestOptions()
-            )
-        
+        )
+
         r = client.transactions_get(request).to_dict()
-    
+
     except plaid.ApiException as e:
         r = format_error(e)
-    
+
     finally:
         return r
 
@@ -95,7 +95,7 @@ def plaid_bank_name(client, bank_id, feedback):
         request = InstitutionsGetByIdRequest(
             institution_id=bank_id,
             country_codes=list(map(lambda x: CountryCode(x), ['US']))
-        ) # hard code 'US' to be the country_code parameter
+        )  # hard code 'US' to be the country_code parameter
 
         r = client.institutions_get_by_id(request)
         feedback['diversity']['bank_name'] = r['institution']['name']

@@ -5,6 +5,7 @@ from support.metrics_coinbase import *
 #                                Plaid Model                                 #
 # -------------------------------------------------------------------------- #
 
+
 def plaid_credit(txn, feedback):
 
     limit, feedback = credit_limit(txn, feedback)
@@ -17,7 +18,7 @@ def plaid_credit(txn, feedback):
         + 0.12*util_ratio \
         + 0.05*interest \
         + 0.26*length \
-        + 0.12*livelihood 
+        + 0.12*livelihood
 
     return score, feedback
 
@@ -34,7 +35,7 @@ def plaid_velocity(txn, feedback):
         + 0.25*deposits \
         + 0.25*net_flow \
         + 0.16*txn_count \
-        + 0.18*slope 
+        + 0.18*slope
 
     return score, feedback
 
@@ -63,6 +64,7 @@ def plaid_diversity(txn, feedback):
 #                               Coinbase Model                               #
 # -------------------------------------------------------------------------- #
 
+
 def coinbase_kyc(acc, txn, feedback):
 
     score, feedback = kyc(acc, txn, feedback)
@@ -90,16 +92,19 @@ def coinbase_liquidity(acc, txn, feedback):
 
 def coinbase_activity(acc, txn, feedback):
 
-    credit_volume, feedback = activity_tot_volume_tot_count(txn, 'credit', feedback)
-    debit_volume, feedback = activity_tot_volume_tot_count(txn, 'debit', feedback)
-    credit_consistency, feedback = activity_consistency(txn, 'credit', feedback)
+    credit_volume, feedback = activity_tot_volume_tot_count(
+        txn, 'credit', feedback)
+    debit_volume, feedback = activity_tot_volume_tot_count(
+        txn, 'debit', feedback)
+    credit_consistency, feedback = activity_consistency(
+        txn, 'credit', feedback)
     debit_consistency, feedback = activity_consistency(txn, 'debit', feedback)
     inception, feedback = activity_profit_since_inception(acc, txn, feedback)
 
     score = 0.2*credit_volume \
-        + 0.2* debit_volume \
+        + 0.2 * debit_volume \
         + 0.2*credit_consistency \
         + 0.2*debit_consistency \
-        + 0.2*inception 
-    
-    return score, feedback 
+        + 0.2*inception
+
+    return score, feedback
