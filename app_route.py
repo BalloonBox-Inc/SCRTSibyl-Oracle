@@ -143,6 +143,7 @@ def credit_score_coinbase():
             # fetch top X cryptos from coinmarketcap API
             top_coins = coinmarketcap_coins(coinmarketcap_key, 25)
             ic(top_coins)
+            print('1')
             currencies = coinbase_currencies(client)
             ic(currencies)
             if 'error' in currencies:

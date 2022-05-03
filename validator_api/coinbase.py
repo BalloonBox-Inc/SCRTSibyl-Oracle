@@ -37,13 +37,17 @@ def convert_to_json(obj):
 def coinbase_currencies(client):
     '''Get all Coinbase fiat currencies'''
     try:
+        print('2')
         r = client.get_currencies()
+        print('3')
         ic(r)
         r = dict([(n['id'], float(n['min_size'])) for n in r['data']])
         ic(r)
+        print('4')
 
     except CoinbaseError as e:
         r = format_error(e)
+        print('5')
 
     finally:
         return r
