@@ -38,7 +38,9 @@ def coinbase_currencies(client):
     '''Get all Coinbase fiat currencies'''
     try:
         r = client.get_currencies()
+        ic(r)
         r = dict([(n['id'], float(n['min_size'])) for n in r['data']])
+        ic(r)
 
     except CoinbaseError as e:
         r = format_error(e)
