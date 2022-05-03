@@ -1,4 +1,5 @@
 # 🚀 SCRT SIBYL API
+
 ![scrt sibyl image](https://github.com/BalloonBox-Inc/SCRTsibyl-Oracle/blob/dev/images/logo_horizontal.png)
 
 ## About :mailbox_with_mail:
@@ -7,13 +8,12 @@ This documentation contains all APIs endpoints featured in our SCRTsibyl DApp.
 
 Imagine you are a user who owns a Keplr wallet and wants to be issued a micro-loan.
 The SCRTsibyl DApp leverages public APIs to allow users to:
-+ integrate their existing Plaid and Coinbase accounts with the SCRTsibyl Credit Score model, 
-+ undergo a credit score check,
-+ validate their credibility to lenders issuing them a loan. 
+
+- integrate their existing Plaid and Coinbase accounts with the SCRTsibyl Credit Score model,
+- undergo a credit score check,
+- validate their credibility to lenders issuing them a loan.
 
 When using the SCRTsibyl API you agree with our [Terms and Conditions](https://) :copyright:.
-
-
 
 ## To Notice :eyes:
 
@@ -33,24 +33,22 @@ Have you spotted a mistake in our API docs? Help us improve it by [letting us kn
 
 The API is in active development and we are changing things rapdily. Once we are ready to release a stable version of API we will notify the existing API owners.
 
-
-
 ## Resources :gear:
 
-
-[COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
----
+## [COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
 
 ```bash
     POST {base_url}/credit_score/coinbase
 ```
 
 Headers
+
 ```bash
     {"Content-Type": "application/json"}
 ```
 
 Body
+
 ```bash
     {
         "keplr_token": "YOUR_KEPLER_TOKEN",
@@ -62,7 +60,8 @@ Body
 
 Response: **200**
 
-+ Generalized Typescript response
+- Generalized Typescript response
+
 ```bash
     enum ScoreQuality {
     'very poor',
@@ -102,7 +101,8 @@ Response: **200**
     }
 ```
 
-+ Sample response from a Coinbase test account
+- Sample response from a Coinbase test account
+
 ```bash
 {
     "endpoint": "/credit_score/coinbase",
@@ -125,29 +125,29 @@ Response: **200**
     },
     "message": "SCRTsibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
     in your Coinbase account. Try to log into Coinbase with a different account.",
-    
+
     "score": 300.0,
     "status": "success",
     "status_code": 200,
     "timestamp": "03-22-2022 18:44:19 GMT",
     "title": "Credit Score"
-}            
+}
 ```
 
-
-[PLAID](https://plaid.com/) : credit score model based on Plaid account.
----
+## [PLAID](https://plaid.com/) : credit score model based on Plaid account.
 
 ```bash
     POST {base_url}/credit_score/plaid
 ```
 
 Headers
+
 ```bash
     {"Content-Type": "application/json"}
 ```
 
 Body
+
 ```bash
     {
         "keplr_token": "YOUR_KEPLER_TOKEN"
@@ -160,7 +160,8 @@ Body
 
 Response: **200**
 
-+ Generalized Typescript response
+- Generalized Typescript response
+
 ```bash
     enum ScoreQuality {
     'very poor',
@@ -202,7 +203,8 @@ Response: **200**
     }
 ```
 
-+ Sample response from Plaid Sandbox environment
+- Sample response from Plaid Sandbox environment
+
 ```bash
     {
         "endpoint": "/credit_score/plaid",
@@ -233,7 +235,7 @@ Response: **200**
         Your total current balance is $44,520 USD across all accounts. An error occurred while computing the <br/>
         score metric called velocity. As a result, your score was rounded down. <br/>
         Try again later or select an alternative bank account if you have one.",
-        
+
         "score": 639,
         "status": "success",
         "status_code": 200,
@@ -247,6 +249,7 @@ Response: **200**
 Note that error returns do not have `score` or `feedback` keys. The error description will appear under the message key.
 
 Sample error response from Plaid Sandbox environment
+
 ```bash
     {
         'endpoint': '/credit_score/plaid',

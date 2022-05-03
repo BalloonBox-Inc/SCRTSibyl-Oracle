@@ -16,7 +16,7 @@ def suite():
     suite.addTest(unittest.makeSuite(TestHelperFunctions))
     suite.addTest(unittest.makeSuite(TestParametrizePlaid))
 
-    #Coinbase
+    # Coinbase
     suite.addTest(unittest.makeSuite(TestMetricsCoinbase))
     suite.addTest(unittest.makeSuite(TestParametrizeCoinbase))
 
