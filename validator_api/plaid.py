@@ -4,19 +4,12 @@ from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdReques
 from plaid.model.country_code import CountryCode
 
 from plaid.api import plaid_api
-from dotenv import load_dotenv
 from datetime import timedelta
 from datetime import datetime
 from icecream import ic
-from os import getenv
 
 import plaid
 import json
-
-load_dotenv()
-
-if getenv('ENV') == 'production':
-    ic.disable()
 
 
 def plaid_environment(plaid_env):

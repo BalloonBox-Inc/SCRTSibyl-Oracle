@@ -15,9 +15,6 @@ from app import *
 
 load_dotenv()
 
-if getenv('ENV') == 'production':
-    ic.disable()
-
 
 def create_feedback_plaid():
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}

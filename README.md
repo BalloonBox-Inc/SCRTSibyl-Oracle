@@ -59,8 +59,8 @@ PLAID_CLIENT_ID=your_client_id
 PLAID_CLIENT_SECRET=your_secret_sandbox_key
 PLAID_ACCESS_TOKEN=your_unique_access_token
 
-OINBASE_CLIENT_ID=your_coinbase_id
-OINBASE_CLIENT_SECRET=your_coinbase_secret_key
+COINBASE_CLIENT_ID=your_coinbase_id
+COINBASE_CLIENT_SECRET=your_coinbase_secret_key
 
 COINMARKETCAP_KEY=your_coinmarketcap_key
 ```

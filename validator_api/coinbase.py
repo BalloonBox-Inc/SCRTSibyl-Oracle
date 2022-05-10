@@ -1,16 +1,9 @@
 from coinbase.wallet.error import CoinbaseError
 from coinbase.wallet.client import OAuthClient
-from dotenv import load_dotenv
 from datetime import datetime
 from icecream import ic
-from os import getenv
 
 import json
-
-load_dotenv()
-
-if getenv('ENV') == 'production':
-    ic.disable()
 
 
 def coinbase_client(access_token, refresh_token):
