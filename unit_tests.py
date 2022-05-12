@@ -1,7 +1,6 @@
 import unittest
-from support.tests.test_coinbase import TestMetricsCoinbase
-from support.tests.test_plaid import *
-from support.metrics_coinbase import *
+from testing.tests.test_coinbase import *
+from testing.tests.test_plaid import *
 
 
 # Run the actual tests bundling classes of test cases into test suites

@@ -1,7 +1,14 @@
-import json
-import unittest
+from support.metrics_plaid import *  # import code to get tested
 from datetime import datetime
-from ..metrics_plaid import *  # import code to get tested
+import unittest
+import json
+import os
+
+
+dummy_data = 'test_plaid.json'
+
+json_file = os.path.join(os.path.dirname(
+    __file__).replace('/tests', '/data'), dummy_data)
 
 
 # -------------------------------------------------------------------------- #
@@ -39,7 +46,7 @@ def str_to_datetime(plaid_txn, feedback):
 
 # -------------------------------------------------------------------------- #
 #                      some state-based UNIT TEST CASES                      #
-#                - test core functions of Coinbase algorithm -               #
+#                  - test core functions of Plaid algorithm -                #
 # -------------------------------------------------------------------------- #
 
 class TestMetricCredit(unittest.TestCase):
@@ -47,8 +54,8 @@ class TestMetricCredit(unittest.TestCase):
     # factor out set-up code implementing the setUp() method
     def setUp(self):
         self.fb = create_feedback_plaid()
-        with open('data/test_user_plaid.json') as my_file:
-            self.data = str_to_datetime(json.load(my_file), self.fb)
+        with open(json_file) as f:
+            self.data = str_to_datetime(json.load(f), self.fb)
 
     # clean up code at the end of this test class
     def tearDown(self):
@@ -131,8 +138,8 @@ class TestMetricVelocity(unittest.TestCase):
 
     def setUp(self):
         self.fb = create_feedback_plaid()
-        with open('data/test_user_plaid.json') as my_file:
-            self.data = str_to_datetime(json.load(my_file), self.fb)
+        with open(json_file) as f:
+            self.data = str_to_datetime(json.load(f), self.fb)
 
     def tearDown(self):
         self.fb = None
@@ -202,8 +209,8 @@ class TestMetricStability(unittest.TestCase):
 
     def setUp(self):
         self.fb = create_feedback_plaid()
-        with open('data/test_user_plaid.json') as my_file:
-            self.data = str_to_datetime(json.load(my_file), self.fb)
+        with open(json_file) as f:
+            self.data = str_to_datetime(json.load(f), self.fb)
 
     def tearDown(self):
         self.fb = None
@@ -252,8 +259,8 @@ class TestMetricDiversity(unittest.TestCase):
 
     def setUp(self):
         self.fb = create_feedback_plaid()
-        with open('data/test_user_plaid.json') as my_file:
-            self.data = str_to_datetime(json.load(my_file), self.fb)
+        with open(json_file) as f:
+            self.data = str_to_datetime(json.load(f), self.fb)
 
     def tearDown(self):
         self.fb = None
@@ -291,8 +298,8 @@ class TestHelperFunctions(unittest.TestCase):
 
     def setUp(self):
         self.fb = create_feedback_plaid()
-        with open('data/test_user_plaid.json') as my_file:
-            self.data = str_to_datetime(json.load(my_file), self.fb)
+        with open(json_file) as f:
+            self.data = str_to_datetime(json.load(f), self.fb)
 
     def tearDown(self):
         self.fb = None
@@ -362,7 +369,7 @@ class TestHelperFunctions(unittest.TestCase):
 class TestParametrizePlaid(unittest.TestCase):
     '''
     The TestParametrizeOutput object checks that ALL functions 
-    of our Coinbase algorithm ALWAYS return a tuple comprising of:
+    of our Plaid algorithm ALWAYS return a tuple comprising of:
     - an int (i.e., the score)
     - a dict (i.e., the feedback)
     It also checks that the score is ALWAYS in the range [0, 1]
@@ -372,8 +379,8 @@ class TestParametrizePlaid(unittest.TestCase):
     def setUp(self):
         self.fb = create_feedback_plaid()
 
-        with open('data/test_user_plaid.json') as my_file:
-            self.data = str_to_datetime(json.load(my_file), self.fb)
+        with open(json_file) as f:
+            self.data = str_to_datetime(json.load(f), self.fb)
 
         self.arg = {
             'good': {'data': self.data, 'feedback': self.fb},
