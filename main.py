@@ -1,48 +1,57 @@
-'''This is a standalone .py file used for the sole purpose of demoing the credit scoring algorithm.
-This file does not invoke any DApp frontend component, but runs entirely in the backend.'''
-
-from flask import make_response
-from coinbase.wallet.client import Client
-from datetime import datetime, timezone
-from dotenv import load_dotenv, dotenv_values
+from fastapi import FastAPI
+from pydantic import BaseModel
+from datetime import datetime
+from datetime import timezone
+from dotenv import load_dotenv
+from os import getenv
 from icecream import ic
 
-from support.score import *
-from support.feedback import *
-from validator.plaid import *
+from testing.performance import *
+from market.coinmarketcap import *
 from validator.coinbase import *
-from support.metrics_plaid import *
-from support.metrics_coinbase import *
+from validator.plaid import *
+from support.feedback import *
+from support.score import *
+
+load_dotenv()
 
 
-# ------------------------------------- #
-#                 PLAID                 #
-# ------------------------------------- #
 def create_feedback_plaid():
-    '''create a feedback dict for Plaid'''
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
 
 
-def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketcap_key):
-    '''
-    Description:
-        Import Plaid Sandbox data, calculate credit score for Sandbox user, return the numerical score and a qualitative feedback
+def create_feedback_coinbase():
+    return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
-    Parameters:
-        plaid_client_id (str): client API key
-        plaid_client_secret (str): client API secret key
-        plaid_token (str): Plaid access token
-        coinmarketcap_key: Coinmarketcap API key
 
-    Returns:
-        output (dict): credit score (numerical and qualitative)
-    '''
+class Plaid_Item(BaseModel):
+    plaid_access_token: str
+    plaid_client_id: str
+    plaid_client_secret: str
+    coinmarketcap_key: str
+
+
+class Coinbase_Item(BaseModel):
+    coinbase_access_token: str
+    coinbase_refresh_token: str
+    coinmarketcap_key: str
+
+
+app = FastAPI()
+
+
+# @measure_time_and_memory
+@app.post('/credit_score/plaid')
+async def credit_score_plaid(item: Plaid_Item):
+
     try:
         # client connection
-        client = plaid_client('sandbox', plaid_client_id, plaid_client_secret)
+        client = plaid_client(
+            getenv('ENV'), item.plaid_client_id, item.plaid_client_secret)
+        ic(client)
 
         # data fetching and formatting
-        plaid_txn = plaid_transactions(plaid_token, client, 360)
+        plaid_txn = plaid_transactions(item.plaid_access_token, client, 360)
         if 'error' in plaid_txn:
             raise Exception(plaid_txn['error']['message'])
 
@@ -57,7 +66,7 @@ def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketc
             client, plaid_txn['item']['institution_id'], feedback)
         score, feedback = plaid_score(plaid_txn, feedback)
         message = qualitative_feedback_plaid(
-            score, feedback, coinmarketcap_key)
+            score, feedback, item.coinmarketcap_key)
         feedback = interpret_score_plaid(score, feedback)
 
         status_code = 200
@@ -83,42 +92,32 @@ def hit_plaid_api(plaid_client_id, plaid_client_secret, plaid_token, coinmarketc
             'feedback': feedback,
             'message': message
         }
+
         if score == 0:
             output.pop('score', None)
             output.pop('feedback', None)
 
         ic(output)
-        return make_response(output, output['status_code'])
+
+        return output
 
 
-# ------------------------------------- #
-#               COINBASE                #
-# ------------------------------------- #
-def create_feedback_coinbase():
-    return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
+# @measure_time_and_memory
+@app.post('/credit_score/coinbase')
+async def credit_score_coinbase(item: Coinbase_Item):
 
-
-def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_key):
-    '''
-    Description:
-        Import your Coinbase account data, calculate your credit score, return the numerical score and a qualitative feedback
-
-    Parameters:
-        coinbase_client_id (str): Coinbase id key
-        coinbase_client_secret (str): Coinbase secret key
-        coinmarketcap_key: Coinmarketcap API key
-
-    Returns:
-        output (dict): credit score (numerical and qualitative)
-    '''
     try:
         # client connection
-        client = Client(coinbase_client_id, coinbase_client_secret)
+        client = coinbase_client(
+            item.coinbase_access_token, item.coinbase_refresh_token)
+        ic(client)
 
         # coinmarketcap
         # fetch top X cryptos from coinmarketcap API
-        top_coins = coinmarketcap_coins(coinmarketcap_key, 25)
+        top_coins = coinmarketcap_coins(item.coinmarketcap_key, 25)
+        ic(top_coins)
         currencies = coinbase_currencies(client)
+        ic(currencies)
         if 'error' in currencies:
             raise Exception(currencies['error']['message'])
 
@@ -131,11 +130,12 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
 
         # change coinbase native currency to USD
         native = coinbase_native_currency(client)
-
+        ic(native)
         if 'error' in native:
             raise Exception(native['error']['message'])
         if native != 'USD':
             set_native = coinbase_set_native_currency(client, 'USD')
+            ic(set_native)
 
         # fetch and format data from user's Coinbase account
         coinbase_acc = coinbase_accounts(client)
@@ -162,12 +162,14 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
 
         # reset native currency
         set_native = coinbase_set_native_currency(client, native)
+        ic(set_native)
 
         # compute score
         feedback = create_feedback_coinbase()
-        score, feedback = coinbase_score(coinbase_acc, coinbase_txn, feedback)
+        score, feedback = coinbase_score(
+            coinbase_acc, coinbase_txn, feedback)
         message = qualitative_feedback_coinbase(
-            score, feedback, coinmarketcap_key)
+            score, feedback, item.coinmarketcap_key)
         feedback = interpret_score_coinbase(score, feedback)
 
         status_code = 200
@@ -193,33 +195,11 @@ def hit_coinbase_api(coinbase_client_id, coinbase_client_secret, coinmarketcap_k
             'feedback': feedback,
             'message': message
         }
+
         if score == 0:
             output.pop('score', None)
             output.pop('feedback', None)
 
         ic(output)
-        return make_response(output, output['status_code'])
 
-
-# ------------------------------------- #
-#                  DEMO                 #
-# ------------------------------------- #
-if __name__ == '__main__':
-    load_dotenv()
-    config = dotenv_values()
-
-    # Plaid
-    hit_plaid_api(
-        config['PLAID_CLIENT_ID'],
-        config['PLAID_CLIENT_SECRET'],
-        config['PLAID_ACCESS_TOKEN'],
-        config['COINMARKETCAP_KEY']
-    )
-    print()
-
-    # Coinbase
-    hit_coinbase_api(
-        config['COINBASE_CLIENT_ID'],
-        config['COINBASE_CLIENT_SECRET'],
-        config['COINMARKETCAP_KEY']
-    )
+        return output
