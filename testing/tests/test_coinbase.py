@@ -1,7 +1,14 @@
-import json
-import unittest
+from support.metrics_coinbase import *  # import code to get tested
 from datetime import datetime
-from ..metrics_coinbase import *  # import testing code
+import unittest
+import json
+import os
+
+
+dummy_data = 'test_coinbase.json'
+
+json_file = os.path.join(os.path.dirname(
+    __file__).replace('/tests', '/data'), dummy_data)
 
 
 # -------------------------------------------------------------------------- #
@@ -45,10 +52,10 @@ class TestMetricsCoinbase(unittest.TestCase):
     # factor out set-up code implementing the setUp() method
     def setUp(self):
         self.fb = create_feedback_coinbase()
-        with open('data/test_user_coinbase.json') as my_file:
-            self.acc = str_to_date(json.load(my_file)['accounts'], self.fb)
-        with open('data/test_user_coinbase.json') as my_file:
-            self.tx = json.load(my_file)['transactions']
+        with open(json_file) as f:
+            self.acc = str_to_date(json.load(f)['accounts'], self.fb)
+        with open(json_file) as f:
+            self.tx = json.load(f)['transactions']
 
     # clean up code at the end of this test class
     def tearDown(self):
@@ -195,10 +202,10 @@ class TestParametrizeCoinbase(unittest.TestCase):
 
     def setUp(self):
         self.fb = create_feedback_coinbase()
-        with open('data/test_user_coinbase.json') as my_file:
-            self.acc = str_to_date(json.load(my_file)['accounts'], self.fb)
-        with open('data/test_user_coinbase.json') as my_file:
-            self.tx = json.load(my_file)['transactions']
+        with open(json_file) as f:
+            self.acc = str_to_date(json.load(f)['accounts'], self.fb)
+        with open(json_file) as f:
+            self.tx = json.load(f)['transactions']
 
         self.param = {
             'fn_good': [
