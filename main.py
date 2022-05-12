@@ -8,20 +8,14 @@ from icecream import ic
 
 from testing.performance import *
 from market.coinmarketcap import *
+from market.coinapi import *
 from validator.coinbase import *
 from validator.plaid import *
 from support.feedback import *
 from support.score import *
+from config.params import *
 
 load_dotenv()
-
-
-def create_feedback_plaid():
-    return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
-
-
-def create_feedback_coinbase():
-    return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
 
 class Plaid_Item(BaseModel):
@@ -29,12 +23,16 @@ class Plaid_Item(BaseModel):
     plaid_client_id: str
     plaid_client_secret: str
     coinmarketcap_key: str
+    coinapi_key: str
+    selected_coin: str
 
 
 class Coinbase_Item(BaseModel):
     coinbase_access_token: str
     coinbase_refresh_token: str
     coinmarketcap_key: str
+    coinapi_key: str
+    selected_coin: str
 
 
 app = FastAPI()
@@ -65,8 +63,10 @@ async def credit_score_plaid(item: Plaid_Item):
         feedback = plaid_bank_name(
             client, plaid_txn['item']['institution_id'], feedback)
         score, feedback = plaid_score(plaid_txn, feedback)
+
+        # add feedback
         message = qualitative_feedback_plaid(
-            score, feedback, item.coinmarketcap_key)
+            score, feedback, item.selected_coin, item.coinapi_key)
         feedback = interpret_score_plaid(score, feedback)
 
         status_code = 200
@@ -168,8 +168,10 @@ async def credit_score_coinbase(item: Coinbase_Item):
         feedback = create_feedback_coinbase()
         score, feedback = coinbase_score(
             coinbase_acc, coinbase_txn, feedback)
+
+        # add feedback
         message = qualitative_feedback_coinbase(
-            score, feedback, item.coinmarketcap_key)
+            score, feedback, item.selected_coin, item.coinapi_key)
         feedback = interpret_score_coinbase(score, feedback)
 
         status_code = 200
