@@ -13,6 +13,7 @@ from validator.coinbase import *
 from validator.plaid import *
 from support.feedback import *
 from support.score import *
+from support.risk import *
 from config.params import *
 
 load_dotenv()
@@ -64,6 +65,9 @@ async def credit_score_plaid(item: Plaid_Item):
             client, plaid_txn['item']['institution_id'], feedback)
         score, feedback = plaid_score(plaid_txn, feedback)
 
+        # compute risk
+        risk = calc_risk(score)
+
         # add feedback
         message = qualitative_feedback_plaid(
             score, feedback, item.selected_coin, item.coinapi_key)
@@ -76,6 +80,7 @@ async def credit_score_plaid(item: Plaid_Item):
         status_code = 400
         status = 'error'
         score = 0
+        risk = {}
         feedback = {}
         message = str(e)
 
@@ -89,6 +94,7 @@ async def credit_score_plaid(item: Plaid_Item):
             'status': status,
             'timestamp': timestamp,
             'score': int(score),
+            'risk': risk,
             'feedback': feedback,
             'message': message
         }
@@ -169,6 +175,9 @@ async def credit_score_coinbase(item: Coinbase_Item):
         score, feedback = coinbase_score(
             coinbase_acc, coinbase_txn, feedback)
 
+        # compute risk
+        risk = calc_risk(score)
+
         # add feedback
         message = qualitative_feedback_coinbase(
             score, feedback, item.selected_coin, item.coinapi_key)
@@ -181,6 +190,7 @@ async def credit_score_coinbase(item: Coinbase_Item):
         status_code = 400
         status = 'error'
         score = 0
+        risk = {}
         feedback = {}
         message = str(e)
 
@@ -194,6 +204,7 @@ async def credit_score_coinbase(item: Coinbase_Item):
             'status': status,
             'timestamp': timestamp,
             'score': int(score),
+            'risk': risk,
             'feedback': feedback,
             'message': message
         }

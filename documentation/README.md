@@ -64,36 +64,41 @@ Response: **200**
 
 ```bash
     enum ScoreQuality {
-    'very poor',
-    'poor',
-    'fair',
-    'good',
-    'very good',
-    'excellent',
-    'exceptional',
+        'very poor',
+        'poor',
+        'fair',
+        'good',
+        'very good',
+        'excellent',
+        'exceptional',
     }
 
     export interface IScoreResponseCoinbase {
     endpoint: '/credit_score/coinbase';
     feedback: {
         advice: {
-        activity_error: boolean;
-        history_error: boolean;
-        kyc_error: boolean;
-        liquidity_error: boolean;
+            activity_error: boolean;
+            history_error: boolean;
+            kyc_error: boolean;
+            liquidity_error: boolean;
         };
         score: {
-        current_balance: number;
-        loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
-        loan_duedate: 3 | 4 | 5 | 6;
-        points: number;  # integer in range [300, 900]
-        quality: ScoreQuality;
-        score_exist: boolean;
-        wallet_age(days): number;
+            current_balance: number;
+            loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
+            loan_duedate: 3 | 4 | 5 | 6;
+            points: number;  # integer in range [300, 900]
+            quality: ScoreQuality;
+            score_exist: boolean;
+            wallet_age(days): number;
         };
     };
     message: string;
     score: number;
+    risk: {
+        low_risk: number;
+        mid_risk: number;
+        high_risk: number;
+    }
     status: 'success' | 'error';
     status_code: 200 | 400;
     timestamp: string;
@@ -125,8 +130,12 @@ Response: **200**
     },
     "message": "SCRTsibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
     in your Coinbase account. Try to log into Coinbase with a different account.",
-
     "score": 300.0,
+    "risk": {
+        "low_risk": null,
+        "mid_risk": 0.0,
+        "high_risk": 237.5,
+    }
     "status": "success",
     "status_code": 200,
     "timestamp": "03-22-2022 18:44:19 GMT",
@@ -164,38 +173,43 @@ Response: **200**
 
 ```bash
     enum ScoreQuality {
-    'very poor',
-    'poor',
-    'fair',
-    'good',
-    'very good',
-    'excellent',
-    'exceptional',
+        'very poor',
+        'poor',
+        'fair',
+        'good',
+        'very good',
+        'excellent',
+        'exceptional',
     }
 
     export interface IScoreResponsePlaid {
     endpoint: '/credit_score/plaid';
     feedback: {
         advice: {
-        credit_error: boolean;
-        credit_exist: boolean;
-        diversity_error: boolean;
-        stability_error: boolean;
-        velocity_error: boolean;
+            credit_error: boolean;
+            credit_exist: boolean;
+            diversity_error: boolean;
+            stability_error: boolean;
+            velocity_error: boolean;
         };
         score: {
-        bank_accounts: number;
-        card_names: string[];
-        cum_balance: number;
-        loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
-        loan_duedate: 3 | 4 | 5 | 6;
-        points: number; # integer in range [300, 900]
-        quality: ScoreQuality;
-        score_exist: boolean;
+            bank_accounts: number;
+            card_names: string[];
+            cum_balance: number;
+            loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
+            loan_duedate: 3 | 4 | 5 | 6;
+            points: number; # integer in range [300, 900]
+            quality: ScoreQuality;
+            score_exist: boolean;
         };
     };
     message: string;
     score: number;
+    risk: {
+        low_risk: number;
+        mid_risk: number;
+        high_risk: number;
+    }
     status: 'success' | 'error';
     status_code: 200 | 400;
     timestamp: string;
@@ -235,8 +249,12 @@ Response: **200**
         Your total current balance is $44,520 USD across all accounts. An error occurred while computing the <br/>
         score metric called velocity. As a result, your score was rounded down. <br/>
         Try again later or select an alternative bank account if you have one.",
-
         "score": 639,
+        "risk": {
+            "low_risk": 4046.66,
+            "mid_risk": 4511.11,
+            "high_risk": 4975.56,
+        }
         "status": "success",
         "status_code": 200,
         "timestamp": "03-24-2022 17:34:52 GMT",
