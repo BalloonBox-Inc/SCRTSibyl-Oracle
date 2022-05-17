@@ -51,10 +51,11 @@ Body
 
 ```bash
     {
-        "keplr_token": "YOUR_KEPLER_TOKEN",
         "coinbase_access_token": "YOUR_COINBASE_ACCESS_TOKEN",
         "coinbase_refresh_token": "YOUR_COINBASE_REFRESH_TOKEN",
-        "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY"
+        "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY",
+        "coinapi_key": "YOUR_COINAPI_KEY",
+        "selected_coin": "YOUR_CHOICE_OF_COIN_TO_BE_DISPLAYED",
     }
 ```
 
@@ -159,11 +160,12 @@ Body
 
 ```bash
     {
-        "keplr_token": "YOUR_KEPLER_TOKEN"
-        "plaid_token": "YOUR_PLAID_TOKEN",
+        "plaid_access_token": "YOUR_PLAID_TOKEN",
         "plaid_client_id": "YOUR_PLAID_CLIENT_ID",
         "plaid_client_secret": "YOUR_CLIENT_SECRET",
-        "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY"
+        "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY",
+        "coinapi_key": "YOUR_COINAPI_KEY",
+        "selected_coin": "YOUR_CHOICE_OF_COIN_TO_BE_DISPLAYED",
     }
 ```
 
