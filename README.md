@@ -105,7 +105,7 @@ There are two distinct models, one for each of our chosen validators, namely Pla
 ## Interpret Your Score :mag:
 
 SCRTsibyl returns to the user a numerical score ranging from 300-900 points. The score is partitioned into categorical bins (very poor | poor | fair | good | very good | excellent | exceptional), which describe the score qualitatively (see fuel gauge in the diagram below). Every bin is associated with a USD equivalent, which represents the maximum loan amount in USD that a user qualifies for, based on SCRTsibyl oracle calculation. Lastly, the SCRTsibyl also returns the estimated payback period, namely the expected time it will take for the user to pay back the loan. The loan terms (loan amount, qualitative descriptor, and payback period) are algorithmic recommendations, and, therefore, they are not prescriptive. Although we strongly advise lenders and borrowers to consider the SCRTsibyl Oracle's parameters, we also encourage them to stipulate loan terms to best suit their needs.
-![](./images/ranges.png)
+![](./images/credit_score_range.png)
 
 ### Data Privacy
 
