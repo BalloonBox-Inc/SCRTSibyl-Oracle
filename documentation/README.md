@@ -35,7 +35,7 @@ The API is in active development and we are changing things rapdily. Once we are
 
 ## Resources :gear:
 
-## [COINBASE](https://coinmarketcap.com/) : credit score model based on Coinbase account.
+## [COINBASE](https://coinbase.com/) : credit score model based on Coinbase account.
 
 ```bash
     POST {base_url}/credit_score/coinbase
@@ -55,7 +55,7 @@ Body
         "coinbase_refresh_token": "YOUR_COINBASE_REFRESH_TOKEN",
         "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY",
         "coinapi_key": "YOUR_COINAPI_KEY",
-        "selected_coin": "YOUR_CHOICE_OF_COIN_TO_BE_DISPLAYED",
+        "currencies": ["CURRENCY1", "CURRENCY2", ...],
     }
 ```
 
@@ -165,7 +165,7 @@ Body
         "plaid_client_secret": "YOUR_CLIENT_SECRET",
         "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY",
         "coinapi_key": "YOUR_COINAPI_KEY",
-        "selected_coin": "YOUR_CHOICE_OF_COIN_TO_BE_DISPLAYED",
+        "currencies": ["CURRENCY1", "CURRENCY2", ...],
     }
 ```
 

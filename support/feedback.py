@@ -116,7 +116,7 @@ def interpret_score_plaid(score, feedback):
         return interpret
 
 
-def qualitative_feedback_plaid(score, feedback, coin, api_key):
+def qualitative_feedback_plaid(score, feedback, api_key):
     '''
     Description:
         A function to format and return a qualitative description of the numerical score obtained by the user
@@ -124,7 +124,6 @@ def qualitative_feedback_plaid(score, feedback, coin, api_key):
     Parameters:
         score (float): user's SCRTsibyl numerical score
         feedback (dict): score feedback, reporting stats on main Plaid metrics
-        coin (str): coin selected by user to be displayed
         api_key (str): coinapi.io key
 
     Returns:
@@ -147,14 +146,15 @@ def qualitative_feedback_plaid(score, feedback, coin, api_key):
         points = int(score)
         loan_amount = int(
             loan_bins[np.digitize(score, score_bins, right=False)])
-        if coin != 'USD':
-            loan_amount = coinexchange_rate('USD', coin, api_key)*loan_amount
 
         # Communicate the score
-        scrt_rate = coinexchange_rate('SCRT', coin, api_key)
-        decimals = exchange_currencies()[coin]
+        scrt_rate = coinexchange_rate('SCRT', 'USD', api_key)
         msg = score_message(
-            coin, quality.upper(), points, '{:,.{}f}'.format(loan_amount, decimals), '{:,.0f}'.format(loan_amount/scrt_rate))
+            quality.upper(),
+            points,
+            '{:,.0f}'.format(loan_amount/scrt_rate),
+            '{:,.0f}'.format(loan_amount)
+        )
 
         if ('loan_duedate' in list(feedback['stability'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments'.format(
@@ -275,7 +275,7 @@ def interpret_score_coinbase(score, feedback):
         return interpret
 
 
-def qualitative_feedback_coinbase(score, feedback, coin, api_key):
+def qualitative_feedback_coinbase(score, feedback, api_key):
     '''
     Description:
         A function to format and return a qualitative description of the numerical score obtained by the user
@@ -283,7 +283,6 @@ def qualitative_feedback_coinbase(score, feedback, coin, api_key):
     Parameters:
         score (float): user's SCRTsibyl numerical score
         feedback (dict): score feedback, reporting stats on main Coinbase metrics
-        coin (str): coin selected by user to be displayed
         api_key (str): coinapi.io key
 
     Returns:
@@ -305,14 +304,15 @@ def qualitative_feedback_coinbase(score, feedback, coin, api_key):
         points = int(score)
         loan_amount = int(
             loan_bins[np.digitize(score, score_bins, right=False)])
-        if coin != 'USD':
-            loan_amount = coinexchange_rate('USD', coin, api_key)*loan_amount
 
         # Communicate the score
-        scrt_rate = coinexchange_rate('SCRT', coin, api_key)
-        decimals = exchange_currencies()[coin]
+        scrt_rate = coinexchange_rate('SCRT', 'USD', api_key)
         msg = score_message(
-            coin, quality.upper(), points, '{:,.{}f}'.format(loan_amount, decimals), '{:,.0f}'.format(loan_amount/scrt_rate))
+            quality.upper(),
+            points,
+            '{:,.0f}'.format(loan_amount/scrt_rate),
+            '{:,.0f}'.format(loan_amount)
+        )
 
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments'.format(

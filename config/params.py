@@ -2,19 +2,8 @@ import numpy as np
 
 
 # CURRENCIES
-def exchange_currencies():
-    # dict of allowed coins and decimal places to round when diplaying
-    return {
-        'USD': 0,
-        'EUR': 0,
-        'BTC': 4,
-        'ETH': 4,
-        'USDT': 0,
-        'USDC': 0,
-        'BNB': 2,
-        'XRP': 0,
-        'SCRT': 0
-    }
+def allowed_currencies():
+    return ['USD', 'EUR', 'BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'XRP', 'SCRT']
 
 
 # RANGES
@@ -47,9 +36,15 @@ def no_score_message():
     }
 
 
-def score_message(coin, quality, score, loan, rate):
-    msg = f'Congrats! Your SCRTsibyl score is {quality} - {score} points. This score qualifies you for a short term loan of up to {loan} {coin}'
-    if coin == 'SCRT':
-        return msg
-    else:
-        return msg + f' ({rate} SCRT)'
+def score_message(quality, score, scrt, usd):
+    return f'Congrats! Your SCRTsibyl score is {quality} - {score} points. This score qualifies you for a short term loan of up to {scrt} SCRT ({usd} USD)'
+
+
+# COINBASE
+def coinbase_txn_types():
+    return ['fiat_deposit', 'request', 'buy', 'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
+
+
+def coinbase_odd_fiats():
+    return ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW',
+            'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
