@@ -20,13 +20,13 @@ def calc_risk(score):
 
         if index == 0:
             mid_risk = loan_arr[0]
-            low_risk = np.nan
+            low_risk = mid_risk
             high_risk = mid_risk + (0.95 * ((loan_arr[1] - mid_risk) / 2))
 
         elif index == score_arr.size-1:
             mid_risk = loan_arr[-1]
             low_risk = mid_risk - (0.95 * ((mid_risk - loan_arr[-2]) / 2))
-            high_risk = np.nan
+            high_risk = mid_risk
 
         else:
             mid_risk = loan_arr[index]
@@ -46,14 +46,18 @@ def calc_risk(score):
         delta_loan = upper_loan - lower_loan
 
         # mid-risk
-        mid_risk = round(((((score - lower_score) * delta_loan) /
-                          delta_score) + lower_loan), 2)
+        mid_risk = (((score - lower_score) * delta_loan) /
+                    delta_score) + lower_loan
 
         # low and high risk
         arr = np.array([lower_loan, upper_loan])
         nearest = arr[np.abs(arr - mid_risk).argmin()]
         delta_risk = 0.95 * (abs(mid_risk - nearest))
-        low_risk = round(mid_risk - delta_risk, 2)
-        high_risk = round(mid_risk + delta_risk, 2)
+        low_risk = mid_risk - delta_risk
+        high_risk = mid_risk + delta_risk
 
-    return {'low_risk': low_risk, 'mid_risk': mid_risk, 'high_risk': high_risk}
+    # format risk output
+    risk = {'low_risk': low_risk, 'mid_risk': mid_risk, 'high_risk': high_risk}
+    risk = {k: int(v) for k, v in risk.items()}
+
+    return risk

@@ -1,5 +1,7 @@
 from support.metrics_plaid import *
 from support.metrics_coinbase import *
+from config.params import *
+from support.helper import *
 
 # -------------------------------------------------------------------------- #
 #                                Plaid Model                                 #
@@ -14,11 +16,10 @@ def plaid_credit(txn, feedback):
     length, feedback = credit_length(txn, feedback)
     livelihood, feedback = credit_livelihood(txn, feedback)
 
-    score = 0.45*limit \
-        + 0.12*util_ratio \
-        + 0.05*interest \
-        + 0.26*length \
-        + 0.12*livelihood
+    a = plaid_credit_model_weights()
+    b = [limit, util_ratio, interest, length, livelihood]
+
+    score = dot_product(a, b)
 
     return score, feedback
 
@@ -31,11 +32,10 @@ def plaid_velocity(txn, feedback):
     txn_count, feedback = velocity_month_txn_count(txn, feedback)
     slope, feedback = velocity_slope(txn, feedback)
 
-    score = 0.16*withdrawals \
-        + 0.25*deposits \
-        + 0.25*net_flow \
-        + 0.16*txn_count \
-        + 0.18*slope
+    a = plaid_velocity_model_weights()
+    b = [withdrawals, deposits, net_flow, txn_count, slope]
+
+    score = dot_product(a, b)
 
     return score, feedback
 
@@ -46,7 +46,10 @@ def plaid_stability(txn, feedback):
     feedback = stability_loan_duedate(txn, feedback)
     run_balance, feedback = stability_min_running_balance(txn, feedback)
 
-    score = 0.70*balance + 0.30*run_balance
+    a = plaid_stability_model_weights()
+    b = [balance, run_balance]
+
+    score = dot_product(a, b)
 
     return score, feedback
 
@@ -56,7 +59,10 @@ def plaid_diversity(txn, feedback):
     acc_count, feedback = diversity_acc_count(txn, feedback)
     profile, feedback = diversity_profile(txn, feedback)
 
-    score = 0.40*acc_count + 0.60*profile
+    a = plaid_diversity_model_weights()
+    b = [acc_count, profile]
+
+    score = dot_product(a, b)
 
     return score, feedback
 
@@ -85,7 +91,10 @@ def coinbase_liquidity(acc, txn, feedback):
     feedback = liquidity_loan_duedate(txn, feedback)
     run_balance, feedback = liquidity_avg_running_balance(acc, txn, feedback)
 
-    score = 0.60*balance + 0.40*run_balance
+    a = coinbase_liquidity_model_weights()
+    b = [balance, run_balance]
+
+    score = dot_product(a, b)
 
     return score, feedback
 
@@ -101,10 +110,10 @@ def coinbase_activity(acc, txn, feedback):
     debit_consistency, feedback = activity_consistency(txn, 'debit', feedback)
     inception, feedback = activity_profit_since_inception(acc, txn, feedback)
 
-    score = 0.2*credit_volume \
-        + 0.2 * debit_volume \
-        + 0.2*credit_consistency \
-        + 0.2*debit_consistency \
-        + 0.2*inception
+    a = coinbase_activity_model_weights()
+    b = [credit_volume, debit_volume,
+         credit_consistency, debit_consistency, inception]
+
+    score = dot_product(a, b)
 
     return score, feedback

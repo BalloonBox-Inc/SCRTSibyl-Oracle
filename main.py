@@ -25,7 +25,7 @@ class Plaid_Item(BaseModel):
     plaid_client_secret: str
     coinmarketcap_key: str
     coinapi_key: str
-    selected_coin: str
+    currencies: list[str] = []
 
 
 class Coinbase_Item(BaseModel):
@@ -33,7 +33,7 @@ class Coinbase_Item(BaseModel):
     coinbase_refresh_token: str
     coinmarketcap_key: str
     coinapi_key: str
-    selected_coin: str
+    currencies: list[str] = []
 
 
 app = FastAPI()
@@ -46,33 +46,48 @@ async def credit_score_plaid(item: Plaid_Item):
     try:
         # client connection
         client = plaid_client(
-            getenv('ENV'), item.plaid_client_id, item.plaid_client_secret)
+            getenv('ENV'),
+            item.plaid_client_id,
+            item.plaid_client_secret
+        )
         ic(client)
 
-        # data fetching and formatting
+        # data fetching
         plaid_txn = plaid_transactions(item.plaid_access_token, client, 360)
+
         if 'error' in plaid_txn:
             raise Exception(plaid_txn['error']['message'])
 
-        plaid_txn = {k: v for k, v in plaid_txn.items(
-        ) if k in ['accounts', 'item', 'transactions']}
+        # data formatting
+        plaid_txn = {k: v for k, v in plaid_txn.items()
+                     if k in ['accounts', 'item', 'transactions']}
+
         plaid_txn['transactions'] = [
             t for t in plaid_txn['transactions'] if not t['pending']]
 
-        # compute score
-        feedback = create_feedback_plaid()
+        # create feedback
         feedback = plaid_bank_name(
-            client, plaid_txn['item']['institution_id'], feedback)
+            client,
+            plaid_txn['item']['institution_id'],
+            create_feedback_plaid()
+        )
+
+        # compute score and feedback
         score, feedback = plaid_score(plaid_txn, feedback)
 
         # compute risk
         risk = calc_risk(score)
 
-        # add feedback
+        # update feedback
         message = qualitative_feedback_plaid(
-            score, feedback, item.selected_coin, item.coinapi_key)
+            score,
+            feedback,
+            item.coinapi_key
+        )
+
         feedback = interpret_score_plaid(score, feedback)
 
+        # return success
         status_code = 200
         status = 'success'
 
@@ -87,6 +102,7 @@ async def credit_score_plaid(item: Plaid_Item):
     finally:
         timestamp = datetime.now(timezone.utc).strftime(
             '%m-%d-%Y %H:%M:%S GMT')
+
         output = {
             'endpoint': '/credit_score/plaid',
             'title': 'Credit Score',
@@ -101,6 +117,7 @@ async def credit_score_plaid(item: Plaid_Item):
 
         if score == 0:
             output.pop('score', None)
+            output.pop('risk', None)
             output.pop('feedback', None)
 
         ic(output)
@@ -115,54 +132,61 @@ async def credit_score_coinbase(item: Coinbase_Item):
     try:
         # client connection
         client = coinbase_client(
-            item.coinbase_access_token, item.coinbase_refresh_token)
+            item.coinbase_access_token,
+            item.coinbase_refresh_token
+        )
         ic(client)
 
-        # coinmarketcap
-        # fetch top X cryptos from coinmarketcap API
-        top_coins = coinmarketcap_coins(item.coinmarketcap_key, 25)
-        ic(top_coins)
-        currencies = coinbase_currencies(client)
-        ic(currencies)
-        if 'error' in currencies:
-            raise Exception(currencies['error']['message'])
+        # coinbase currencies
+        coinbase_currencies = coinbase_currencies(client)
 
-        odd_fiats = ['BHD', 'BIF', 'BYR', 'CLP', 'DJF', 'GNF', 'HUF', 'IQD', 'ISK', 'JOD', 'JPY', 'KMF', 'KRW',
-                     'KWD', 'LYD', 'MGA', 'MRO', 'OMR', 'PYG', 'RWF', 'TND', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF']
-        currencies = {k: 1 for (k, v) in currencies.items()
-                      if v == 0.01 or k in odd_fiats}
-        top_coins.update(currencies)
-        coins = list(top_coins.keys())
+        if 'error' in coinbase_currencies:
+            raise Exception(coinbase_currencies['error']['message'])
 
-        # change coinbase native currency to USD
+        # coinmarketcap top X currencies
+        top_currencies = coinmarketcap_currencies(item.coinmarketcap_key, 25)
+
+        coinbase_currencies = {k: 1 for (k, v) in coinbase_currencies.items()
+                               if v == 0.01 or k in coinbase_odd_fiats()}
+
+        top_currencies.update(coinbase_currencies)
+        top_currencies = list(top_currencies.keys())
+        ic(top_currencies)
+
+        # set native currency to USD
         native = coinbase_native_currency(client)
         ic(native)
+
         if 'error' in native:
             raise Exception(native['error']['message'])
+
         if native != 'USD':
             set_native = coinbase_set_native_currency(client, 'USD')
             ic(set_native)
 
-        # fetch and format data from user's Coinbase account
+        # data fetching
         coinbase_acc = coinbase_accounts(client)
+
         if 'error' in coinbase_acc:
             raise Exception(coinbase_acc['error']['message'])
-        coinbase_acc = [n for n in coinbase_acc if n['currency'] in coins]
 
-        coinbase_txn = [coinbase_transactions(
-            client, n['id']) for n in coinbase_acc]
+        # data formatting
+        coinbase_acc = [n for n in coinbase_acc
+                        if n['currency'] in top_currencies]
+
+        coinbase_txn = [coinbase_transactions(client, n['id'])
+                        for n in coinbase_acc]
+
         coinbase_txn = [x for n in coinbase_txn for x in n]
 
-        # keep only certain transaction types
-        txn_types = ['fiat_deposit', 'request', 'buy',
-                     'fiat_withdrawal', 'vault_withdrawal', 'sell', 'send']
-        coinbase_txn = [n for n in coinbase_txn if n['status']
-                        == 'completed' and n['type'] in txn_types]
-        for d in coinbase_txn:
-            # If the txn is of 'send' type and is a credit, then relabel its type to 'send_credit'
+        coinbase_txn = [n for n in coinbase_txn
+                        if n['status'] == 'completed'
+                        and n['type'] in coinbase_txn_types()]
+
+        for d in coinbase_txn:  # relabel transaction types
             if d['type'] == 'send' and np.sign(float(d['amount']['amount'])) == 1:
                 d['type'] = 'send_credit'
-            # If the txn is of 'send' type and is a debit, then relabel its type to 'send_debit'
+
             elif d['type'] == 'send' and np.sign(float(d['amount']['amount'])) == -1:
                 d['type'] = 'send_debit'
 
@@ -170,19 +194,26 @@ async def credit_score_coinbase(item: Coinbase_Item):
         set_native = coinbase_set_native_currency(client, native)
         ic(set_native)
 
-        # compute score
-        feedback = create_feedback_coinbase()
+        # compute score and feedback
         score, feedback = coinbase_score(
-            coinbase_acc, coinbase_txn, feedback)
+            coinbase_acc,
+            coinbase_txn,
+            create_feedback_coinbase()
+        )
 
         # compute risk
         risk = calc_risk(score)
 
-        # add feedback
+        # update feedback
         message = qualitative_feedback_coinbase(
-            score, feedback, item.selected_coin, item.coinapi_key)
+            score,
+            feedback,
+            item.coinapi_key
+        )
+
         feedback = interpret_score_coinbase(score, feedback)
 
+        # return success
         status_code = 200
         status = 'success'
 
@@ -197,6 +228,7 @@ async def credit_score_coinbase(item: Coinbase_Item):
     finally:
         timestamp = datetime.now(timezone.utc).strftime(
             '%m-%d-%Y %H:%M:%S GMT')
+
         output = {
             'endpoint': '/credit_score/coinbase',
             'title': 'Credit Score',
@@ -211,6 +243,7 @@ async def credit_score_coinbase(item: Coinbase_Item):
 
         if score == 0:
             output.pop('score', None)
+            output.pop('risk', None)
             output.pop('feedback', None)
 
         ic(output)
