@@ -19,6 +19,52 @@ def qualitative_range():
     return ['very poor', 'poor', 'fair', 'good', 'very good', 'excellent', 'exceptional']
 
 
+# SCORES
+def plaid_score_weights(**kw):
+    # [ credit, velocity, stability, diversity ]
+    if kw['credit']:
+        return [0.42, 0.2, 0.28, 0.1]
+    else:
+        # adds up to 0.95 for lack of credit card - it's a penalty
+        return [0.0, 0.33, 0.42, 0.2]
+
+
+def coinbase_score_weights():
+    # [ kyc, history, liquidity, activity ]
+    return [0.1, 0.1, 0.4, 0.4]
+
+
+# MODELS
+def plaid_credit_model_weights():
+    # [ limit, util_ratio, interest, length, livelihood ]
+    return [0.45, 0.12, 0.05, 0.26, 0.12]
+
+
+def plaid_velocity_model_weights():
+    # [ withdrawals, deposits, net_flow, txn_count, slope ]
+    return [0.16, 0.25, 0.25, 0.16, 0.18]
+
+
+def plaid_stability_model_weights():
+    # [ balance, run_balance ]
+    return [0.7, 0.3]
+
+
+def plaid_diversity_model_weights():
+    # [ acc_count, profile ]
+    return [0.4, 0.6]
+
+
+def coinbase_liquidity_model_weights():
+    # [ balance, run_balance ]
+    return [0.6, 0.4]
+
+
+def coinbase_activity_model_weights():
+    # [ credit_volume, debit_volume, credit_consistency, debit_consistency, inception ]
+    return [0.2, 0.2, 0.2, 0.2, 0.2]
+
+
 # FEEDBACK
 def create_feedback_plaid():
     return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
