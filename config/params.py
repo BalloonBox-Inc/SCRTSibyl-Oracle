@@ -78,7 +78,7 @@ def create_feedback(**kw):
     elif kw['validator'] == 'coinbase':
         return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
-    if kw['validator'] == 'binance':
+    elif kw['validator'] == 'binance':
         return {'history': {}, 'liquidity': {}, 'activity': {}, 'diversity': {}}
 
 
