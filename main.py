@@ -16,6 +16,8 @@ from support.feedback import *
 from support.score import *
 from support.risk import *
 from config.params import *
+from config.helper import *
+
 
 load_dotenv()
 
@@ -26,6 +28,7 @@ class Plaid_Item(BaseModel):
     plaid_client_secret: str
     coinmarketcap_key: str
     coinapi_key: str
+    loan_request: int
     currencies: list[str] = []
 
 
@@ -34,6 +37,7 @@ class Coinbase_Item(BaseModel):
     coinbase_refresh_token: str
     coinmarketcap_key: str
     coinapi_key: str
+    loan_request: int
     currencies: list[str] = []
 
 
@@ -42,6 +46,7 @@ class Binance_Item(BaseModel):
     binance_api_secret: str
     coinmarketcap_key: str
     coinapi_key: str
+    loan_request: int
     currencies: list[str] = []
 
 
@@ -53,6 +58,17 @@ app = FastAPI()
 async def credit_score_plaid(item: Plaid_Item):
 
     try:
+        # configs
+        configs = read_config_file(item.loan_request)
+        loan_range = configs['loan_range']
+        thresholds = configs['minimum_requirements']['plaid']['transactions_period']
+
+        models, metrics = read_models_and_metrics(
+            configs['minimum_requirements']['plaid']['scores']['models'])
+
+        penalties = read_model_penalties(
+            configs['minimum_requirements']['plaid']['scores']['models'])
+
         # client connection
         client = plaid_client(
             getenv('ENV'),
@@ -62,7 +78,11 @@ async def credit_score_plaid(item: Plaid_Item):
         ic(client)
 
         # data fetching
-        plaid_txn = plaid_transactions(item.plaid_access_token, client, 360)
+        plaid_txn = plaid_transactions(
+            client,
+            item.plaid_access_token,
+            thresholds['transactions_period']
+        )
 
         if 'error' in plaid_txn:
             raise Exception(plaid_txn['error']['message'])
@@ -139,6 +159,14 @@ async def credit_score_plaid(item: Plaid_Item):
 async def credit_score_coinbase(item: Coinbase_Item):
 
     try:
+        # configs
+        configs = read_config_file(item.loan_request)
+        loan_range = configs['loan_range']
+        thresholds = configs['minimum_requirements']['coinbase']['thresholds']
+
+        models, metrics = read_models_and_metrics(
+            configs['minimum_requirements']['coinbase']['scores']['models'])
+
         # client connection
         client = coinbase_client(
             item.coinbase_access_token,
@@ -153,7 +181,10 @@ async def credit_score_coinbase(item: Coinbase_Item):
             raise Exception(coinbase_currencies['error']['message'])
 
         # coinmarketcap top X currencies
-        top_currencies = coinmarketcap_currencies(item.coinmarketcap_key, 25)
+        top_currencies = coinmarketcap_currencies(
+            item.coinmarketcap_key,
+            thresholds['coinmarketcap_currencies']
+        )
 
         coinbase_currencies = {k: 1 for (k, v) in coinbase_currencies.items()
                                if v == 0.01 or k in coinbase_odd_fiats()}
@@ -265,6 +296,15 @@ async def credit_score_coinbase(item: Coinbase_Item):
 async def credit_score_binance(item: Binance_Item):
 
     try:
+        # configs
+        configs = read_config_file(item.loan_request)
+
+        loan_range = configs['loan_range']
+        thresholds = configs['minimum_requirements']['binance']['thresholds']
+
+        models, metrics = read_models_and_metrics(
+            configs['minimum_requirements']['binance']['scores']['models'])
+
         # client connection
         client = binance_client(
             item.binance_api_key,

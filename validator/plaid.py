@@ -49,7 +49,7 @@ def format_error(e):
     return error
 
 
-def plaid_transactions(access_token, client, timeframe):
+def plaid_transactions(client, access_token, timeframe):
 
     start_date = (datetime.now() - timedelta(days=timeframe))
     end_date = datetime.now()
