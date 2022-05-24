@@ -96,9 +96,8 @@ Response: **200**
     message: string;
     score: number;
     risk: {
-        low_risk: number;
-        mid_risk: number;
-        high_risk: number;
+        loan_amount: number;
+        risk_level: 'low' | 'medium' | 'high';
     }
     status: 'success' | 'error';
     status_code: 200 | 400;
@@ -133,9 +132,8 @@ Response: **200**
     in your Coinbase account. Try to log into Coinbase with a different account.",
     "score": 300.0,
     "risk": {
-        "low_risk": null,
-        "mid_risk": 0.0,
-        "high_risk": 237.5,
+        "loan_amount": 500,
+        "risk_level": "high"
     }
     "status": "success",
     "status_code": 200,
@@ -208,9 +206,8 @@ Response: **200**
     message: string;
     score: number;
     risk: {
-        low_risk: number;
-        mid_risk: number;
-        high_risk: number;
+        loan_amount: number;
+        risk_level: 'low' | 'medium' | 'high';
     }
     status: 'success' | 'error';
     status_code: 200 | 400;
@@ -253,9 +250,8 @@ Response: **200**
         Try again later or select an alternative bank account if you have one.",
         "score": 639,
         "risk": {
-            "low_risk": 4046.66,
-            "mid_risk": 4511.11,
-            "high_risk": 4975.56,
+            "loan_amount": 5000,
+            "risk_level": "low"
         }
         "status": "success",
         "status_code": 200,
@@ -325,9 +321,8 @@ Response: **200**
     message: string;
     score: number;
     risk: {
-        low_risk: number;
-        mid_risk: number;
-        high_risk: number;
+        loan_amount: number;
+        risk_level: 'low' | 'medium' | 'high';
     }
     status: 'success' | 'error';
     status_code: 200 | 400;
@@ -362,9 +357,8 @@ Response: **200**
     in your Binance account. Try to log into Binance with a different account.",
     "score": 300.0,
     "risk": {
-        "low_risk": null,
-        "mid_risk": 0.0,
-        "high_risk": 237.5,
+        "loan_amount": 500,
+        "risk_level": "high"
     }
     "status": "success",
     "status_code": 200,
