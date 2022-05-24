@@ -264,6 +264,115 @@ Response: **200**
     }
 ```
 
+## [BINANCE](https://binance.com/) : credit score model based on Binance account.
+
+```bash
+    POST {base_url}/credit_score/binance
+```
+
+Headers
+
+```bash
+    {"Content-Type": "application/json"}
+```
+
+Body
+
+```bash
+    {
+        "binance_api_key": "YOUR_BINANCE_API_KEY",
+        "binance_api_secret": "YOUR_BINANCE_API_SECRET",
+        "coinmarketcap_key": "YOUR_COINMARKETCAP_KEY",
+        "coinapi_key": "YOUR_COINAPI_KEY",
+        "currencies": ["CURRENCY1", "CURRENCY2", ...],
+    }
+```
+
+Response: **200**
+
+- Generalized Typescript response
+
+```bash
+    enum ScoreQuality {
+        'very poor',
+        'poor',
+        'fair',
+        'good',
+        'very good',
+        'excellent',
+        'exceptional',
+    }
+
+    export interface IScoreResponseBinance {
+    endpoint: '/credit_score/binance';
+    feedback: {
+        advice: {
+            activity_error: boolean;
+            history_error: boolean;
+            kyc_error: boolean;
+            liquidity_error: boolean;
+        };
+        score: {
+            current_balance: number;
+            loan_amount: 500 | 1000 | 5000 | 10000 | 15000 | 20000 | 25000;
+            loan_duedate: 3 | 4 | 5 | 6;
+            points: number;  # integer in range [300, 900]
+            quality: ScoreQuality;
+            score_exist: boolean;
+            wallet_age(days): number;
+        };
+    };
+    message: string;
+    score: number;
+    risk: {
+        low_risk: number;
+        mid_risk: number;
+        high_risk: number;
+    }
+    status: 'success' | 'error';
+    status_code: 200 | 400;
+    timestamp: string;
+    title: 'Credit Score';
+    }
+```
+
+- Sample response from a Binance test account
+
+```bash
+{
+    "endpoint": "/credit_score/binance",
+    "feedback": {
+        "advice": {
+            "activity_error": false,
+            "history_error": false,
+            "kyc_error": false,
+            "liquidity_error": false
+        },
+        "score": {
+            "current_balance": null,
+            "loan_amount": null,
+            "loan_duedate": null,
+            "points": null,
+            "quality": null,
+            "score_exist": false,
+            "wallet_age(days)": null
+        }
+    },
+    "message": "SCRTsibyl could not calculate your credit score because there is no active wallet nor transaction history <br/>
+    in your Binance account. Try to log into Binance with a different account.",
+    "score": 300.0,
+    "risk": {
+        "low_risk": null,
+        "mid_risk": 0.0,
+        "high_risk": 237.5,
+    }
+    "status": "success",
+    "status_code": 200,
+    "timestamp": "03-22-2022 18:44:19 GMT",
+    "title": "Credit Score"
+}
+```
+
 ## **Errors**
 
 Note that error returns do not have `score` or `feedback` keys. The error description will appear under the message key.

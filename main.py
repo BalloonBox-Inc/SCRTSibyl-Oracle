@@ -11,6 +11,7 @@ from market.coinmarketcap import *
 from market.coinapi import *
 from validator.coinbase import *
 from validator.plaid import *
+from validator.binance import *
 from support.feedback import *
 from support.score import *
 from support.risk import *
@@ -31,6 +32,14 @@ class Plaid_Item(BaseModel):
 class Coinbase_Item(BaseModel):
     coinbase_access_token: str
     coinbase_refresh_token: str
+    coinmarketcap_key: str
+    coinapi_key: str
+    currencies: list[str] = []
+
+
+class Binance_Item(BaseModel):
+    binance_api_key: str
+    binance_api_secret: str
     coinmarketcap_key: str
     coinapi_key: str
     currencies: list[str] = []
@@ -69,7 +78,7 @@ async def credit_score_plaid(item: Plaid_Item):
         feedback = plaid_bank_name(
             client,
             plaid_txn['item']['institution_id'],
-            create_feedback_plaid()
+            create_feedback(validator='plaid')
         )
 
         # compute score and feedback
@@ -198,7 +207,7 @@ async def credit_score_coinbase(item: Coinbase_Item):
         score, feedback = coinbase_score(
             coinbase_acc,
             coinbase_txn,
-            create_feedback_coinbase()
+            create_feedback(validator='coinbase')
         )
 
         # compute risk
@@ -231,6 +240,97 @@ async def credit_score_coinbase(item: Coinbase_Item):
 
         output = {
             'endpoint': '/credit_score/coinbase',
+            'title': 'Credit Score',
+            'status_code': status_code,
+            'status': status,
+            'timestamp': timestamp,
+            'score': int(score),
+            'risk': risk,
+            'feedback': feedback,
+            'message': message
+        }
+
+        if score == 0:
+            output.pop('score', None)
+            output.pop('risk', None)
+            output.pop('feedback', None)
+
+        ic(output)
+
+        return output
+
+
+# @measure_time_and_memory
+@app.post('/credit_score/binance')
+async def credit_score_binance(item: Binance_Item):
+
+    try:
+        # client connection
+        client = binance_client(
+            item.binance_api_key,
+            item.binance_api_secret,
+        )
+        ic(client)
+
+        # data fetching
+        # binance_balance = binance_spot_balance(client, item.coinapi_key)
+        # ic(binance_balance)
+        # if isinstance(binance_balance, str):
+        #     raise Exception('Unable to connect with Binance')
+
+        binance_balance = 0
+        binance_wallet = 0
+        binance_savings = 0
+        binance_trades = 0
+        binance_savings = 0
+        binance_nfts = 0
+        binance_swaps = 0
+
+        # compute score and feedback
+        score, feedback = binance_score(
+            binance_balance,
+            binance_wallet,
+            binance_trades,
+            binance_savings,
+            binance_nfts,
+            binance_swaps,
+            create_feedback(validator='binance')
+        )
+
+        # compute risk
+        risk = calc_risk(score)
+
+        # update feedback
+        # message = qualitative_feedback_binance(
+        #     score,
+        #     feedback,
+        #     item.coinapi_key
+        # )
+
+        # feedback = interpret_score_binance(score, feedback)
+
+        # return success
+        status_code = 200
+        status = 'success'
+
+        score = 0
+        risk = {}
+        feedback = {}
+
+    except Exception as e:
+        status_code = 400
+        status = 'error'
+        score = 0
+        risk = {}
+        feedback = {}
+        message = str(e)
+
+    finally:
+        timestamp = datetime.now(timezone.utc).strftime(
+            '%m-%d-%Y %H:%M:%S GMT')
+
+        output = {
+            'endpoint': '/credit_score/binance',
             'title': 'Credit Score',
             'status_code': status_code,
             'status': status,

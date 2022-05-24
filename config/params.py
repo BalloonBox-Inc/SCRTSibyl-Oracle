@@ -34,6 +34,11 @@ def coinbase_score_weights():
     return [0.1, 0.1, 0.4, 0.4]
 
 
+def binance_score_weights():
+    # [ wallet, trades, savings, nfts, swaps ]
+    return [0.35, 0.25, 0.2, 0.1, 0.1]
+
+
 # MODELS
 def plaid_credit_model_weights():
     # [ limit, util_ratio, interest, length, livelihood ]
@@ -66,12 +71,15 @@ def coinbase_activity_model_weights():
 
 
 # FEEDBACK
-def create_feedback_plaid():
-    return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
+def create_feedback(**kw):
+    if kw['validator'] == 'plaid':
+        return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
 
+    elif kw['validator'] == 'coinbase':
+        return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
 
-def create_feedback_coinbase():
-    return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
+    if kw['validator'] == 'binance':
+        return {'history': {}, 'liquidity': {}, 'activity': {}, 'diversity': {}}
 
 
 # MESSAGES

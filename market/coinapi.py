@@ -8,7 +8,7 @@ def coinexchange_rate(coin_in, coin_out, api_key):
     try:
         r = requests.get(url, headers=headers).json()['rate']
 
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         r = str(e)
 
     return r
