@@ -1,5 +1,6 @@
 from support.metrics_plaid import *
 from support.metrics_coinbase import *
+from support.metrics_binance import *
 from config.params import *
 from support.helper import *
 
@@ -117,3 +118,7 @@ def coinbase_activity(acc, txn, feedback):
     score = dot_product(a, b)
 
     return score, feedback
+
+# -------------------------------------------------------------------------- #
+#                               Binance Model                                #
+# -------------------------------------------------------------------------- #

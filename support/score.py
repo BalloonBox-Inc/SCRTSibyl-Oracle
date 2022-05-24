@@ -42,3 +42,18 @@ def coinbase_score(acc, txn, feedback):
     score = 300 + 600*(dot_product(a, b))
 
     return score, feedback
+
+
+def binance_score(balances, wallets, trades, savings, nfts, swaps, feedback):
+
+    history, feedback = (wallets, feedback)
+    liquidity, feedback = (balances, wallets, savings, feedback)
+    activity, feedback = (trades, nfts, swaps, feedback)
+    diversity, feedback = (balances, feedback)
+
+    a = binance_score_weights()
+    b = [history, liquidity, activity, diversity]
+
+    score = 300 + 600*(dot_product(a, b))
+
+    return score, feedback
