@@ -19,26 +19,6 @@ def qualitative_range():
     return ['very poor', 'poor', 'fair', 'good', 'very good', 'excellent', 'exceptional']
 
 
-# SCORES
-def plaid_score_weights(**kw):
-    # [ credit, velocity, stability, diversity ]
-    if kw['credit']:
-        return [0.42, 0.2, 0.28, 0.1]
-    else:
-        # adds up to 0.95 for lack of credit card - it's a penalty
-        return [0.0, 0.33, 0.42, 0.2]
-
-
-def coinbase_score_weights():
-    # [ kyc, history, liquidity, activity ]
-    return [0.1, 0.1, 0.4, 0.4]
-
-
-def binance_score_weights():
-    # [ wallet, trades, savings, nfts, swaps ]
-    return [0.35, 0.25, 0.2, 0.1, 0.1]
-
-
 # MODELS
 def plaid_credit_model_weights():
     # [ limit, util_ratio, interest, length, livelihood ]
@@ -68,18 +48,6 @@ def coinbase_liquidity_model_weights():
 def coinbase_activity_model_weights():
     # [ credit_volume, debit_volume, credit_consistency, debit_consistency, inception ]
     return [0.2, 0.2, 0.2, 0.2, 0.2]
-
-
-# FEEDBACK
-def create_feedback(**kw):
-    if kw['validator'] == 'plaid':
-        return {'fetch': {}, 'credit': {}, 'velocity': {}, 'stability': {}, 'diversity': {}}
-
-    elif kw['validator'] == 'coinbase':
-        return {'kyc': {}, 'history': {}, 'liquidity': {}, 'activity': {}}
-
-    elif kw['validator'] == 'binance':
-        return {'history': {}, 'liquidity': {}, 'activity': {}, 'diversity': {}}
 
 
 # MESSAGES

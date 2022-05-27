@@ -1,9 +1,8 @@
 from support.models import *
-from config.params import *
 from support.helper import *
 
 
-def plaid_score(txn, feedback):
+def plaid_score(txn, feedback, weights, penalties):
 
     credit, feedback = credit_mix(txn, feedback)
 
@@ -12,7 +11,7 @@ def plaid_score(txn, feedback):
         stability, feedback = plaid_stability(txn, feedback)
         diversity, feedback = plaid_diversity(txn, feedback)
 
-        a = plaid_score_weights(credit=False)
+        a = list(penalties.values())
 
     else:
         credit, feedback = plaid_credit(txn, feedback)
@@ -20,8 +19,9 @@ def plaid_score(txn, feedback):
         stability, feedback = plaid_stability(txn, feedback)
         diversity, feedback = plaid_diversity(txn, feedback)
 
-        a = plaid_score_weights(credit=True)
+        a = list(weights.values())
 
+    # must be in the same order as showed in the config.json file
     b = [credit, velocity, stability, diversity]
 
     score = 300 + 600*(dot_product(a, b))
@@ -29,14 +29,16 @@ def plaid_score(txn, feedback):
     return score, feedback
 
 
-def coinbase_score(acc, txn, feedback):
+def coinbase_score(acc, txn, feedback, weights):
 
     kyc, feedback = coinbase_kyc(acc, txn, feedback)
     history, feedback = coinbase_history(acc, feedback)
     liquidity, feedback = coinbase_liquidity(acc, txn, feedback)
     activity, feedback = coinbase_activity(acc, txn, feedback)
 
-    a = coinbase_score_weights()
+    a = list(weights.values())
+
+    # must be in the same order as showed in the config.json file
     b = [kyc, history, liquidity, activity]
 
     score = 300 + 600*(dot_product(a, b))
@@ -44,14 +46,20 @@ def coinbase_score(acc, txn, feedback):
     return score, feedback
 
 
-def binance_score(balances, wallets, trades, savings, nfts, swaps, feedback):
+def binance_score(balances, wallets, trades, savings, nfts, swaps, feedback, weights):
 
-    history, feedback = (wallets, feedback)
-    liquidity, feedback = (balances, wallets, savings, feedback)
-    activity, feedback = (trades, nfts, swaps, feedback)
-    diversity, feedback = (balances, feedback)
+    # history, feedback = (wallets, feedback)
+    # liquidity, feedback = (balances, wallets, savings, feedback)
+    # activity, feedback = (trades, nfts, swaps, feedback)
+    # diversity, feedback = (balances, feedback)
+    history = 2
+    liquidity = 1.3
+    activity = 1.4
+    diversity = 1.2
 
-    a = binance_score_weights()
+    a = list(weights.values())
+
+    # must be in the same order as showed in the config.json file
     b = [history, liquidity, activity, diversity]
 
     score = 300 + 600*(dot_product(a, b))

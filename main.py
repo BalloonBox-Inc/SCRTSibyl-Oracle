@@ -69,12 +69,22 @@ async def credit_score_plaid(item: Plaid_Item):
         penalties = read_model_penalties(
             configs['minimum_requirements']['plaid']['scores']['models'])
 
+        feedback = create_feedback(models)
+        feedback['fetch'] = {}
+
+        ic(loan_range)
+        ic(models)
+        ic(metrics)
+        ic(penalties)
+        ic(feedback)
+
         # client connection
         client = plaid_client(
             getenv('ENV'),
             item.plaid_client_id,
             item.plaid_client_secret
         )
+
         ic(client)
 
         # data fetching
@@ -98,11 +108,16 @@ async def credit_score_plaid(item: Plaid_Item):
         feedback = plaid_bank_name(
             client,
             plaid_txn['item']['institution_id'],
-            create_feedback(validator='plaid')
+            feedback
         )
 
         # compute score and feedback
-        score, feedback = plaid_score(plaid_txn, feedback)
+        score, feedback = plaid_score(
+            plaid_txn,
+            feedback,
+            models,
+            penalties
+        )
 
         # compute risk
         risk = calc_risk(score)
@@ -167,11 +182,19 @@ async def credit_score_coinbase(item: Coinbase_Item):
         models, metrics = read_models_and_metrics(
             configs['minimum_requirements']['coinbase']['scores']['models'])
 
+        feedback = create_feedback(models)
+
+        ic(loan_range)
+        ic(models)
+        ic(metrics)
+        ic(feedback)
+
         # client connection
         client = coinbase_client(
             item.coinbase_access_token,
             item.coinbase_refresh_token
         )
+
         ic(client)
 
         # coinbase currencies
@@ -238,7 +261,8 @@ async def credit_score_coinbase(item: Coinbase_Item):
         score, feedback = coinbase_score(
             coinbase_acc,
             coinbase_txn,
-            create_feedback(validator='coinbase')
+            feedback,
+            models
         )
 
         # compute risk
@@ -300,16 +324,24 @@ async def credit_score_binance(item: Binance_Item):
         configs = read_config_file(item.loan_request)
 
         loan_range = configs['loan_range']
-        thresholds = configs['minimum_requirements']['binance']['thresholds']
+        thresholds = configs['minimum_requirements']['coinbase']['thresholds']
 
         models, metrics = read_models_and_metrics(
-            configs['minimum_requirements']['binance']['scores']['models'])
+            configs['minimum_requirements']['coinbase']['scores']['models'])
+
+        feedback = create_feedback(models)
+
+        ic(loan_range)
+        ic(models)
+        ic(metrics)
+        ic(feedback)
 
         # client connection
         client = binance_client(
             item.binance_api_key,
             item.binance_api_secret,
         )
+
         ic(client)
 
         # data fetching
@@ -334,11 +366,12 @@ async def credit_score_binance(item: Binance_Item):
             binance_savings,
             binance_nfts,
             binance_swaps,
-            create_feedback(validator='binance')
+            feedback,
+            models
         )
 
         # compute risk
-        risk = calc_risk(score)
+        # risk = calc_risk(score)
 
         # update feedback
         # message = qualitative_feedback_binance(
@@ -352,10 +385,9 @@ async def credit_score_binance(item: Binance_Item):
         # return success
         status_code = 200
         status = 'success'
-
-        score = 0
         risk = {}
         feedback = {}
+        message = {}
 
     except Exception as e:
         status_code = 400

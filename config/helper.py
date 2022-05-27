@@ -35,3 +35,7 @@ def read_model_penalties(d):
     models = dict(zip(keys, model_values))
 
     return models
+
+
+def create_feedback(d):
+    return {k: {} for k, v in d.items()}
