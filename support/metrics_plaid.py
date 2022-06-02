@@ -1,81 +1,11 @@
+from testing.performance import *
+
 from datetime import timedelta
 from datetime import datetime
 import pandas as pd
 import numpy as np
 
-from testing.performance import *
-
 now = datetime.now().date()
-
-# -------------------------------------------------------------------------- #
-#                               Helper Functions                             #
-#                                    -utils-                                 #
-# -------------------------------------------------------------------------- #
-
-
-def build_2D_matrix_by_rule(size, scalar):
-    '''
-    returns a matrix of given size, built through a generalized rule. The matrix must be 2D
-
-            Parameters:
-                size (tuple): declare the matrix size in this format (m, n), where m = rows and n = columns
-                scalar (tuple): scalars to multiply the log_10 by. Follow the format (m_scalar, n_scalar)
-                    m_float: the current cell is equal to m_scalar * log_10(row #) 
-                    n_float: the current cell is equal to n_scalar * log_10(column #) 
-
-            Returns:
-                a matrix of size m x n whose cell are given by m_float+n_float
-    '''
-    # Initialize a zero-matrix of size = (m x n)
-    matrix = np.zeros(size)
-    for m in range(matrix.shape[0]):
-        for n in range(matrix.shape[1]):
-            matrix[m][n] = round(scalar[0]*np.log10(m+1) +
-                                 scalar[1]*np.log10(n+1), 2)
-
-    return matrix
-
-
-# -------------------------------------------------------------------------- #
-#                               Score Matrices                               #
-# -------------------------------------------------------------------------- #
-# Scoring grids
-# naming convention: shape+denominator, m7x7+Scalars+1.3+1.17 -> m7x7_03_17
-# naming convention: shape+denominator, m3x7+Scalars+1.2+1.4 -> m3x7_2_4
-m7x7_03_17 = build_2D_matrix_by_rule((7, 7), (1/3.03, 1/1.17))
-m7x7_85_55 = build_2D_matrix_by_rule((7, 7), (1/1.85, 1/1.55))
-m3x7_2_4 = build_2D_matrix_by_rule((3, 7), (1/1.2, 1/1.4))
-m3x7_73_17 = build_2D_matrix_by_rule((3, 7), (1/1.73, 1/1.17))
-
-fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300) / \
-    600  # Fico score binning - normalized
-fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2)
-                for i in range(len(fico)-1)]  # Medians of Fico scoring bins
-fico_medians.append(1)
-fico_medians = np.array(fico_medians)
-
-# Categorical bins
-duedate = np.array([3, 4, 5])
-# bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
-duration = np.array([90, 120, 150, 180, 210, 270])
-count0 = np.array([1, 2])  # bins: 0-1 | 2 | >=3
-count_lively = np.array([round(x, 0) for x in fico*25])[1:]
-count_txn_month = np.array([round(x, 0) for x in fico*40])[1:]
-count_invest_acc = np.array([1, 2, 3, 4, 5, 6])
-
-volume_flow = np.array([round(x, 0) for x in fico*1500])[1:]
-volume_cred_limit = np.array([0.5, 1, 5, 8, 13, 18])*1000
-volume_withdraw = np.array([round(x, 0) for x in fico*1500])[1:]
-volume_deposit = np.array([round(x, 0) for x in fico*7000])[1:]
-volume_invest = np.array([0.5, 1, 2, 4, 6, 8])*1000
-volume_balance_now = np.array([3, 5, 9, 12, 15, 18])*1000
-volume_min_run = np.array([round(x, 0) for x in fico*10000])[1:]
-
-percent_cred_util = np.array([round(x, 2) for x in reversed(fico*0.9)][:-1])
-frequency_interest = np.array([round(x, 2) for x in reversed(fico*0.6)][:-1])
-ratio_flows = np.array([0.7, 1, 1.4, 2, 3, 4])
-slope_product = np.array([0.5, 0.8, 1, 1.3, 1.6, 2])
-slope_linregression = np.array([-0.5, 0, 0.5, 1, 1.5, 2])
 
 
 # -------------------------------------------------------------------------- #
@@ -233,8 +163,10 @@ def balance_now_checking_only(data, feedback):
 # -------------------------------------------------------------------------- #
 #                               Metric #1 Credit                             #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-def credit_mix(data, feedback):
+def credit_mix(data, feedback, duration, count_zero, m3x7_2_4):
     '''
     Description:
         A score based on user's credit accounts composition and status
@@ -264,7 +196,7 @@ def credit_mix(data, feedback):
             first_txn = credit_txn[-1]['date']
             date_diff = (now - first_txn).days
 
-            m = np.digitize(size, count0, right=True)
+            m = np.digitize(size, count_zero, right=True)
             n = np.digitize(date_diff, duration, right=True)
             score = m3x7_2_4[m][n]
 
@@ -281,10 +213,9 @@ def credit_mix(data, feedback):
     finally:
         return score, feedback
 
+
 # @measure_time_and_memory
-
-
-def credit_limit(data, feedback):
+def credit_limit(data, feedback, duration, volume_credit, m7x7_03_17):
     '''
     Description:
         A score for the cumulative credit limit of a user across ALL of his credit accounts
@@ -313,7 +244,7 @@ def credit_limit(data, feedback):
             date_diff = (now - first_txn).days
 
             m = np.digitize(date_diff, duration, right=True)
-            n = np.digitize(credit_lim, volume_cred_limit, right=True)
+            n = np.digitize(credit_lim, volume_credit, right=True)
             score = m7x7_03_17[m][n]
 
             feedback['credit']['credit_limit'] = credit_lim
@@ -327,10 +258,9 @@ def credit_limit(data, feedback):
     finally:
         return score, feedback
 
+
 # @measure_time_and_memory
-
-
-def credit_util_ratio(data, feedback):
+def credit_util_ratio(data, feedback, duration, credit_util_pct, m7x7_85_55):
     '''
     Description:
         A score reflective of the user's credit utilization ratio, that is credit_used/credit_limit
@@ -384,7 +314,7 @@ def credit_util_ratio(data, feedback):
 
                 avg_util = np.mean(util['cred_util'])
                 m = np.digitize(len(util)*30, duration, right=True)
-                n = np.digitize(avg_util, percent_cred_util, right=True)
+                n = np.digitize(avg_util, credit_util_pct, right=True)
                 score = m7x7_85_55[m][n]
 
                 feedback['credit']['utilization_ratio'] = round(avg_util, 2)
@@ -400,7 +330,8 @@ def credit_util_ratio(data, feedback):
         return score, feedback
 
 
-def credit_interest(data, feedback):
+# @measure_time_and_memory
+def credit_interest(data, feedback, fico_medians, frequency_interest):
     '''
     returns score based on number of times user was charged credit card interest fees in past 24 months
 
@@ -454,7 +385,8 @@ def credit_interest(data, feedback):
         return score, feedback
 
 
-def credit_length(data, feedback):
+# @measure_time_and_memory
+def credit_length(data, feedback, fico_medians, duration):
     '''
     returns score based on length of user's best credit account
 
@@ -490,7 +422,8 @@ def credit_length(data, feedback):
         return score, feedback
 
 
-def credit_livelihood(data, feedback):
+# @measure_time_and_memory
+def credit_livelihood(data, feedback, fico_medians, count_lively):
     '''
     returns score quantifying the avg monthly txn count for your best credit account
 
@@ -546,10 +479,10 @@ def credit_livelihood(data, feedback):
 # -------------------------------------------------------------------------- #
 #                            Metric #2 Velocity                              #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-
-
-def velocity_withdrawals(data, feedback):
+def velocity_withdrawals(data, feedback, count_zero, volume_withdraw, m3x7_73_17):
     '''
     returns score based on count and volumne of monthly automated withdrawals
 
@@ -585,7 +518,7 @@ def velocity_withdrawals(data, feedback):
                 volume = np.mean(df.groupby(pd.Grouper(
                     freq='M')).sum().iloc[:, 0].tolist())
 
-                m = np.digitize(how_many, count0, right=True)
+                m = np.digitize(how_many, count_zero, right=True)
                 n = np.digitize(volume, volume_withdraw, right=True)
                 score = m3x7_73_17[m][n]
 
@@ -604,7 +537,7 @@ def velocity_withdrawals(data, feedback):
 
 
 # @measure_time_and_memory
-def velocity_deposits(data, feedback):
+def velocity_deposits(data, feedback, count_zero, volume_deposit, m3x7_73_17):
     '''
     returns score based on count and volumne of monthly automated deposits
 
@@ -638,7 +571,7 @@ def velocity_deposits(data, feedback):
                 volume = np.mean(df.groupby(pd.Grouper(
                     freq='M')).sum().iloc[:, 0].tolist())
 
-                m = np.digitize(how_many, count0, right=True)
+                m = np.digitize(how_many, count_zero, right=True)
                 n = np.digitize(volume, volume_deposit, right=True)
                 score = m3x7_73_17[m][n]
 
@@ -656,7 +589,8 @@ def velocity_deposits(data, feedback):
         return score, feedback
 
 
-def velocity_month_net_flow(data, feedback):
+# @measure_time_and_memory
+def velocity_month_net_flow(data, feedback, flow_ratio, volume_flow, m7x7_03_17):
     '''
     returns score for monthly net flow
 
@@ -685,7 +619,7 @@ def velocity_month_net_flow(data, feedback):
             direction = 10  # 10 is an arbitralkity chosen large positive inteegr
 
         # Calculate score
-        m = np.digitize(direction, ratio_flows, right=True)
+        m = np.digitize(direction, flow_ratio, right=True)
         n = np.digitize(magnitude, volume_flow, right=True)
         score = m7x7_03_17[m][n]
 
@@ -699,7 +633,8 @@ def velocity_month_net_flow(data, feedback):
         return score, feedback
 
 
-def velocity_month_txn_count(data, feedback):
+# @measure_time_and_memory
+def velocity_month_txn_count(data, feedback, fico_medians, count_txn):
     '''
     returns score based on count of mounthly transactions
 
@@ -756,7 +691,7 @@ def velocity_month_txn_count(data, feedback):
         mycounts = [x for y in mycounts for x in y]
         how_many = np.mean(mycounts)
         score = fico_medians[np.digitize(
-            how_many, count_txn_month, right=True)]
+            how_many, count_txn, right=True)]
 
         feedback['velocity']['count_monthly_txn'] = round(how_many, 0)
 
@@ -768,7 +703,8 @@ def velocity_month_txn_count(data, feedback):
         return score, feedback
 
 
-def velocity_slope(data, feedback):
+# @measure_time_and_memory
+def velocity_slope(data, feedback, fico_medians, slope_lr, slope, m7x7_03_17):
     '''
     returns score for the historical behavior of the net monthly flow for past 24 months
 
@@ -791,7 +727,7 @@ def velocity_slope(data, feedback):
             a, b = np.polyfit(x, y, 1)
 
             score = fico_medians[np.digitize(
-                a, slope_linregression, right=True)]
+                a, slope_lr, right=True)]
 
             feedback['velocity']['slope'] = round(a, 2)
 
@@ -806,8 +742,8 @@ def velocity_slope(data, feedback):
                 pass
             else:
                 magnitude = magnitude * -1
-            m = np.digitize(direction, slope_product, right=True)
-            n = np.digitize(magnitude, slope_product, right=True)
+            m = np.digitize(direction, slope, right=True)
+            n = np.digitize(magnitude, slope, right=True)
             score = m7x7_03_17.T[m][n]
 
             feedback['velocity']['monthly_flow'] = round(magnitude, 2)
@@ -823,8 +759,10 @@ def velocity_slope(data, feedback):
 # -------------------------------------------------------------------------- #
 #                            Metric #3 Stability                             #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-def stability_tot_balance_now(data, feedback):
+def stability_tot_balance_now(data, feedback, fico_medians, volume_balance):
     '''
     Description:
         A score based on total balance now across ALL accounts owned by the user
@@ -850,7 +788,7 @@ def stability_tot_balance_now(data, feedback):
 
         if balance > 0:
             score = fico_medians[np.digitize(
-                balance, volume_balance_now, right=True)]
+                balance, volume_balance, right=True)]
             feedback['stability']['cumulative_current_balance'] = balance
             stability_tot_balance_now.balance = balance
 
@@ -866,7 +804,7 @@ def stability_tot_balance_now(data, feedback):
 
 
 # @measure_time_and_memory
-def stability_loan_duedate(data, feedback):
+def stability_loan_duedate(data, feedback, due_date):
     '''
     Description:
         returns how many months it'll take the user to pay back their loan
@@ -885,8 +823,8 @@ def stability_loan_duedate(data, feedback):
         txn_length = int((now - first_txn).days/30)  # months
 
         # Loan duedate is equal to the month of txn history there are
-        due = np.digitize(txn_length, duedate, right=True)
-        how_many_months = np.append(duedate, 6)
+        due = np.digitize(txn_length, due_date, right=True)
+        how_many_months = np.append(due_date, 6)
 
         feedback['stability']['loan_duedate'] = how_many_months[due]
 
@@ -898,7 +836,7 @@ def stability_loan_duedate(data, feedback):
 
 
 # @measure_time_and_memory
-def stability_min_running_balance(data, feedback):
+def stability_min_running_balance(data, feedback, duration, volume_min, m7x7_85_55):
     '''
     Description:
         A score based on the average minimum balance maintained for 12 months
@@ -931,7 +869,7 @@ def stability_min_running_balance(data, feedback):
 
         # Compute the score
         m = np.digitize(length, duration, right=True)
-        n = np.digitize(volume, volume_min_run, right=True)
+        n = np.digitize(volume, volume_min, right=True)
         # add 0.025 score penalty for each overdrafts
         score = round(
             m7x7_85_55[m][n] - 0.025*len(list(filter(lambda x: (x < 0), running_balances))), 2)
@@ -950,8 +888,10 @@ def stability_min_running_balance(data, feedback):
 # -------------------------------------------------------------------------- #
 #                            Metric #4 Diversity                             #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-def diversity_acc_count(data, feedback):
+def diversity_acc_count(data, feedback, count_zero, duration, m3x7_73_17):
     '''
     Description:
         A score based on count of accounts owned by the user and account duration
@@ -971,7 +911,7 @@ def diversity_acc_count(data, feedback):
         first_txn = data['transactions'][-1]['date']
         date_diff = (now - first_txn).days
 
-        m = np.digitize(size, [i+2 for i in count0], right=False)
+        m = np.digitize(size, [i+2 for i in count_zero], right=False)
         n = np.digitize(date_diff, duration, right=True)
         score = m3x7_73_17[m][n]
 
@@ -984,10 +924,9 @@ def diversity_acc_count(data, feedback):
     finally:
         return score, feedback
 
+
 # @measure_time_and_memory
-
-
-def diversity_profile(data, feedback):
+def diversity_profile(data, feedback, fico_medians, volume_invest):
     '''
     Description:
         A score for number of saving and investment accounts owned

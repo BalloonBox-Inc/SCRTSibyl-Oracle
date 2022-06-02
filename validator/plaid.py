@@ -49,7 +49,7 @@ def format_error(e):
     return error
 
 
-def plaid_transactions(client, access_token, timeframe):
+def plaid_transactions(access_token, client, timeframe):
 
     start_date = (datetime.now() - timedelta(days=timeframe))
     end_date = datetime.now()
@@ -63,23 +63,30 @@ def plaid_transactions(client, access_token, timeframe):
         )
 
         r = client.transactions_get(request).to_dict()
+        if 'error' in r:
+            raise Exception(r['error']['message'])
+
+        txn = {k: v for k, v in r.items()
+               if k in ['accounts', 'item', 'transactions']}
+
+        txn['transactions'] = [t for t in txn['transactions']
+                               if not t['pending']]
 
     except plaid.ApiException as e:
-        r = format_error(e)
+        txn = format_error(e)
 
     finally:
-        return r
+        return txn
 
 
-def plaid_bank_name(client, bank_id, feedback):
+def plaid_bank_name(client, bank_id):
     '''
         Description:
         returns the bank name where the user holds his bank account
 
     Parameters:
         client (plaid.api.plaid_api.PlaidApi): plaid client info (api key, secret key, palid environment)
-        bank_id (str): the Plaid ID of the institution to get details about 
-        feedback (dict): to write the bank name to
+        bank_id (str): the Plaid ID of the institution to get details about
 
     Returns:
         bank_name (str): name of the bank uwhere user holds their fundings
@@ -88,14 +95,13 @@ def plaid_bank_name(client, bank_id, feedback):
         request = InstitutionsGetByIdRequest(
             institution_id=bank_id,
             country_codes=list(map(lambda x: CountryCode(x), ['US']))
-        )  # hard code 'US' to be the country_code parameter
+        )
 
         r = client.institutions_get_by_id(request)
-        feedback['diversity']['bank_name'] = r['institution']['name']
+        r = r['institution']['name']
 
-    # Always return a bank_name. If the name does not exist then return a None type
     except:
-        feedback['diversity']['bank_name'] = None
+        r = None
 
     finally:
-        return feedback
+        return r

@@ -1,79 +1,11 @@
+from testing.performance import *
+
 from datetime import datetime
 import pandas as pd
 import numpy as np
 
-from testing.performance import *
 
 now = datetime.now().date()
-
-# -------------------------------------------------------------------------- #
-#                               Helper Functions                             #
-#                                    -utils-                                 #
-# -------------------------------------------------------------------------- #
-
-
-def build_2D_matrix_by_rule(size, scalar):
-    """
-    returns a matrix of given size, built through a generalized rule. The matrix must be 2D
-
-            Parameters:
-                size (tuple): declare the matrix size in this format (m, n), where m = rows and n = columns
-                scalar (tuple): scalars to multiply the log_10 by. Follow the format (m_scalar, n_scalar)
-                    m_float: the current cell is equal to m_scalar * log_10(row #) 
-                    n_float: the current cell is equal to n_scalar * log_10(column #) 
-
-            Returns:
-                a matrix of size m x n whose cell are given by m_float+n_float
-    """
-    # Initialize a zero-matrix of size = (m x n)
-    matrix = np.zeros(size)
-    for m in range(matrix.shape[0]):
-        for n in range(matrix.shape[1]):
-            matrix[m][n] = round(scalar[0]*np.log10(m+1) +
-                                 scalar[1]*np.log10(n+1), 2)
-
-    return matrix
-
-
-# -------------------------------------------------------------------------- #
-#                               Score Matrices                               #
-# -------------------------------------------------------------------------- #
-# We encourage developers who fork this project to alter both scoring grids and categorical bins to best suit their use case
-# The SCRTSybil Credit Score Oracle returns 2 outputs:
-# 1. score (float): a numerical score
-# 2. feedback (dict): a qualitative description of the score
-
-
-# Categorical bins
-duedate = np.array([3, 4, 5])
-# bins: 0-90 | 91-120 | 121-150 | 151-180 | 181-270 | >270 days
-duration = np.array([90, 120, 150, 180, 210, 270])
-volume_balance_now = np.array([5000, 6500, 8500, 11000, 13000, 15000])
-volume_profit = np.array([500, 1000, 2000, 2500, 3000, 4000])
-count_cred_deb_txn = np.array([10, 20, 30, 35, 40, 50])
-
-# Scoring grids
-# naming convention: shape+denominator, m7x7+Scalars+1.3+1.17 -> m7x7_03_17
-# naming convention: shape+denominator, m7x7+Scalars+1.85+1.55 -> m7x7_85_55
-m7x7_03_17 = build_2D_matrix_by_rule((7, 7), (1/3.03, 1/1.17))
-m7x7_85_55 = build_2D_matrix_by_rule((7, 7), (1/1.85, 1/1.55))
-fico = (np.array([300, 500, 560, 650, 740, 800, 870])-300) / \
-    600  # Fico score binning - normalized
-fico_medians = [round(fico[i]+(fico[i+1]-fico[i])/2, 2)
-                for i in range(len(fico)-1)]  # Medians of Fico scoring bins
-fico_medians.append(1)
-fico_medians = np.array(fico_medians)
-
-
-# Make all scoring grids immutable
-# (i.e., you can append new elements to the array but you can't rewrite its data, because the array is now read-only)
-duration.flags.writeable = False
-volume_balance_now.flags.writeable = False
-volume_profit.flags.writeable = False
-count_cred_deb_txn.flags.writeable = False
-m7x7_03_17.flags.writeable = False
-m7x7_85_55.flags.writeable = False
-fico_medians.flags.writeable = False
 
 # -------------------------------------------------------------------------- #
 #                               Helper Functions                             #
@@ -140,9 +72,9 @@ def net_flow(txn, timeframe, feedback):
 # -------------------------------------------------------------------------- #
 #                                 Metric #1 KYC                              #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-
-
 def kyc(acc, txn, feedback):
     '''
     Description:
@@ -177,10 +109,10 @@ def kyc(acc, txn, feedback):
 # -------------------------------------------------------------------------- #
 #                               Metric #2 History                            #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-
-
-def history_acc_longevity(acc, feedback):
+def history_acc_longevity(acc, feedback, duration, fico_medians):
     '''
     Description:
         A score based on the longevity of user's best Coinbase accounts
@@ -217,10 +149,10 @@ def history_acc_longevity(acc, feedback):
 # -------------------------------------------------------------------------- #
 #                             Metric #3 Liquidity                            #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-
-
-def liquidity_tot_balance_now(acc, feedback):
+def liquidity_tot_balance_now(acc, feedback, volume_balance, fico_medians):
     '''
     Description:
         A score based on cumulative balance of user's accounts
@@ -247,7 +179,7 @@ def liquidity_tot_balance_now(acc, feedback):
 
             else:
                 score = fico_medians[np.digitize(
-                    balance, volume_balance_now, right=True)]
+                    balance, volume_balance, right=True)]
 
             feedback['liquidity']['current_balance'] = round(balance, 2)
         else:
@@ -262,7 +194,7 @@ def liquidity_tot_balance_now(acc, feedback):
 
 
 # @measure_time_and_memory
-def liquidity_loan_duedate(txn, feedback):
+def liquidity_loan_duedate(txn, feedback, due_date):
     '''
     Description:
         returns how many months it'll take the user to pay back their loan
@@ -282,8 +214,8 @@ def liquidity_loan_duedate(txn, feedback):
         txn_length = int((now - first_txn).days/30)  # months
 
         # Loan duedate is equal to the month of txn history there are
-        due = np.digitize(txn_length, duedate, right=True)
-        how_many_months = np.append(duedate, 6)
+        due = np.digitize(txn_length, due_date, right=True)
+        how_many_months = np.append(due_date, 6)
 
         feedback['liquidity']['loan_duedate'] = how_many_months[due]
 
@@ -295,7 +227,7 @@ def liquidity_loan_duedate(txn, feedback):
 
 
 # @measure_time_and_memory
-def liquidity_avg_running_balance(acc, txn, feedback):
+def liquidity_avg_running_balance(acc, txn, feedback, duration, volume_balance, m7x7_85_55):
     '''
     Description:
         A score based on the average running balance maintained for the past 12 months
@@ -331,7 +263,7 @@ def liquidity_avg_running_balance(acc, txn, feedback):
             if volume < 500:
                 score = 0.01
             else:
-                m = np.digitize(volume, volume_balance_now, right=True)
+                m = np.digitize(volume, volume_balance, right=True)
                 n = np.digitize(length, duration, right=True)
                 # Get the score and add 0.025 score penalty for each 'overdraft'
                 score = m7x7_85_55[m][n] - 0.025 * \
@@ -354,10 +286,10 @@ def liquidity_avg_running_balance(acc, txn, feedback):
 # -------------------------------------------------------------------------- #
 #                             Metric #4 Activity                             #
 # -------------------------------------------------------------------------- #
+
+
 # @measure_time_and_memory
-
-
-def activity_tot_volume_tot_count(txn, type, feedback):
+def activity_tot_volume_tot_count(txn, type, feedback, volume_balance, count_txn, m7x7_03_17):
     '''
     Description:
         A score based on the count and volume of credit OR debit transactions across user's Coinbase accounts
@@ -383,8 +315,8 @@ def activity_tot_volume_tot_count(txn, type, feedback):
                          for d in txn if d['type'] in accepted_types[type]]
             balance = sum(typed_txn)
 
-            m = np.digitize(len(typed_txn), count_cred_deb_txn, right=True)
-            n = np.digitize(balance, volume_balance_now, right=True)
+            m = np.digitize(len(typed_txn), count_txn, right=True)
+            n = np.digitize(balance, volume_balance, right=True)
             score = m7x7_03_17[m][n]
 
             nested_dict(feedback, ['activity', type,
@@ -400,10 +332,9 @@ def activity_tot_volume_tot_count(txn, type, feedback):
     finally:
         return score, feedback
 
+
 # @measure_time_and_memory
-
-
-def activity_consistency(txn, type, feedback):
+def activity_consistency(txn, type, feedback, duration, volume_profit, m7x7_85_55):
     '''
     Description:
         A score based on the the weigthed monthly average credit OR debit volume over time
@@ -464,10 +395,9 @@ def activity_consistency(txn, type, feedback):
     finally:
         return score, feedback
 
+
 # @measure_time_and_memory
-
-
-def activity_profit_since_inception(acc, txn, feedback):
+def activity_profit_since_inception(acc, txn, feedback, volume_profit, fico_medians):
     '''
     Description:
         A score based on total user profit since account inception. We define net profit as:

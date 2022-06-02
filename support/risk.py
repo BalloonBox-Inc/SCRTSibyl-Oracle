@@ -1,18 +1,7 @@
 import numpy as np
-from config.params import *
 
 
-def calc_risk(score):
-
-    # score array
-    score_arr = score_range()
-    score_arr = np.insert(score_arr, 0, 300)  # min
-    score_arr = np.append(score_arr, 900)  # max
-
-    # loan array
-    loan_arr = loan_range()
-    loan_arr = np.insert(loan_arr, 0, 0)  # min
-    loan_arr = loan_arr.astype(int)
+def calc_risk(score, score_arr, loan_arr):
 
     # when score is equal to one of the bin separators, treat it as if it was in the lower bin
     if score in score_arr and score >= 301:

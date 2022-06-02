@@ -2,66 +2,73 @@ from support.models import *
 from support.helper import *
 
 
-def plaid_score(txn, feedback, weights, penalties):
+def plaid_score(score_range, feedback, model_weights, model_penalties, metric_weigths, params, txn):
+    '''
+    params = [
+        due_date, duration, count_zero, count_invest, volume_credit, volume_invest,
+        volume_balance, flow_ratio, slope, slope_lr, activity_vol_mtx,
+        activity_cns_mtx, credit_mix_mtx, diversity_velo_mtx, fico_medians, count_lively,
+        count_txn, volume_flow, volume_withdraw, volume_deposit, volume_min, 
+        credit_util_pct, frequency_interest
+    ]
+    '''
+    params = plaid_params(params, score_range)
 
-    credit, feedback = credit_mix(txn, feedback)
+    credit, feedback = credit_mix(
+        txn, feedback, params[1], params[2], params[12])
 
     if credit == 0:
-        velocity, feedback = plaid_velocity(txn, feedback)
-        stability, feedback = plaid_stability(txn, feedback)
-        diversity, feedback = plaid_diversity(txn, feedback)
+        velocity, feedback = plaid_velocity(
+            txn, feedback, metric_weigths, params)
+        stability, feedback = plaid_stability(
+            txn, feedback, metric_weigths, params)
+        diversity, feedback = plaid_diversity(
+            txn, feedback, metric_weigths, params)
 
-        a = list(penalties.values())
+        a = list(model_penalties.values())
 
     else:
-        credit, feedback = plaid_credit(txn, feedback)
-        velocity, feedback = plaid_velocity(txn, feedback)
-        stability, feedback = plaid_stability(txn, feedback)
-        diversity, feedback = plaid_diversity(txn, feedback)
+        credit, feedback = plaid_credit(
+            txn, feedback, metric_weigths, params)
+        velocity, feedback = plaid_velocity(
+            txn, feedback, metric_weigths, params)
+        stability, feedback = plaid_stability(
+            txn, feedback, metric_weigths, params)
+        diversity, feedback = plaid_diversity(
+            txn, feedback, metric_weigths, params)
 
-        a = list(weights.values())
+        a = list(model_weights.values())
 
-    # must be in the same order as showed in the config.json file
     b = [credit, velocity, stability, diversity]
 
-    score = 300 + 600*(dot_product(a, b))
+    head, tail = head_tail_list(score_range)
+    score = tail + (head-tail)*(dot_product(a, b))
 
     return score, feedback
 
 
-def coinbase_score(acc, txn, feedback, weights):
+def coinbase_score(score_range, feedback, model_weights, metric_weigths, params, acc, txn):
+    '''
+    params = [
+        due_date, duration, volume_balance, volume_profit, count_txn, activity_vol_mtx, 
+        activity_cns_mtx, fico_medians
+    ]
+    '''
+    params = coinbase_params(params, score_range)
 
-    kyc, feedback = coinbase_kyc(acc, txn, feedback)
-    history, feedback = coinbase_history(acc, feedback)
-    liquidity, feedback = coinbase_liquidity(acc, txn, feedback)
-    activity, feedback = coinbase_activity(acc, txn, feedback)
+    kyc, feedback = coinbase_kyc(
+        acc, txn, feedback)
+    history, feedback = coinbase_history(
+        acc, feedback, params)
+    liquidity, feedback = coinbase_liquidity(
+        acc, txn, feedback, metric_weigths, params)
+    activity, feedback = coinbase_activity(
+        acc, txn, feedback, metric_weigths, params)
 
-    a = list(weights.values())
-
-    # must be in the same order as showed in the config.json file
+    a = list(model_weights.values())
     b = [kyc, history, liquidity, activity]
 
-    score = 300 + 600*(dot_product(a, b))
-
-    return score, feedback
-
-
-def binance_score(balances, wallets, trades, savings, nfts, swaps, feedback, weights):
-
-    # history, feedback = (wallets, feedback)
-    # liquidity, feedback = (balances, wallets, savings, feedback)
-    # activity, feedback = (trades, nfts, swaps, feedback)
-    # diversity, feedback = (balances, feedback)
-    history = 2
-    liquidity = 1.3
-    activity = 1.4
-    diversity = 1.2
-
-    a = list(weights.values())
-
-    # must be in the same order as showed in the config.json file
-    b = [history, liquidity, activity, diversity]
-
-    score = 300 + 600*(dot_product(a, b))
+    head, tail = head_tail_list(score_range)
+    score = tail + (head-tail)*(dot_product(a, b))
 
     return score, feedback

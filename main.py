@@ -6,17 +6,17 @@ from dotenv import load_dotenv
 from os import getenv
 from icecream import ic
 
-from testing.performance import *
+from validator.plaid import *
+from validator.coinbase import *
+from validator.binance import *
 from market.coinmarketcap import *
 from market.coinapi import *
-from validator.coinbase import *
-from validator.plaid import *
-from validator.binance import *
-from support.feedback import *
 from support.score import *
+from support.feedback import *
 from support.risk import *
-from config.params import *
+from support.helper import *
 from config.helper import *
+from testing.performance import *
 
 
 load_dotenv()
@@ -60,8 +60,13 @@ async def credit_score_plaid(item: Plaid_Item):
     try:
         # configs
         configs = read_config_file(item.loan_request)
+
         loan_range = configs['loan_range']
-        thresholds = configs['minimum_requirements']['plaid']['transactions_period']
+        score_range = configs['score_range']
+        qualitative_range = configs['qualitative_range']
+
+        thresholds = configs['minimum_requirements']['plaid']['thresholds']
+        params = configs['minimum_requirements']['plaid']['params']
 
         models, metrics = read_models_and_metrics(
             configs['minimum_requirements']['plaid']['scores']['models'])
@@ -69,67 +74,86 @@ async def credit_score_plaid(item: Plaid_Item):
         penalties = read_model_penalties(
             configs['minimum_requirements']['plaid']['scores']['models'])
 
+        messages = configs['minimum_requirements']['plaid']['messages']
         feedback = create_feedback(models)
         feedback['fetch'] = {}
 
         ic(loan_range)
+        ic(score_range)
+        ic(qualitative_range)
+        ic(thresholds)
+        ic(params)
         ic(models)
         ic(metrics)
         ic(penalties)
+        ic(messages)
         ic(feedback)
 
-        # client connection
+        # plaid client connection
         client = plaid_client(
             getenv('ENV'),
             item.plaid_client_id,
             item.plaid_client_secret
         )
-
         ic(client)
 
         # data fetching
-        plaid_txn = plaid_transactions(
-            client,
+        transactions = plaid_transactions(
             item.plaid_access_token,
+            client,
             thresholds['transactions_period']
         )
+        # ic(transactions)
+        if isinstance(transactions, str):
+            raise Exception(transactions)
 
-        if 'error' in plaid_txn:
-            raise Exception(plaid_txn['error']['message'])
-
-        # data formatting
-        plaid_txn = {k: v for k, v in plaid_txn.items()
-                     if k in ['accounts', 'item', 'transactions']}
-
-        plaid_txn['transactions'] = [
-            t for t in plaid_txn['transactions'] if not t['pending']]
-
-        # create feedback
-        feedback = plaid_bank_name(
+        bank_name = plaid_bank_name(
             client,
-            plaid_txn['item']['institution_id'],
-            feedback
+            transactions['item']['institution_id'],
         )
+        feedback['diversity']['bank_name'] = bank_name
+        ic(bank_name)
 
         # compute score and feedback
         score, feedback = plaid_score(
-            plaid_txn,
+            score_range,
             feedback,
             models,
-            penalties
+            penalties,
+            metrics,
+            params,
+            transactions
         )
+        ic(score)
+        ic(feedback)
 
         # compute risk
-        risk = calc_risk(score)
+        risk = calc_risk(
+            score,
+            score_range,
+            loan_range
+        )
 
         # update feedback
         message = qualitative_feedback_plaid(
+            messages,
             score,
             feedback,
+            score_range,
+            loan_range,
+            qualitative_range,
             item.coinapi_key
         )
 
-        feedback = interpret_score_plaid(score, feedback)
+        feedback = interpret_score_plaid(
+            score,
+            feedback,
+            score_range,
+            loan_range,
+            qualitative_range
+        )
+        ic(message)
+        ic(feedback)
 
         # return success
         status_code = 200
@@ -155,16 +179,14 @@ async def credit_score_plaid(item: Plaid_Item):
             'timestamp': timestamp,
             'score': int(score),
             'risk': risk,
-            'feedback': feedback,
-            'message': message
+            'message': message,
+            'feedback': feedback
         }
 
         if score == 0:
             output.pop('score', None)
             output.pop('risk', None)
             output.pop('feedback', None)
-
-        ic(output)
 
         return output
 
@@ -176,82 +198,78 @@ async def credit_score_coinbase(item: Coinbase_Item):
     try:
         # configs
         configs = read_config_file(item.loan_request)
+
         loan_range = configs['loan_range']
+        score_range = configs['score_range']
+        qualitative_range = configs['qualitative_range']
+
         thresholds = configs['minimum_requirements']['coinbase']['thresholds']
+        params = configs['minimum_requirements']['coinbase']['params']
 
         models, metrics = read_models_and_metrics(
             configs['minimum_requirements']['coinbase']['scores']['models'])
 
+        messages = configs['minimum_requirements']['coinbase']['messages']
         feedback = create_feedback(models)
 
         ic(loan_range)
+        ic(score_range)
+        ic(qualitative_range)
+        ic(thresholds)
+        ic(params)
         ic(models)
         ic(metrics)
+        ic(messages)
         ic(feedback)
 
-        # client connection
+        # coinmarketcap
+        top_marketcap = coinmarketcap_currencies(
+            item.coinmarketcap_key,
+            thresholds['coinmarketcap_currencies']
+        )
+        ic(top_marketcap)
+        if isinstance(top_marketcap, str):
+            raise Exception(top_marketcap)
+
+        # coinbase client connection
         client = coinbase_client(
             item.coinbase_access_token,
             item.coinbase_refresh_token
         )
-
         ic(client)
 
-        # coinbase currencies
-        coinbase_currencies = coinbase_currencies(client)
+        # coinbase supported currencies
+        currencies = coinbase_currencies(client)
+        ic(currencies)
+        if 'error' in currencies:
+            raise Exception(currencies['error']['message'])
 
-        if 'error' in coinbase_currencies:
-            raise Exception(coinbase_currencies['error']['message'])
-
-        # coinmarketcap top X currencies
-        top_currencies = coinmarketcap_currencies(
-            item.coinmarketcap_key,
-            thresholds['coinmarketcap_currencies']
+        # add top coinmarketcap currencies and coinbase currencies
+        top_currencies = aggregate_currencies(
+            top_marketcap,
+            currencies,
+            thresholds['odd_fiats']
         )
-
-        coinbase_currencies = {k: 1 for (k, v) in coinbase_currencies.items()
-                               if v == 0.01 or k in coinbase_odd_fiats()}
-
-        top_currencies.update(coinbase_currencies)
-        top_currencies = list(top_currencies.keys())
         ic(top_currencies)
 
         # set native currency to USD
         native = coinbase_native_currency(client)
-        ic(native)
-
         if 'error' in native:
             raise Exception(native['error']['message'])
-
         if native != 'USD':
             set_native = coinbase_set_native_currency(client, 'USD')
-            ic(set_native)
+        ic(native)
 
         # data fetching
-        coinbase_acc = coinbase_accounts(client)
-
-        if 'error' in coinbase_acc:
-            raise Exception(coinbase_acc['error']['message'])
-
-        # data formatting
-        coinbase_acc = [n for n in coinbase_acc
-                        if n['currency'] in top_currencies]
-
-        coinbase_txn = [coinbase_transactions(client, n['id'])
-                        for n in coinbase_acc]
-
-        coinbase_txn = [x for n in coinbase_txn for x in n]
-
-        coinbase_txn = [n for n in coinbase_txn
-                        if n['status'] == 'completed'
-                        and n['type'] in coinbase_txn_types()]
-
-        for d in coinbase_txn:  # relabel transaction types
-            if d['type'] == 'send' and np.sign(float(d['amount']['amount'])) == 1:
-                d['type'] = 'send_credit'
-
-            elif d['type'] == 'send' and np.sign(float(d['amount']['amount'])) == -1:
-                d['type'] = 'send_debit'
+        accounts, transactions = coinbase_accounts_and_transactions(
+            client,
+            top_currencies,
+            thresholds['transaction_types']
+        )
+        ic(accounts)
+        ic(transactions)
+        if isinstance(accounts, str):
+            raise Exception(accounts)
 
         # reset native currency
         set_native = coinbase_set_native_currency(client, native)
@@ -259,23 +277,44 @@ async def credit_score_coinbase(item: Coinbase_Item):
 
         # compute score and feedback
         score, feedback = coinbase_score(
-            coinbase_acc,
-            coinbase_txn,
+            score_range,
             feedback,
-            models
+            models,
+            metrics,
+            params,
+            accounts,
+            transactions
         )
+        ic(score)
+        ic(feedback)
 
         # compute risk
-        risk = calc_risk(score)
+        risk = calc_risk(
+            score,
+            score_range,
+            loan_range
+        )
 
         # update feedback
         message = qualitative_feedback_coinbase(
+            messages,
             score,
             feedback,
+            score_range,
+            loan_range,
+            qualitative_range,
             item.coinapi_key
         )
 
-        feedback = interpret_score_coinbase(score, feedback)
+        feedback = interpret_score_coinbase(
+            score,
+            feedback,
+            score_range,
+            loan_range,
+            qualitative_range
+        )
+        ic(message)
+        ic(feedback)
 
         # return success
         status_code = 200
@@ -301,8 +340,8 @@ async def credit_score_coinbase(item: Coinbase_Item):
             'timestamp': timestamp,
             'score': int(score),
             'risk': risk,
-            'feedback': feedback,
-            'message': message
+            'message': message,
+            'feedback': feedback
         }
 
         if score == 0:
@@ -324,16 +363,24 @@ async def credit_score_binance(item: Binance_Item):
         configs = read_config_file(item.loan_request)
 
         loan_range = configs['loan_range']
-        thresholds = configs['minimum_requirements']['coinbase']['thresholds']
+        score_range = configs['score_range']
+        qualitative_range = configs['qualitative_range']
+
+        thresholds = configs['minimum_requirements']['binance']['thresholds']
+        params = configs['minimum_requirements']['binance']['params']
 
         models, metrics = read_models_and_metrics(
-            configs['minimum_requirements']['coinbase']['scores']['models'])
+            configs['minimum_requirements']['binance']['scores']['models'])
 
         feedback = create_feedback(models)
 
         ic(loan_range)
+        ic(score_range)
+        ic(qualitative_range)
+
         ic(models)
         ic(metrics)
+
         ic(feedback)
 
         # client connection
@@ -371,7 +418,7 @@ async def credit_score_binance(item: Binance_Item):
         )
 
         # compute risk
-        # risk = calc_risk(score)
+        # risk = calc_risk(score, score_range, loan_range)
 
         # update feedback
         # message = qualitative_feedback_binance(
@@ -409,8 +456,8 @@ async def credit_score_binance(item: Binance_Item):
             'timestamp': timestamp,
             'score': int(score),
             'risk': risk,
-            'feedback': feedback,
-            'message': message
+            'message': message,
+            'feedback': feedback
         }
 
         if score == 0:

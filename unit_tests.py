@@ -1,6 +1,6 @@
-import unittest
 from testing.tests.test_coinbase import *
 from testing.tests.test_plaid import *
+import unittest
 
 
 # Run the actual tests bundling classes of test cases into test suites

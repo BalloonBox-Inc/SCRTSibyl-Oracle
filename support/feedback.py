@@ -1,12 +1,5 @@
 from market.coinapi import *
-from config.params import *
 import numpy as np
-
-
-# Scoring grids (identical for both Plaid and Coinbase)
-score_bins = score_range()
-loan_bins = loan_range()
-score_quality = qualitative_range()
 
 
 # Some helper functions
@@ -21,40 +14,39 @@ def comma_separated_list(l):
 
     return msg
 
+
 # -------------------------------------------------------------------------- #
 #                                   Plaid                                    #
 # -------------------------------------------------------------------------- #
 
-
 def create_interpret_plaid():
     '''
    Description:
-        Initializes a dict with a concise summary to communicate and interpret the SCRTsibyl score. 
+        Initializes a dict with a concise summary to communicate and interpret the NEARoracle score. 
         It includes the most important metrics used by the credit scoring algorithm (for Plaid).
     '''
-    return {'score':
-            {
-                'score_exist': False,
-                'points': None,
-                'quality': None,
-                'loan_amount': None,
-                'loan_duedate': None,
-                'card_names': None,
-                'cum_balance': None,
-                'bank_accounts': None
-            },
-            'advice':
-            {
-                'credit_exist': False,
-                'credit_error': False,
-                'velocity_error': False,
-                'stability_error': False,
-                'diversity_error': False
-            }
-            }
+    return {
+        'score': {
+            'score_exist': False,
+            'points': None,
+            'quality': None,
+            'loan_amount': None,
+            'loan_duedate': None,
+            'card_names': None,
+            'cum_balance': None,
+            'bank_accounts': None
+        },
+        'advice': {
+            'credit_exist': False,
+            'credit_error': False,
+            'velocity_error': False,
+            'stability_error': False,
+            'diversity_error': False
+        }
+    }
 
 
-def interpret_score_plaid(score, feedback):
+def interpret_score_plaid(score, feedback, score_range, loan_range, quality_range):
     '''
     Description:
         returns a dict explaining the meaning of the numerical score
@@ -71,13 +63,16 @@ def interpret_score_plaid(score, feedback):
         interpret = create_interpret_plaid()
 
         # Score
-        if not feedback['fetch']:
+        if feedback['fetch']:
+            interpret['score']['points'] = 300
+            interpret['score']['quality'] = 'very poor'
+        else:
             interpret['score']['score_exist'] = True
             interpret['score']['points'] = int(score)
-            interpret['score']['quality'] = score_quality[np.digitize(
-                score, score_bins, right=False)]
+            interpret['score']['quality'] = quality_range[np.digitize(
+                score, score_range, right=False)]
             interpret['score']['loan_amount'] = int(
-                loan_bins[np.digitize(score, score_bins, right=False)])
+                loan_range[np.digitize(score, score_range, right=False)])
 
             if ('loan_duedate' in list(feedback['stability'].keys())):
                 interpret['score']['loan_duedate'] = int(
@@ -116,7 +111,7 @@ def interpret_score_plaid(score, feedback):
         return interpret
 
 
-def qualitative_feedback_plaid(score, feedback, api_key):
+def qualitative_feedback_plaid(messages, score, feedback, score_range, loan_range, quality_range, api_key):
     '''
     Description:
         A function to format and return a qualitative description of the numerical score obtained by the user
@@ -134,27 +129,22 @@ def qualitative_feedback_plaid(score, feedback, api_key):
 
     all_keys = [x for y in [list(feedback[k].keys())
                             for k in feedback.keys()] for x in y]
-
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if feedback['fetch']:
-        msg = no_score_message()['plaid']
+        msg = messages['failed']
 
     # Case #2: a score exists. Return descriptive score feedback
     else:
         # Declare score variables
-        quality = score_quality[np.digitize(score, score_bins, right=False)]
+        quality = quality_range[np.digitize(score, score_range, right=False)]
         points = int(score)
         loan_amount = int(
-            loan_bins[np.digitize(score, score_bins, right=False)])
+            loan_range[np.digitize(score, score_range, right=False)])
 
         # Communicate the score
         scrt_rate = coinexchange_rate('SCRT', 'USD', api_key)
-        msg = score_message(
-            quality.upper(),
-            points,
-            '{:,.0f}'.format(loan_amount/scrt_rate),
-            '{:,.0f}'.format(loan_amount)
-        )
+        msg = messages['success'].format(
+            quality.upper(), points, int(round(loan_amount/scrt_rate, 0)), loan_amount)
 
         if ('loan_duedate' in list(feedback['stability'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments'.format(
@@ -163,14 +153,14 @@ def qualitative_feedback_plaid(score, feedback, api_key):
         # Interpret the score
         # Credit cards
         if ('card_names' in all_keys) and (feedback['credit']['card_names']):
-            msg = msg + '. Part of your score is based on the transaction history of your {} credit card'.format(
+            msg = msg + ' Part of your score is based on the transaction history of your {} credit card'.format(
                 ', '.join([c for c in feedback['credit']['card_names']]))
             if len(feedback['credit']['card_names']) > 1:
                 msg = msg + 's'
 
         # Tot balance now
         if 'cumulative_current_balance' in all_keys:
-            msg = msg + '. Your total current balance is ${:,.0f} USD across all accounts held with {}'.format(
+            msg = msg + ' Your total current balance is ${:,.0f} USD across all accounts held with {}'.format(
                 feedback['stability']['cumulative_current_balance'], feedback['diversity']['bank_name'])
 
         # ADVICE
@@ -180,21 +170,21 @@ def qualitative_feedback_plaid(score, feedback, api_key):
 
             # Subcase #1.1: the error is that no credit card exists
             if 'no credit card' in list(feedback['credit'].values()):
-                msg = msg + '. SCRTsibyl found no credit card associated with your bank account. Credit scores rely heavily on credit card history. Improve your score by selecting a different bank account which shows credit history'
+                msg = msg + ' SCRTsibyl found no credit card associated with your bank account. Credit scores rely heavily on credit card history. Improve your score by selecting a different bank account which shows credit history'
 
             # Subcase #1.2: the error is elsewhere
             else:
                 metrics_w_errors = [k for k in feedback.keys(
                 ) if 'error' in list(feedback[k].keys())]
-                msg = msg + '. An error occurred while computing the score metric called {}. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one'.format(
+                msg = msg + ' An error occurred while computing the score metric called {}. As a result, your score was rounded down. Try again later or select an alternative bank account if you have one'.format(
                     comma_separated_list(metrics_w_errors))
 
     return msg + '.'
 
+
 # -------------------------------------------------------------------------- #
 #                                  Coinbase                                  #
 # -------------------------------------------------------------------------- #
-
 
 def create_interpret_coinbase():
     '''
@@ -202,27 +192,26 @@ def create_interpret_coinbase():
         Initializes a dict with a concise summary to communicate and interpret the SCRTsibyl score. 
         It includes the most important metrics used by the credit scoring algorithm (for Coinbase).
     '''
-    return {'score':
-            {
-                'score_exist': False,
-                'points': None,
-                'quality': None,
-                'loan_amount': None,
-                'loan_duedate': None,
-                'wallet_age(days)': None,
-                'current_balance': None
-            },
-            'advice':
-            {
-                'kyc_error': False,
-                'history_error': False,
-                'liquidity_error': False,
-                'activity_error': False
-            }
-            }
+    return {
+        'score': {
+            'score_exist': False,
+            'points': None,
+            'quality': None,
+            'loan_amount': None,
+            'loan_duedate': None,
+            'wallet_age(days)': None,
+            'current_balance': None
+        },
+        'advice': {
+            'kyc_error': False,
+            'history_error': False,
+            'liquidity_error': False,
+            'activity_error': False
+        }
+    }
 
 
-def interpret_score_coinbase(score, feedback):
+def interpret_score_coinbase(score, feedback, score_range, loan_range, quality_range):
     '''
     Description:
         returns a dict explaining the meaning of the numerical score
@@ -239,13 +228,16 @@ def interpret_score_coinbase(score, feedback):
         interpret = create_interpret_coinbase()
 
         # Score
-        if ('kyc' not in feedback.keys()) & (feedback['kyc']['verified'] == True):
+        if ('kyc' in feedback.keys()) & (feedback['kyc']['verified'] == False):
+            interpret['score']['points'] = 300
+            interpret['score']['quality'] = 'very poor'
+        else:
             interpret['score']['score_exist'] = True
             interpret['score']['points'] = int(score)
-            interpret['score']['quality'] = score_quality[np.digitize(
-                score, score_bins, right=False)]
+            interpret['score']['quality'] = quality_range[np.digitize(
+                score, score_range, right=False)]
             interpret['score']['loan_amount'] = int(
-                loan_bins[np.digitize(score, score_bins, right=False)])
+                loan_range[np.digitize(score, score_range, right=False)])
             interpret['score']['loan_duedate'] = int(
                 feedback['liquidity']['loan_duedate'])
 
@@ -275,7 +267,7 @@ def interpret_score_coinbase(score, feedback):
         return interpret
 
 
-def qualitative_feedback_coinbase(score, feedback, api_key):
+def qualitative_feedback_coinbase(messages, score, feedback, score_range, loan_range, quality_range, api_key):
     '''
     Description:
         A function to format and return a qualitative description of the numerical score obtained by the user
@@ -290,29 +282,24 @@ def qualitative_feedback_coinbase(score, feedback, api_key):
     '''
 
     # SCORE
-
     all_keys = [x for y in [list(feedback[k].keys())
                             for k in feedback.keys()] for x in y]
     # Case #1: NO score exists. Return fetch error when the Oracle did not fetch any data and computed no score
     if ('kyc' in feedback.keys()) & (feedback['kyc']['verified'] == False):
-        msg = no_score_message()['coinbase']
+        msg = messages['failed']
 
     # Case #2: a score exists. Return descriptive score feedback
     else:
         # Declare score variables
-        quality = score_quality[np.digitize(score, score_bins, right=False)]
+        quality = quality_range[np.digitize(score, score_range, right=False)]
         points = int(score)
         loan_amount = int(
-            loan_bins[np.digitize(score, score_bins, right=False)])
+            loan_range[np.digitize(score, score_range, right=False)])
 
         # Communicate the score
         scrt_rate = coinexchange_rate('SCRT', 'USD', api_key)
-        msg = score_message(
-            quality.upper(),
-            points,
-            '{:,.0f}'.format(loan_amount/scrt_rate),
-            '{:,.0f}'.format(loan_amount)
-        )
+        msg = messages['success'].format(
+            quality.upper(), points, int(round(loan_amount/scrt_rate, 0)), loan_amount)
 
         if ('loan_duedate' in list(feedback['liquidity'].keys())):
             msg = msg + ' over a recommended pay back period of {0} monthly installments'.format(
@@ -321,16 +308,16 @@ def qualitative_feedback_coinbase(score, feedback, api_key):
         # Coinbase account duration
         if ('wallet_age(days)' in all_keys):
             if ('current_balance' in all_keys):
-                msg = msg + '. Your Coinbase account has been active for {} days and your total balance across all wallets is ${:,.0f} USD'.format(
+                msg = msg + ' Your Coinbase account has been active for {} days and your total balance across all wallets is ${:,.0f} USD'.format(
                     feedback['history']['wallet_age(days)'], feedback['liquidity']['current_balance'])
             else:
-                msg = msg + '. Your Coinbase account has been active for {} days'.format(
+                msg = msg + ' Your Coinbase account has been active for {} days'.format(
                     feedback['history']['wallet_age(days)'])
 
         # Tot balance
         else:
             if ('current_balance' in all_keys):
-                msg = msg + '. Your total balance across all wallets is ${} USD'.format(
+                msg = msg + ' Your total balance across all wallets is ${} USD'.format(
                     feedback['liquidity']['current_balance'])
 
         # ADVICE
@@ -339,11 +326,7 @@ def qualitative_feedback_coinbase(score, feedback, api_key):
         if 'error' in all_keys:
             metrics_w_errors = [k for k in feedback.keys(
             ) if 'error' in list(feedback[k].keys())]
-            msg = msg + '. An error occurred while computing the score metric called {}. As a result, your score was rounded down. Try to log into Coinbase again later'.format(
+            msg = msg + ' An error occurred while computing the score metric called {}. As a result, your score was rounded down. Try to log into Coinbase again later'.format(
                 comma_separated_list(metrics_w_errors))
 
     return msg + '.'
-
-# -------------------------------------------------------------------------- #
-#                                  Binance                                   #
-# -------------------------------------------------------------------------- #
