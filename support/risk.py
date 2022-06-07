@@ -5,7 +5,7 @@ def calc_risk(score, score_arr, loan_arr):
 
     # when score is equal to one of the bin separators, treat it as if it was in the lower bin
     if score in score_arr and score >= 301:
-        score = score - 1
+        score = score + 1
 
     # split score bin equally into three qualitative levels of risk
     lower_score = score_arr[score_arr <= score][-1]
