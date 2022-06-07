@@ -355,116 +355,116 @@ async def credit_score_coinbase(item: Coinbase_Item):
 
 
 # @measure_time_and_memory
-@app.post('/credit_score/binance')
-async def credit_score_binance(item: Binance_Item):
+# @app.post('/credit_score/binance')
+# async def credit_score_binance(item: Binance_Item):
 
-    try:
-        # configs
-        configs = read_config_file(item.loan_request)
+#     try:
+#         # configs
+#         configs = read_config_file(item.loan_request)
 
-        loan_range = configs['loan_range']
-        score_range = configs['score_range']
-        qualitative_range = configs['qualitative_range']
+#         loan_range = configs['loan_range']
+#         score_range = configs['score_range']
+#         qualitative_range = configs['qualitative_range']
 
-        thresholds = configs['minimum_requirements']['binance']['thresholds']
-        params = configs['minimum_requirements']['binance']['params']
+#         thresholds = configs['minimum_requirements']['binance']['thresholds']
+#         params = configs['minimum_requirements']['binance']['params']
 
-        models, metrics = read_models_and_metrics(
-            configs['minimum_requirements']['binance']['scores']['models'])
+#         models, metrics = read_models_and_metrics(
+#             configs['minimum_requirements']['binance']['scores']['models'])
 
-        feedback = create_feedback(models)
+#         feedback = create_feedback(models)
 
-        ic(loan_range)
-        ic(score_range)
-        ic(qualitative_range)
+#         ic(loan_range)
+#         ic(score_range)
+#         ic(qualitative_range)
 
-        ic(models)
-        ic(metrics)
+#         ic(models)
+#         ic(metrics)
 
-        ic(feedback)
+#         ic(feedback)
 
-        # client connection
-        client = binance_client(
-            item.binance_api_key,
-            item.binance_api_secret,
-        )
+#         # client connection
+#         client = binance_client(
+#             item.binance_api_key,
+#             item.binance_api_secret,
+#         )
 
-        ic(client)
+#         ic(client)
 
-        # data fetching
-        # binance_balance = binance_spot_balance(client, item.coinapi_key)
-        # ic(binance_balance)
-        # if isinstance(binance_balance, str):
-        #     raise Exception('Unable to connect with Binance')
+#         # data fetching
+#         # binance_balance = binance_spot_balance(client, item.coinapi_key)
+#         # ic(binance_balance)
+#         # if isinstance(binance_balance, str):
+#         #     raise Exception('Unable to connect with Binance')
 
-        binance_balance = 0
-        binance_wallet = 0
-        binance_savings = 0
-        binance_trades = 0
-        binance_savings = 0
-        binance_nfts = 0
-        binance_swaps = 0
+#         binance_balance = 0
+#         binance_wallet = 0
+#         binance_savings = 0
+#         binance_trades = 0
+#         binance_savings = 0
+#         binance_nfts = 0
+#         binance_swaps = 0
 
-        # compute score and feedback
-        score, feedback = binance_score(
-            binance_balance,
-            binance_wallet,
-            binance_trades,
-            binance_savings,
-            binance_nfts,
-            binance_swaps,
-            feedback,
-            models
-        )
+#         # compute score and feedback
+#         score, feedback = binance_score(
+#             binance_balance,
+#             binance_wallet,
+#             binance_trades,
+#             binance_savings,
+#             binance_nfts,
+#             binance_swaps,
+#             feedback,
+#             models
+#         )
 
-        # compute risk
-        # risk = calc_risk(score, score_range, loan_range)
+#         # compute risk
+#         # risk = calc_risk(score, score_range, loan_range)
 
-        # update feedback
-        # message = qualitative_feedback_binance(
-        #     score,
-        #     feedback,
-        #     item.coinapi_key
-        # )
+#         # update feedback
+#         # message = qualitative_feedback_binance(
+#         #     score,
+#         #     feedback,
+#         #     item.coinapi_key
+#         # )
 
-        # feedback = interpret_score_binance(score, feedback)
+#         # feedback = interpret_score_binance(score, feedback)
 
-        # return success
-        status_code = 200
-        status = 'success'
-        risk = {}
-        feedback = {}
-        message = {}
+#         # return success
+#         status_code = 200
+#         status = 'success'
+#         risk = {}
+#         feedback = {}
+#         message = {}
 
-    except Exception as e:
-        status_code = 400
-        status = 'error'
-        score = 0
-        risk = {}
-        feedback = {}
-        message = str(e)
+#     except Exception as e:
+#         status_code = 400
+#         status = 'error'
+#         score = 0
+#         risk = {}
+#         feedback = {}
+#         message = str(e)
 
-    finally:
-        timestamp = datetime.now(timezone.utc).strftime(
-            '%m-%d-%Y %H:%M:%S GMT')
+#     finally:
+#         timestamp = datetime.now(timezone.utc).strftime(
+#             '%m-%d-%Y %H:%M:%S GMT')
 
-        output = {
-            'endpoint': '/credit_score/binance',
-            'title': 'Credit Score',
-            'status_code': status_code,
-            'status': status,
-            'timestamp': timestamp,
-            'score': int(score),
-            'risk': risk,
-            'message': message,
-            'feedback': feedback
-        }
+#         output = {
+#             'endpoint': '/credit_score/binance',
+#             'title': 'Credit Score',
+#             'status_code': status_code,
+#             'status': status,
+#             'timestamp': timestamp,
+#             'score': int(score),
+#             'risk': risk,
+#             'message': message,
+#             'feedback': feedback
+#         }
 
-        if score == 0:
-            output.pop('score', None)
-            output.pop('risk', None)
-            output.pop('feedback', None)
+#         if score == 0:
+#             output.pop('score', None)
+#             output.pop('risk', None)
+#             output.pop('feedback', None)
 
-        ic(output)
+#         ic(output)
 
-        return output
+#         return output
