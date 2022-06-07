@@ -42,7 +42,7 @@ def plaid_score(score_range, feedback, model_weights, model_penalties, metric_we
     b = [credit, velocity, stability, diversity]
 
     head, tail = head_tail_list(score_range)
-    score = tail + (head-tail)*(dot_product(a, b))
+    score = head + (tail-head)*(dot_product(a, b))
 
     return score, feedback
 
@@ -69,6 +69,6 @@ def coinbase_score(score_range, feedback, model_weights, metric_weigths, params,
     b = [kyc, history, liquidity, activity]
 
     head, tail = head_tail_list(score_range)
-    score = tail + (head-tail)*(dot_product(a, b))
+    score = head + (tail-head)*(dot_product(a, b))
 
     return score, feedback
