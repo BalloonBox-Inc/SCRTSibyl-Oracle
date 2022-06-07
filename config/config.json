@@ -5,7 +5,7 @@
             "maximum_amount": 25000,
             "loan_range": [0, 500, 1000, 5000, 10000, 15000, 20000, 25000],
             "score_range": [300, 500, 560, 650, 740, 800, 870, 900],
-            "qualitative_range": ["very poor", "poor", "fair", "good", "very good", "excellent", "exceptional"],
+            "qualitative_range": ["out of bounds", "very poor", "poor", "fair", "good", "very good", "excellent", "exceptional"],
             "minimum_requirements": {
                 "plaid": {
                     "thresholds": {
@@ -171,38 +171,149 @@
             "maximum_amount": 50000,
             "loan_range": [25000, 30000, 34000, 38000, 42000, 45000, 48000, 50000],
             "score_range": [300, 500, 560, 650, 740, 800, 870, 900],
-            "qualitative_range": ["very poor", "poor", "fair", "good", "very good", "excellent", "exceptional"],
+            "qualitative_range": ["out of bounds", "very poor", "poor", "fair", "good", "very good", "excellent", "exceptional"],
             "minimum_requirements": {
                 "plaid": {
                     "thresholds": {
                         "transactions_period": 720
                     },
                     "scores": {
-                        "models": {}
+                        "models": {
+                            "credit": {
+                                "weight": 0.45,
+                                "penalty_weight": 0.0,
+                                "metrics": {
+                                    "limit": 0.45,
+                                    "util_ratio": 0.12,
+                                    "interest": 0.05,
+                                    "length": 0.26,
+                                    "livelihood": 0.12
+                                }
+                            },
+                            "velocity": {
+                                "weight": 0.2,
+                                "penalty_weight": 0.33,
+                                "metrics": {
+                                    "withdrawals": 0.16,
+                                    "deposits": 0.25,
+                                    "net_flow": 0.25,
+                                    "txn_count": 0.16,
+                                    "slope": 0.18
+                                }
+                            },
+                            "stability": {
+                                "weight": 0.25,
+                                "penalty_weight": 0.42,
+                                "metrics": {
+                                    "balance": 0.7,
+                                    "running_balance": 0.3
+                                }
+                            },
+                            "diversity": {
+                                "weight": 0.1,
+                                "penalty_weight": 0.2,
+                                "metrics": {
+                                    "acc_count": 0.4,
+                                    "profile": 0.6
+                                }
+                            }
+                        }
                     },
                     "params": {
-                        "metrics": {},
-                        "matrices": {}
+                        "metrics": {
+                            "due_date": [3, 4, 5],
+                            "duration": [90, 120, 150, 180, 210, 270],
+                            "count_zero": [1, 2],
+                            "count_invest": [1, 2, 3, 4, 5, 6],
+                            "volume_credit": [0.5, 1, 5, 8, 13, 18],
+                            "volume_invest": [0.5, 1, 2, 4, 6, 8],
+                            "volume_balance": [3, 5, 9, 12, 15, 18],
+                            "flow_ratio": [0.7, 1, 1.4, 2, 3, 4],
+                            "slope": [0.5, 0.8, 1, 1.3, 1.6, 2],
+                            "slope_lr": [-0.5, 0, 0.5, 1, 1.5, 2]
+                        },
+                        "matrices": {
+                            "activity_volume": {
+                                "shape": [7, 7],
+                                "scalars": [3.03, 1.17]
+                            },
+                            "activity_consistency": {
+                                "shape": [7, 7],
+                                "scalars": [1.85, 1.55]
+                            },
+                            "credit_mix": {
+                                "shape": [3, 7],
+                                "scalars": [1.2, 1.4]
+                            },
+                            "diversity_velocity": {
+                                "shape": [3, 7],
+                                "scalars": [1.73, 1.17]
+                            }
+                        }
                     },
                     "messages": {
-                        "failed": "",
-                        "success": ""
+                        "failed": "SCRT Sibyl could not calculate your credit score as there is no active credit line nor transaction history associated with your Plaid bank account. Please use a different bank account.",
+                        "success": "Congrats! Your SCRT Sibyl score is {} - {} points. This score qualifies you for a short term loan of up to {} SCRT which is equivalent to {} USD"
                     }
                 },
                 "coinbase": {
                     "thresholds": {
-                        "coinmarketcap_currencies": 25
+                        "coinmarketcap_currencies": 25,
+                        "transaction_types": ["fiat_deposit", "request", "buy", "fiat_withdrawal", "vault_withdrawal", "sell", "send"],
+                        "odd_fiats": ["BHD", "BIF", "BYR", "CLP", "DJF", "GNF", "HUF", "IQD", "ISK", "JOD", "JPY", "KMF", "KRW", "KWD",
+                            "LYD", "MGA", "MRO", "OMR", "PYG", "RWF", "TND", "UGX", "VND", "VUV", "XAF", "XOF", "XPF"]
                     },
                     "scores": {
-                        "models": {}
+                        "models": {
+                            "kyc": {
+                                "weight": 0.1,
+                                "metrics": {}
+                            },
+                            "history": {
+                                "weight": 0.1,
+                                "metrics": {}
+                            },
+                            "liquidity": {
+                                "weight": 0.4,
+                                "metrics": {
+                                    "balance": 0.6,
+                                    "running_balance": 0.4
+                                }
+                            },
+                            "activity": {
+                                "weight": 0.4,
+                                "metrics": {
+                                    "credit_volume": 0.2,
+                                    "debit_volume": 0.2,
+                                    "credit_consistency": 0.2,
+                                    "debit_consistency": 0.2,
+                                    "inception": 0.2
+                                }
+                            }
+                        }
                     },
                     "params": {
-                        "metrics": {},
-                        "matrices": {}
+                        "metrics": {
+                            "due_date": [3, 4, 5],
+                            "duration": [90, 120, 150, 180, 210, 270],
+                            "volume_balance": [5, 6.5, 8.5, 11, 13, 15],
+                            "volume_profit": [0.5, 1, 2, 2.5, 3, 4],
+                            "count_txn": [10, 20, 30, 35, 40, 50]
+                        },
+                        "matrices": {
+                            "activity_volume": {
+                                "shape": [7, 7],
+                                "scalars": [3.03, 1.17]
+                            },
+                            "activity_consistency": {
+                                "shape": [7, 7],
+                                "scalars": [1.85, 1.55]
+                            }
+                        }
                     },
                     "messages": {
-                        "failed": "",
-                        "success": ""
+                        "failed": "SCRT Sibyl could not calculate your credit score as there is no active wallet nor transaction history associated with your Coinabse account. Please use a different account.",
+                        "success": "Congrats! Your SCRT Sibyl score is {} - {} points. This score qualifies you for a short term loan of up to {} SCRT which is equivalent to {} USD"
                     }
                 },
                 "binance": {
@@ -226,7 +337,7 @@
             "maximum_amount": 100000,
             "loan_range": [50000, 60000, 70000, 80000, 85000, 90000, 95000, 100000],
             "score_range": [300, 500, 560, 650, 740, 800, 870, 900],
-            "qualitative_range": ["very poor", "poor", "fair", "good", "very good", "excellent", "exceptional"],
+            "qualitative_range": ["out of bounds", "very poor", "poor", "fair", "good", "very good", "excellent", "exceptional"],
             "minimum_requirements": {
                 "plaid": {
                     "thresholds": {
